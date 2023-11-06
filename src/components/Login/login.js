@@ -4,7 +4,7 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { login } from "../../apis/loginApi/loginApi";
+import { login } from "../../apis/login/login.js";
 import { useSelector, useDispatch } from "react-redux";
 import { Navigate } from "react-router-dom";
 import { Fade } from '@mui/material'
@@ -20,6 +20,7 @@ export default function Login({ loginData, setLoginData }) {
   const [error, setError] = useState({});
   const [visible, setVisible] = useState(true)
   const [loading, setLoading] = React.useState(false)
+  const [buttonDisabled, setButtonDisabled] = useState(false);
   const auth = useSelector((state) => state.AuthReducer);
 
   const regexExp = /^[6-9]\d{9}$/;
@@ -56,30 +57,47 @@ export default function Login({ loginData, setLoginData }) {
     }
   };
 
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   setError(validate(loginData));
+  //   setLoading(true)
+  //   setTimeout(() => {
+  //     setLoading(false)
+  //   }, 250)
+
+  //   if (regexExp.test(loginData?.phoneNumber)) {
+      
+  //     const loginRes = await login(loginData);
+  //     setLoading(true)
+  //     if (loginRes.status === 200) {
+  //       setVisible(!visible);
+  //       setLoginData({ ...loginData, otpSent: true });
+  //       setTimeout(() => {
+  //         setLoading(false)
+  //       }, 250)
+  //     } else {
+  //       alert("Number was not registered")
+  //     }
+  //   }
+  // }
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(validate(loginData));
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-  }, 250)
-
+    setButtonDisabled(true); 
     if (regexExp.test(loginData?.phoneNumber)) {
-      setVisible(!visible);
+      setLoading(true);
       const loginRes = await login(loginData);
-      setLoading(true)
-      if(loginRes.status === 200){
-        console.log(loginRes)
-        // setResponse(loginRes.data);
+  
+      if (loginRes.status === 200) {
+        setVisible(!visible);
         setLoginData({ ...loginData, otpSent: true });
-        setTimeout(() => {
-          setLoading(false)
-      }, 250)
-      }else{
-        alert("Number was not registered")
+      } else {
+        alert("Number was not registered");
       }
+      setLoading(false);
     }
-  }
+  };
 
   const validate = (values) => {
     let errors = {};
@@ -94,7 +112,7 @@ export default function Login({ loginData, setLoginData }) {
   };
   const formStyles = {
     width: { md: '35%', sm: '50%', xs: '85%', lg: '30%' },
-    height: { md: '65vh', sm: '65vh', xs: '65vh', lg: '65vh' },
+    height: { md: '65vh', sm: '65vh', xs: '65vh', lg: '60vh' },
     background: "white",
     padding: "16px",
     borderRadius: "10px",
@@ -103,7 +121,8 @@ export default function Login({ loginData, setLoginData }) {
     alignItems: "center",
     justifyContent: "center",
     transition: "opacity 0.5s",
-    padding: "10px"
+    padding: "10px",
+    boxShadow: "2px 2px 2px 2px rgb(222,226,230)"
   };
 
   const containerStyles = {
@@ -112,16 +131,16 @@ export default function Login({ loginData, setLoginData }) {
     justifyContent: "center",
     width: "100vw",
     height: "100vh",
-    background: 'linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 236, 210, 1))'
+    background: "linear-gradient(45deg, #e66465, #9198e5, #a1c4fd, #fbc2eb, #ff9a9e)",
   }
   const copyrightStyles = {
-    fontSize: "12px", 
-    fontFamily: 'Poppins, sans-serif', 
+    fontSize: "12px",
+    fontFamily: 'Poppins, sans-serif',
   };
 
   return (
     <Box sx={containerStyles}>
-      
+
       <Box
         component="form"
         noValidate
@@ -133,16 +152,16 @@ export default function Login({ loginData, setLoginData }) {
         <Typography variant="h5" component="h2" sx={{ p: 1, ...typographyStyles }}>
           Benaka Gold Company
         </Typography>
-        <Typography variant="h5" component="h2" sx={{ p: 1, ...typographyStyles  }}>
+        <Typography variant="h5" component="h2" sx={{ p: 1, ...typographyStyles }}>
           Welcome Back
         </Typography>
 
-        <Fade in={visible} timeout={500} unmountOnExit>
+        <Fade in={visible} timeout={500} style={{position : 'inherit'}} unmountOnExit >
           <Box sx={{ p: 2 }}>
             <TextField
               margin="normal"
               required
-              style={{ marginTop: "16px", width: "90%", margin: "10px", height: "50px", fontFamily:'Poppins, sans-serif' }}
+              style={{ marginTop: "16px", width: "90%", margin: "10px", height: "50px", fontFamily: 'Poppins, sans-serif' }}
               id="email"
               label="Enter Your Phone Number"
               name="phoneNumber"
@@ -156,15 +175,16 @@ export default function Login({ loginData, setLoginData }) {
             <Button
               variant="contained"
               color="primary"
-              style={{ marginTop: "16px", width: "90%", margin: "20px", height: "50px", fontFamily:'Poppins, sans-serif' }}
+              style={{ marginTop: "16px", width: "90%", margin: "20px", height: "50px", fontFamily: 'Poppins, sans-serif' }}
               onClick={handleSubmit}
+              disabled={buttonDisabled}
             >
               Get OTP
             </Button>
           </Box>
         </Fade>
 
-        <Fade in={!visible} timeout={500} unmountOnExit>
+        <Fade in={!visible} timeout={500} unmountOnExit style={{position : 'inherit'}}>
           <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Otp loginData={loginData} setLoginData={setLoginData} />
           </Box>

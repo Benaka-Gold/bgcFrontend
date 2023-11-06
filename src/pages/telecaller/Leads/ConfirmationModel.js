@@ -3,24 +3,23 @@ import { Box, Button } from '@mui/joy';
 import Modal from '@mui/material/Modal';
 import { ModalDialog } from '@mui/joy';
 import Typography from '@mui/material/Typography';
-import { assignLead } from '../../apis/leadsApi';
-import Loader from '../Loader';
+import { assignLead } from '../../../apis/leadsApi';
+import Loader from '../../../components/Loader';
 
 
-export default function ConfirmationModel({  selectedRows ,leadsData,userId, fetchTeamById}) {
+export default function ConfirmationModel({ selectedRows, leadsData, userId, fetchTeamById }) {
   const [open, setOpen] = React.useState(false);
-  const [selected,setSelected] = React.useState([])
+  const [selected, setSelected] = React.useState([])
   const [loading, setLoading] = React.useState(false)
- 
-  React.useEffect(()=>{console.log(selected);},[selectedRows,selected])
 
-  
+
+
   const confirmAssign = async () => {
     setOpen(false);
-    
+
     // Create an array to hold the selected leads
     const selectedLeads = [];
-    
+
     // Populate the array with the selected leads
     selectedRows.forEach(id => {
       leadsData.forEach((lead) => {
@@ -29,33 +28,34 @@ export default function ConfirmationModel({  selectedRows ,leadsData,userId, fet
         }
       });
     });
-    
+
     // Update the state with the selected leads
     setSelected(selectedLeads);
-    
+
     // Now loop through the selectedLeads array to call assignLead for each lead
     for (const lead of selectedLeads) {
       try {
 
         const res = await assignLead(lead._id, userId);
         setLoading(true)
-        if(res.success){
-          setTimeout(()=>{
+        if (res.success) {
+          setTimeout(() => {
             setLoading(false)
-            fetchTeamById()
-          },250)
+            
+          }, 250)
+          fetchTeamById()
         }
       } catch (error) {
-        console.error('Error assigning lead:', error);
+        alert("Something went wrong");
       }
     }
   };
-  
+
 
 
   return (
     <React.Fragment>
-      <Button variant="outlined" color="neutral" onClick={() => setOpen(true)} disabled={selectedRows.length <= 0 ? true : false} sx={{backgroundColor:"white"}}>
+      <Button variant="outlined" color="neutral" onClick={() => setOpen(true)} disabled={selectedRows.length <= 0 ? true : false} sx={{ backgroundColor: "white" }}>
         Assign Leads
       </Button>
       <Modal open={open} onClose={() => setOpen(false)}>

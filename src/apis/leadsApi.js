@@ -3,10 +3,19 @@ import apiClient from "./http";
 async function getLeads() {
   try {
     const response = await apiClient().get('/lead/getLeads');
-    // console.log(response.data);
     return response.data 
   }
   catch (err) {
+    return err;
+  }
+}
+
+async function getLeadsByTeam(team){
+  try{
+    const response = await apiClient().post('/lead/getTeamLeads',{teamId : team})
+    return response.data
+  }
+  catch(err){
     return err;
   }
 }
@@ -21,26 +30,7 @@ async function getLeadByUser(payload) {
   }
 }
 
-async function getTeams() {
-  try {
-    const response = await apiClient().get(`/teams`);
-    // console.log(response);
-    return response.data 
-  }
-  catch (err) {
-    return err;
-  }
-}
 
-async function getTeamsById(payload) {
-  try {
-    const response = await apiClient().get(`/users/${payload}`);
-    return response.data 
-  }
-  catch (err) {
-    return err;
-  }
-}
 
 async function assignLead(id,userId) {
   try {
@@ -66,6 +56,7 @@ async function updatedLeadApi(id,payload) {
 async function freshLeads(id) {
   try {
     const response = await apiClient().get(`/lead/getFreshLeads/${id}`);
+    console.log(response);
     return response.data 
   }
   catch (err) {
@@ -83,4 +74,14 @@ async function getMoveLeads(){
   }
 }
 
-export {getLeads, getLeadByUser, getTeams, getTeamsById, assignLead ,updatedLeadApi, freshLeads,getMoveLeads}
+async function createLead(data){
+  try {
+    const response = await apiClient().post('/lead/create',data)
+    return response.data
+  }
+  catch (err){
+    return err
+  }
+}
+
+export {getLeads, getLeadByUser, assignLead ,updatedLeadApi, freshLeads,getMoveLeads, createLead,getLeadsByTeam}

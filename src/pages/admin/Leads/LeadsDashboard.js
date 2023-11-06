@@ -2,6 +2,7 @@ import React from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { getLeads } from "../../../apis/leadsApi";
 import Loader from "../../../components/Loader";
+import { Typography, Box } from "@mui/material";
 
 export default function LeadsDashboard() {
 
@@ -44,7 +45,8 @@ export default function LeadsDashboard() {
         setLeads(leads)
     }
     return (
-        <div>
+        <Box sx={{ml: { sm: '240px', md: '240px', xs: 0, lg: '240px' }}}>
+            <Typography sx={{textAlign : 'left',p:2,fontFamily : 'Poppins, sans-serif'}} variant="h4">All Leads</Typography>
             <DataGrid
                 columns={columns}
                 rows={leads}
@@ -53,13 +55,13 @@ export default function LeadsDashboard() {
                         paginationModel: { page: 0, pageSize: 10 },
                     },
                 }}
-                sx={{ ml: { sm: '240px', md: '240px', xs: 0, lg: '240px' }, m: 1, mt: 0, boxShadow: 4 }}
+                sx={{ boxShadow: 4 }}
                 pageSizeOptions={[5, 10, 15]}
                 checkboxSelection
                 getRowId={(row) => row._id}
                
             />
             <Loader loading={loading}/>
-        </div>
+        </Box>
     )
 }

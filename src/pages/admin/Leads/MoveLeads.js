@@ -29,25 +29,27 @@ export default function MoveLeads(){
 
     const fetchData = async() => {
         const res = await getMoveLeads();
-        if(res.status === 200){
-            setRows(res.data.data)
+        if(res.success){
+            setRows(prevRows => res.data)
         }
     }   
 
     const handleApproved = async (data) => {
         const updatedLead = {
             assignedTeam : data.moveTo._id,
-            moveLead : false
+            moveLead : false,
+            assignedTo : null
         }
         // console.log({'_id' : data._id,updatedLead})
         setLoading(true)
         const res = await updatedLeadApi(data._id,updatedLead)
-        if(res.status === 200){
+        if(res.success){
             alert("Lead moved successfully")
             await fetchData()
         }
         else {
-            alert(res.data.error)
+            // alert(res.data.error)
+            console.log(res)
             await fetchData()
         }
         setLoading(false)

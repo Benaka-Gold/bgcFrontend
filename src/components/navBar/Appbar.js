@@ -2,13 +2,9 @@ import React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import ListItemIcon from "@mui/material/ListItemIcon";
-
 import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { Link } from "react-router-dom";
-import { Outlet } from "react-router-dom";
-import { Collapse } from "@mui/material";
 import { ArrowDropDownCircleOutlined } from "@mui/icons-material";
 import { deepOrange } from "@mui/material/colors";
 import Avatar from "@mui/material/Avatar";
@@ -24,7 +20,6 @@ import Logout from "@mui/icons-material/Logout";
 import { useDispatch } from "react-redux";
 
 function Appbar({ handleToggle }) {
-  const benakaLogo = "/logo/benakaLogo.png";
   const drawWidth = 240;
   let dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -41,11 +36,9 @@ function Appbar({ handleToggle }) {
   return (
     <div>
       <AppBar
-        position="fixed"
+        position="static"
         sx={{
-          width: { sm: `calc(100% - ${drawWidth}px)` },
-          ml: { sm: `${drawWidth}px` },
-          backgroundColor: "#2196f3",
+          backgroundColor: "#2169a1",
           padding:"0px"
         }}
       >
@@ -59,11 +52,7 @@ function Appbar({ handleToggle }) {
             <MenuIcon />
           </IconButton>
           <Box sx={{display:"flex", justifyContent:"center", alignItems:"center", gap:2}}>
-            <img
-              src={benakaLogo}
-              style={{ width: "60px", p: 2 }}
-              alt="Benaka logo"
-            />
+            
             <Typography variant="h6">Benaka Gold Company</Typography>
           </Box>
 

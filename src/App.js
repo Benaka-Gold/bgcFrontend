@@ -6,7 +6,8 @@ import {
 } from 'react-router-dom';
 import Protected from './components/authProtection/authProtection';
 import Hr from './components/HR/hr';
-import Telecaller from './components/tellecaller/dashboard';
+// import Telecaller from './components/tellecaller/Dashboard';
+import Tellecaller from './pages/telecaller/Dashboard'
 import Auth from './pages/auth';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import TeleCallerDashboard from './pages/telecaller/TelecallerDashboard'

@@ -17,6 +17,7 @@ import Appbar from "./Appbar";
 
 export default function Navbar({ data }) {
   const drawWidth = 240;
+  const benakaLogo = "/logo/benakaLogo.png";
   const [mobileViewOpen, setMobileViewOpen] = useState(false);
   const [open, setOpen] = useState({});
   const [activeItem, setActiveItem] = useState("Dashboard");
@@ -48,8 +49,13 @@ export default function Navbar({ data }) {
   };
 
   const responsiveDrawer = (
-    <div style={{ backgroundColor: "#222222", height: "100%", fontFamily: 'Poppins, sans-serif' }}>
-      <Toolbar />
+    <div style={{ backgroundColor: "#4B2F5C", height: "100%", fontFamily: 'Poppins, sans-serif' }}>
+      <img
+        src={benakaLogo}
+        style={{ width: "120px", p: 2 }}
+        alt="Benaka logo"
+      />
+
       <Divider />
       <List>
         {data.map((item, index) => (
@@ -62,10 +68,10 @@ export default function Navbar({ data }) {
                 sx={{
                   color: activeItem === item.name ? "white" : "inherit",
                   fontWeight: activeItem === item.name ? "bold" : "inherit",
-                  backgroundColor: activeItem === item.name ? "#2196f3" : "#222222",
-                  borderRadius:"10px",
-                  width:"90%",
-                  marginLeft:"10px"
+                  backgroundColor: activeItem === item.name && "#2169a1" ,
+                  borderRadius: "10px",
+                  width: "90%",
+                  marginLeft: "10px"
                 }}
                 onClick={() => {
                   handleSubMenuToggle(item.name);
@@ -127,7 +133,6 @@ export default function Navbar({ data }) {
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
 
-      <Appbar handleToggle={handleToggle} />
       <Box
         component="nav"
         sx={{
@@ -161,15 +166,16 @@ export default function Navbar({ data }) {
           {responsiveDrawer}
         </Drawer>
       </Box>
-      <Box
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${drawWidth}px)` },
-        }}
-      >
-        <Toolbar />
+
+      <Box component="main" sx={{
+        flexGrow: 1,
+        width: { sm: `calc(100% - ${drawWidth}px)` },
+      }}>
+        <Appbar handleToggle={handleToggle} />
+        <Box sx={{mt : 1}}>
         <Outlet />
+          
+        </Box>
       </Box>
     </Box>
   );

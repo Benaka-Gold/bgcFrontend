@@ -4,7 +4,7 @@ import { MuiOtpInput } from 'mui-one-time-password-input'
 import { useNavigate } from 'react-router-dom'
 import Button from "@mui/material/Button";
 import { useDispatch } from "react-redux"
-import { verifyLogin } from '../../apis/loginApi/loginApi';
+import { verifyLogin } from '../../apis/login/login';
 import Card from 'antd/es/card/Card';
 import { Box } from '@mui/material';
 import Loader from "../Loader";
@@ -45,34 +45,55 @@ const Otp = ({ loginData, setLoginData }) => {
       // console.log(false);
     }
   }, [otpRes])
+  // const loginFunc = async () => {
+  //   let payload = {
+  //     phoneNumber: loginData.phoneNumber,
+  //     otp: loginData.otp
+  //   }
+  //   if (loginData.otp !== " " && !loginData.otp.length < 6 && !isNaN(loginData.otp)) {
+  //     const response = await verifyLogin(payload)
+  //     console.log(response.status)
+  //     setLoading(true)
+
+  //     setTimeout(() => {
+  //       if (response.status === 200) {
+  //         dispatch({ type: "LOGGEDIN", payload: response.data })
+  //         setOtpRes(response.data)
+  //         setLoading(false)
+  //       } else {
+  //         alert(" Invalid OTP")
+  //       }
+  //     }, 250)
+  //   } else {
+  //     console.log(false);
+  //   }
+  // }
+
   const loginFunc = async () => {
     let payload = {
       phoneNumber: loginData.phoneNumber,
       otp: loginData.otp
-    }
-    if (loginData.otp !== " " && !loginData.otp.length < 6 && !isNaN(loginData.otp)) {
-      const response = await verifyLogin(payload)
-      console.log(response.status)
-      setLoading(true)
-
-      setTimeout(() => {
-        if (response.status === 200) {
-          dispatch({ type: "LOGGEDIN", payload: response.data })
-          setOtpRes(response.data)
-          setLoading(false)
-        } else {
-          alert(" Invalid OTP")
-        }
-      }, 250)
-
+    };
+  
+    if (loginData.otp !== " " && loginData.otp.length >= 6 && !isNaN(loginData.otp)) {
+      setLoading(true);
+      const response = await verifyLogin(payload);
+  
+      if (response.status === 200) {
+        dispatch({ type: "LOGGEDIN", payload: response.data });
+        setOtpRes(response.data);
+      } else {
+        alert("Invalid OTP");
+      }
+      setLoading(false);
     } else {
-      console.log(false);
+      console.log("OTP is invalid");
     }
-  }
+  };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", m: 1 }}>
-      <MuiOtpInput length={6} name="otp" value={loginData.otp} onChange={handleChange} sx={{ minWidth: "330px", margin: "auto", gap:"10px", marginLeft:"45px", marginRight:"45px" }} autoFocus />
+      <MuiOtpInput length={6} name="otp" value={loginData.otp} onChange={handleChange} sx={{ minWidth: "330px", margin: "auto", gap:"10px", marginLeft:"45px", marginRight:"45px", m:3 }} autoFocus />
       <Button
         type="submit"
         fullWidth

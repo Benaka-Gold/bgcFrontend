@@ -18,7 +18,6 @@ const AdminDashboard = () => {
     {name : 'Leads', link : 'leads', icon : <ListOutlined/>,element : <LeadsDashboard/>, children : [
     {name : 'Create / Upload Leads',link: 'leads/create', icon : <UploadFileOutlined/>},
     {name : 'Move Lead Requests', link: 'leads/move-lead',icon : <MoveDownOutlined/>},
-    
     ]}
 
   ]

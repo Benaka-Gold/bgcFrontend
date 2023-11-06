@@ -5,10 +5,11 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import ConfirmationModel from './confirmationModel';
-import { getLeads, getTeamsById, freshLeads } from '../../apis/leadsApi';
-import Loader from '../Loader';
-import './leadtable.css'
+import ConfirmationModel from './ConfirmationModel';
+import { getLeads,  freshLeads, getLeadsByTeam } from '../../../apis/leadsApi';
+import { getTeamsById } from '../../../apis/team';
+import Typography from "@mui/material/Typography";
+import Loader from '../../../components/Loader';
 
 const columns = [
   { field: 'name', headerName: 'Name', flex: 1 },
@@ -29,7 +30,7 @@ export default function LeadTable() {
 
   const fetchData = async () => {
     try {
-      let newVar = await getLeads();
+      let newVar = await getLeadsByTeam(items.teamId);
       setLeadsdata(newVar.data);
     } catch (error) {
       console.error("Error fetching data: ", error);
@@ -52,10 +53,13 @@ export default function LeadTable() {
       console.log(error);
     }
   }
-
   const newLeads = async () => {
     const res = await freshLeads(items.teamId)
-    setLeadsdata(res.data)
+    if(res.success){
+      setLeadsdata(res.data)
+    }else{
+      console.log(res);
+    }
   }
 
   React.useEffect(() => {
@@ -86,8 +90,10 @@ export default function LeadTable() {
   };
 
   return (
-    <Box sx={{ ml:{md: '240px', sm: '240px', xs: '0px', lg: '240px'}, p: 3 ,  fontFamily: 'Poppins, sans-serif', backgroundColor: "rgb(249,249,249)", height:"85vh" }}>
+    <Box sx={{ ml:{md: '240px', sm: '240px', xs: '0px', lg: '240px'}, p: 3 ,  fontFamily: 'Poppins, sans-serif' }}>
+     <Typography variant="h5">All Leads</Typography>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', p:1 }} gap={2}>
+      
         <FormControl sx={{ width: "100px" }} disabled={selectedRows.length <= 0 ? true : false} >
           <InputLabel id="demo-simple-select-label" sx={{ fontFamily: 'Poppins, sans-serif', backgroundColor:"white"}}>Team</InputLabel  >
           <Select

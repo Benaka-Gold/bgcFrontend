@@ -1,14 +1,12 @@
 import  React, {useState, useEffect} from 'react';
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import ButtonBase from '@mui/material/ButtonBase';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { getLeadByUser, updatedLeadApi } from '../../apis/leadsApi';
-import Loader from '../Loader';
+import { getLeadByUser } from '../../apis/leadsApi';
+import Loader from '../../components/Loader'
 import {useDispatch, useSelector} from "react-redux"
 import { useNavigate } from 'react-router-dom';
 
@@ -42,7 +40,7 @@ const countLeadsByType = (leads) => {
   return counts;
 };
 
-export default function Tellecaller() {
+export default function Dashboard() {
   const [allLeadData, setAllLeadData] = useState([]);
   const [leadCounts, setLeadCounts] = useState({
     confirmed: 0,
@@ -53,7 +51,6 @@ export default function Tellecaller() {
   const [loading, setLoading] = React.useState(false)
   const dispatch = useDispatch();
   const post = useSelector((state)=>state);
-  console.log(post.FilterReducer);
   let navigate = useNavigate()
 
 
@@ -62,7 +59,6 @@ export default function Tellecaller() {
     const fetchLeads = async () => {
       const userData = JSON.parse(localStorage.getItem('user') || '{}');
       const leads = await getLeadByUser({ userId: userData._id });
-      // console.log(leads);
 
       setLoading(true)
       setTimeout(() => {
@@ -86,19 +82,19 @@ export default function Tellecaller() {
   }, [allLeadData]);
 
   const handleCardClick = (type) => {
-    // let filtered = allLeadData.filter(lead =>{
-    //   return lead.status === type
-    // })
     console.log(type);
-    dispatch({type:type,payload: allLeadData});
-    navigate('/telecaller/assignedLeads')
+    if(type === "All%20Leads"){
+      return navigate(`/telecaller/leads`)
+    }else{
+    return navigate(`/telecaller/leads?filter=${type}`)
+    }
   };
   return (
-    <Box sx={{ flexGrow: 1, p: 3, ml: {md:"240px",sm:"240px", lg: '240px', fontFamily: 'Poppins, sans-serif', backgroundColor:"rgb(248,248,248)", height:"80vh" }}}>
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6} md={3}>
-          <CardActionArea onClick={() => handleCardClick('ALL_LEADS')}>
-            <Card sx={{ minWidth: 255, boxShadow: 3 }}>
+    <Box sx={{ flexGrow: 1,p:3, ml: {md:"240px",sm:"240px", lg: '240px', fontFamily: 'Poppins, sans-serif', backgroundColor:"rgb(248,248,248)", height:"92vh" }}}>
+      <Grid container spacing={2} >
+        <Grid item xs={12} sm={6} md={3} >
+          <CardActionArea onClick={() => handleCardClick('All%20Leads')}>
+            <Card sx={{ minWidth: 255, boxShadow: 3 , height:"200px", display:"flex" , flexDirection:"column", justifyContent:"center"}} >
               <CardContent>
                 <Typography variant="h5" component="div">
                   All Leads
@@ -112,8 +108,8 @@ export default function Tellecaller() {
         </Grid>
 
         <Grid item xs={12} sm={6} md={3}>
-          <CardActionArea onClick={() => handleCardClick('FOLLOW_UPS')}>
-            <Card sx={{ minWidth: 255, boxShadow: 3 }}>
+          <CardActionArea onClick={() => handleCardClick('Follow%20up')}>
+            <Card sx={{ minWidth: 255, boxShadow: 3 , height:"200px", display:"flex" , flexDirection:"column", justifyContent:"center"}}>
               <CardContent>
                 <Typography variant="h5" component="div">
                   Follow Up Leads
@@ -127,8 +123,8 @@ export default function Tellecaller() {
         </Grid>
 
         <Grid item xs={12} sm={6} md={3}>
-          <CardActionArea onClick={() => handleCardClick('NEW')}>
-            <Card sx={{ minWidth: 255, boxShadow: 3 }}>
+          <CardActionArea onClick={() => handleCardClick('New')}>
+            <Card sx={{ minWidth: 255, boxShadow: 3 , height:"200px", display:"flex" , flexDirection:"column", justifyContent:"center"}}>
               <CardContent>
                 <Typography variant="h5" component="div">
                   Fresh Leads
@@ -142,8 +138,8 @@ export default function Tellecaller() {
         </Grid>
 
         <Grid item xs={12} sm={6} md={3}>
-          <CardActionArea onClick={() => handleCardClick('INVALID')}>
-            <Card sx={{ minWidth: 255, boxShadow: 3 }}>
+          <CardActionArea onClick={() => handleCardClick('Invalid')}>
+            <Card sx={{ minWidth: 255, boxShadow: 3 , height:"200px", display:"flex" , flexDirection:"column", justifyContent:"center"}}>
               <CardContent>
                 <Typography variant="h5" component="div">
                   Invalid Leads

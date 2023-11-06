@@ -1,13 +1,20 @@
 import React, { useEffect, useState, useRef } from "react";
 import Drawer from "@mui/material/Drawer";
 import Button from "@mui/material/Button";
-import { Box } from "@mui/material";
-import { getLeadByUser, updatedLeadApi } from "../../apis/leadsApi";
-import { useSelector } from "react-redux";
+import { Box, Modal } from "@mui/material";
+import { getLeadByUser, updatedLeadApi } from "../../../apis/leadsApi";
 import UpdateLeads from "./updateLeads";
 import { DataGrid } from "@mui/x-data-grid";
 import { EditOutlined, MoveUpOutlined } from "@mui/icons-material";
-import Loader from "../Loader";
+import Loader from "../../../components/Loader";
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import Typography from "@mui/material/Typography";
+import { getTeamByType } from "../../../apis/team";
+import { useLocation } from 'react-router-dom';
+
 
 export default function Assignedleads() {
   const [state, setState] = React.useState({
@@ -18,10 +25,15 @@ export default function Assignedleads() {
   const [selectedLead, setSelectedLead] = useState({});
   const [drawer, setDrawer] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [moveLeadModel, setMoveLeadModel] = React.useState(false);
+  const [teams, setTeams] = useState([])
+  const [selectedTeam, setSelectedteam] = useState("")
   const myObjectSerializedRetrieved = localStorage.getItem("user");
   const userData = JSON.parse(myObjectSerializedRetrieved);
-  const post = useSelector((state)=>state);
-  console.log(post.FilterReducer);
+  const [filter, setFilter] = React.useState(null)
+  const location = useLocation();
+ 
+
 
   async function leadsById() {
     let payload = {
@@ -36,9 +48,10 @@ export default function Assignedleads() {
         alert("Something went wrong");
       }
       setLoading(false);
+      checkFilter(leadsById.data)
     }, 250);
   }
-  
+
 
   React.useEffect(() => {
     leadsById();
@@ -53,6 +66,22 @@ export default function Assignedleads() {
       });
     }
   }, [selectedId]);
+
+
+  const checkFilter = (data) => {
+    const query = new URLSearchParams(location.search)
+    let nf = query.get('filter')
+    if (nf !== null) {
+      setFilter(filter)
+      const filteredRows = []
+      data.forEach(row => {
+        if (row.status === nf) {
+          filteredRows.push(row)
+        }
+      });
+      setAssignedLead(filteredRows)
+    }
+  }
 
   useEffect(() => {
     toggleDrawer("right", drawer);
@@ -75,8 +104,6 @@ export default function Assignedleads() {
       setSelectedLead({ ...selectedLead, ["status"]: e.target.value });
       setLoading(false);
     }, 250);
-    // console.log(e.target.value);
-    // setSelectedLead({ ...selectedLead, ['status']: e.target.value })
   };
 
   const feedbackFunc = (e) => {
@@ -103,17 +130,55 @@ export default function Assignedleads() {
       setLoading(false);
     }, 250);
   };
-
+  const handleClose = () => setMoveLeadModel(false);
   const handleDrawer = () => {
     setDrawer((prevDrawer) => !prevDrawer);
   };
 
-  useEffect(()=>{
-    if(post.FilterReducer){
-      setAssignedLead(post.FilterReducer)
-    }
-  },[])
 
+
+  const fetchTeams = async () => {
+    const res = await getTeamByType("Telecaller")
+    if (res.status) {
+      setTeams(res.data.data)
+    }
+  }
+
+  React.useEffect(() => {
+    fetchTeams()
+  }, [])
+
+  const handleTeams = (event) => {
+    setSelectedteam(event.target.value)
+  }
+  const handleMoveLead = async () => {
+    let updated = {
+      moveLead: true,
+      moveTo: selectedTeam
+    };
+    const res = await updatedLeadApi(selectedLead._id, updated)
+    setLoading(true)
+    setMoveLeadModel(false)
+    setTimeout(() => {
+      if (res.success) {
+        setLoading(false)
+      } else {
+        alert("Something went wrong")
+      }
+      leadsById()
+    }, 250)
+  }
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+  };
   const columns = [
     { field: "name", headerName: "Name", flex: 1 },
     { field: "phoneNumber", headerName: "Phone Number", flex: 1 },
@@ -134,7 +199,10 @@ export default function Assignedleads() {
             >
               <EditOutlined />
             </Button>
-            <Button variant="contained" color="inherit" onClick={() => {}}>
+            <Button variant="contained" color="inherit" onClick={() => {
+              setMoveLeadModel(true)
+              setSelectedLead(params.row)
+            }}>
               <MoveUpOutlined />
             </Button>
             <Drawer
@@ -162,7 +230,12 @@ export default function Assignedleads() {
     },
   ];
   return (
-    <Box sx={{ ml:{md: '240px', sm: '240px', xs: '0px', lg: '240px'}, backgroundColor: "rgb(249,249,249)", p: 2}}>
+    <Box sx={{ ml: { md: '240px', sm: '240px', xs: '0px', lg: '240px', display: "flex", flexDirection: "column" }, p: 2 }}>
+      <Typography variant="h6" sx={{ display: "flex", flexDirection: "row", pl: 5 }}>Assigned Leads</Typography>
+      {(filter !== null) ? <Button onClick={() => {
+        setFilter(null)
+        leadsById();
+      }}>Clear Filter</Button> : null}
       <DataGrid
         columns={columns}
         rows={assignedLead}
@@ -171,10 +244,36 @@ export default function Assignedleads() {
           m: 4,
           fontFamily: "Poppins, sans-serif",
           boxShadow: "2px 2px 2px 2px rgb(222,226,230)",
-          backgroundColor:"white",
+          backgroundColor: "white",
         }}
       />
       <Loader loading={loading} />
+      <Modal
+        open={moveLeadModel}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2" sx={{ textAlign: "center" }}>
+            MoveLeads
+          </Typography>
+          <FormControl fullWidth>
+            <InputLabel id="demo-simple-select-label">Teams</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              style={{ marginTop: "10px" }}
+              onChange={handleTeams}
+            >
+              {teams && teams.map((item) => (
+                <MenuItem value={item._id} key={item._id}>{item.name}</MenuItem>
+              ))}
+            </Select>
+            <Button variant="contained" style={{ marginTop: "25px" }} onClick={handleMoveLead} >Update</Button>
+          </FormControl>
+        </Box>
+      </Modal>
     </Box>
   );
 }
