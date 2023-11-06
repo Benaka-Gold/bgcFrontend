@@ -1,0 +1,50 @@
+  /* Base styles for your login component
+.css-1gbzzw4-MuiGrid-root {
+    flex-basis: 50% !important;
+  }
+  
+  .css-gadse4-MuiPaper-root-MuiGrid-root {
+    flex-basis: 50% !important;
+    max-width: 50% !important;
+    background-color: gray;
+    border: 1px solid #ccc; 
+    border-radius: 5px; 
+    padding: 20px; 
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2); 
+  }
+  
+  .css-1y8ugea {
+    margin-top: 103px !important;
+  }
+  
+  @media screen and (min-width: 600px) {
+    .css-1gbzzw4-MuiGrid-root {
+      max-width: 50% !important;
+    }
+  
+    .css-gadse4-MuiPaper-root-MuiGrid-root {
+      flex-basis: 50% !important;
+      max-width: 50% !important;
+      background-color: gray;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 20px;
+      box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    .css-1gbzzw4-MuiGrid-root {
+      display: none;
+    }
+  
+    .css-gadse4-MuiPaper-root-MuiGrid-root {
+      flex-basis: 100% !important;
+      max-width: 100% !important;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 20px;
+      box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+    }
+  }
+   */
