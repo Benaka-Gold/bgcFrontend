@@ -49,7 +49,7 @@ export default function Navbar({ data }) {
   };
 
   const responsiveDrawer = (
-    <div style={{ backgroundColor: "#4B2F5C", height: "100%", fontFamily: 'Poppins, sans-serif' }}>
+    <div style={{ backgroundColor: "rgb(32,33,35)", height: "100%", fontFamily: 'Poppins, sans-serif' }}>
       <img
         src={benakaLogo}
         style={{ width: "120px", p: 2 }}
@@ -68,17 +68,18 @@ export default function Navbar({ data }) {
                 sx={{
                   color: activeItem === item.name ? "white" : "inherit",
                   fontWeight: activeItem === item.name ? "bold" : "inherit",
-                  backgroundColor: activeItem === item.name && "#2169a1" ,
-                  borderRadius: "10px",
-                  width: "90%",
-                  marginLeft: "10px"
+                  backgroundColor: activeItem === item.name && "#343541" ,
+                  borderRadius: "4px",
+                  width: "93%",
+                  marginLeft: "10px",
+                  marginRight:"10px"
                 }}
                 onClick={() => {
                   handleSubMenuToggle(item.name);
                   handleItemClick(item.name);
                 }}
               >
-                <ListItemIcon sx={{ color: activeItem === item.name ? "white" : "white" }}>
+                <ListItemIcon sx={{ color: activeItem === item.name ? "#ecece6" : "#ecece6" }}>
                   {React.cloneElement(item.icon)}
                 </ListItemIcon>
                 <ListItemText primary={item.name} />

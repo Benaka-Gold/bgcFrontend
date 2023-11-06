@@ -38,7 +38,7 @@ function Appbar({ handleToggle }) {
       <AppBar
         position="static"
         sx={{
-          backgroundColor: "#2169a1",
+          backgroundColor: "#fff",
           padding:"0px"
         }}
       >
@@ -53,7 +53,7 @@ function Appbar({ handleToggle }) {
           </IconButton>
           <Box sx={{display:"flex", justifyContent:"center", alignItems:"center", gap:2}}>
             
-            <Typography variant="h6">Benaka Gold Company</Typography>
+            <Typography variant="h6" sx={{color:"black"}}>Benaka Gold Company</Typography>
           </Box>
 
           <React.Fragment>
