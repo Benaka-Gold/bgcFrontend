@@ -9,6 +9,7 @@ import { getLeadByUser } from '../../apis/leadsApi';
 import Loader from '../../components/Loader'
 import {useDispatch, useSelector} from "react-redux"
 import { useNavigate } from 'react-router-dom';
+import PieChart from './Leads/pieChart'
 
 const countLeadsByType = (leads) => {
   const counts = {
@@ -90,16 +91,16 @@ export default function Dashboard() {
     }
   };
   return (
-    <Box sx={{ flexGrow: 1,p:3, ml: {md:"240px",sm:"240px", lg: '240px', fontFamily: 'Poppins, sans-serif', backgroundColor:"rgb(248,248,248)", height:"92vh" }}}>
-      <Grid container spacing={2} >
+    <Box sx={{ flexGrow: 1,p:3, ml: {md:"240px",sm:"240px", lg: '240px'}, fontFamily: 'Poppins, sans-serif', backgroundColor:"rgb(248,248,248)", height:{md:"92vh",xs:"auto",sm:"240px", lg: '92vh'} }}>
+      <Grid container spacing={2}  >
         <Grid item xs={12} sm={6} md={3} >
           <CardActionArea onClick={() => handleCardClick('All%20Leads')}>
             <Card sx={{ minWidth: 255, boxShadow: 3 , height:"200px", display:"flex" , flexDirection:"column", justifyContent:"center"}} >
-              <CardContent>
+              <CardContent sx={{backgroundColor: "linear-gradient(180deg, #EF88BB 0%, #291850 100%)"}}>
                 <Typography variant="h5" component="div">
                   All Leads
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{fontSize:20}}>
                   {leadCounts.confirmed + leadCounts.freshLeads + leadCounts.invalid + leadCounts.followUp}
                 </Typography>
               </CardContent>
@@ -114,7 +115,7 @@ export default function Dashboard() {
                 <Typography variant="h5" component="div">
                   Follow Up Leads
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{fontSize:20}}>
                   {leadCounts.followUp}
                 </Typography>
               </CardContent>
@@ -129,7 +130,7 @@ export default function Dashboard() {
                 <Typography variant="h5" component="div">
                   Fresh Leads
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{fontSize:20}}>
                   {leadCounts.freshLeads}
                 </Typography>
               </CardContent>
@@ -144,7 +145,7 @@ export default function Dashboard() {
                 <Typography variant="h5" component="div">
                   Invalid Leads
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{fontSize:20}}>
                   {leadCounts.invalid}
                 </Typography>
               </CardContent>
@@ -152,6 +153,8 @@ export default function Dashboard() {
           </CardActionArea>
         </Grid>
       </Grid>
+
+      <PieChart />
       <Loader loading={loading} />
     </Box>
   );

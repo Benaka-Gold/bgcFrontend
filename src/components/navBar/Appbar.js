@@ -21,6 +21,10 @@ import { useDispatch } from "react-redux";
 
 function Appbar({ handleToggle }) {
   const drawWidth = 240;
+  const items = JSON.parse(localStorage.getItem('user'));
+  // var firstLetter = items?.name[0];
+  // console.log(firstLetter);
+
   let dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -47,13 +51,12 @@ function Appbar({ handleToggle }) {
             color="inherit"
             edge="start"
             onClick={handleToggle}
-            sx={{ mr: 2, display: { sm: "none" } }}
+            sx={{ mr: 2, display: { sm: "none" , color:"black"} }}
           >
             <MenuIcon />
           </IconButton>
           <Box sx={{display:"flex", justifyContent:"center", alignItems:"center", gap:2}}>
-            
-            <Typography variant="h6" sx={{color:"black"}}>Benaka Gold Company</Typography>
+            <Typography variant="h6" sx={{color:"black",}}>Benaka Gold Company</Typography>
           </Box>
 
           <React.Fragment>

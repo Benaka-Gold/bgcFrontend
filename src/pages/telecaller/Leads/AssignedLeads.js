@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
-import Drawer from "@mui/material/Drawer";
+import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import { Box, Modal } from "@mui/material";
 import { getLeadByUser, updatedLeadApi } from "../../../apis/leadsApi";
@@ -17,9 +16,6 @@ import { useLocation } from 'react-router-dom';
 
 
 export default function Assignedleads() {
-  const [state, setState] = React.useState({
-    right: false,
-  });
   const [assignedLead, setAssignedLead] = useState([]);
   const [selectedId, setSelectedId] = useState();
   const [selectedLead, setSelectedLead] = useState({});
@@ -32,7 +28,7 @@ export default function Assignedleads() {
   const userData = JSON.parse(myObjectSerializedRetrieved);
   const [filter, setFilter] = React.useState(null)
   const location = useLocation();
- 
+
 
 
   async function leadsById() {
@@ -59,9 +55,9 @@ export default function Assignedleads() {
 
   useEffect(() => {
     if (selectedId) {
-      const data = assignedLead.filter((item) => {
+      assignedLead.filter((item) => {
         if (item._id === String(selectedId)) {
-          setSelectedLead(item);
+           return setSelectedLead(item);
         }
       });
     }
@@ -74,7 +70,7 @@ export default function Assignedleads() {
     if (nf !== null) {
       setFilter(filter)
       const filteredRows = []
-      data.forEach(row => {
+      data?.forEach(row => {
         if (row.status === nf) {
           filteredRows.push(row)
         }
@@ -83,21 +79,7 @@ export default function Assignedleads() {
     }
   }
 
-  useEffect(() => {
-    toggleDrawer("right", drawer);
-  }, [drawer]);
-
-  const toggleDrawer = (anchor, open, id) => (event) => {
-    setSelectedId(id);
-    if (
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
-      return;
-    }
-    setState({ ...state, [anchor]: open });
-  };
-
+  
   const handleChange = (e) => {
     setLoading(true);
     setTimeout(() => {
@@ -108,17 +90,28 @@ export default function Assignedleads() {
 
   const feedbackFunc = (e) => {
     let { name, value } = e.target;
+
     setSelectedLead({ ...selectedLead, [name]: value });
   };
 
+  const sourceFunc = (e)=>{
+    setLoading(true)
+    setTimeout(()=>{
+      setSelectedLead({ ...selectedLead, ['source']: e.target.value });
+      setLoading(false);
+    },250)
+   
+  }
   const updateFunc = async () => {
     let updated = {
       purity: selectedLead.purity,
       status: selectedLead.status,
       weight: Number(selectedLead.weight),
       feedback: selectedLead.feedback,
+      source:selectedLead.source,
     };
     let res = await updatedLeadApi(selectedId, updated);
+    console.log(res);
     setLoading(true);
     setTimeout(() => {
       if (res.success) {
@@ -205,47 +198,48 @@ export default function Assignedleads() {
             }}>
               <MoveUpOutlined />
             </Button>
-            <Drawer
-              PaperProps={{
-                sx: { width: { md: "50%", sm: "75%", xs: "100%", lg: "40%" } },
-              }}
-              anchor={"right"}
+            <Modal
+              aria-labelledby="modal-title"
+              aria-describedby="modal-desc"
               open={drawer}
-              onClose={handleDrawer}
-              BackdropProps={{
-                sx: { backgroundColor: "rgba(0, 0, 0, 0.2)" }, // Adjust the opacity (0.3 in this example)
-              }}
+              onClose={() => setDrawer(false)}
+              sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
             >
+            
               <UpdateLeads
                 selectedLead={selectedLead}
                 feedbackFunc={feedbackFunc}
                 handleChange={handleChange}
                 updateFunc={updateFunc}
+                sourceFunc={sourceFunc}
                 loading={loading}
               />
-            </Drawer>
+            </Modal>
           </Box>
         );
       },
     },
   ];
   return (
-    <Box sx={{ ml: { md: '240px', sm: '240px', xs: '0px', lg: '240px', display: "flex", flexDirection: "column" }, p: 2 }}>
-      <Typography variant="h6" sx={{ display: "flex", flexDirection: "row", pl: 5 }}>Assigned Leads</Typography>
+    <Box sx={{ ml: { md: '240px', sm: '240px', xs: '0px', lg: '240px', display: "flex", flexDirection: "column" }, height: "92vh", p: -1, backgroundColor: "#f7f7f8" }}>
+      <Typography variant="h6" sx={{ display: "flex", flexDirection: "row", p: 2, pl: 5 }}>Assigned Leads</Typography>
       {(filter !== null) ? <Button onClick={() => {
         setFilter(null)
         leadsById();
       }}>Clear Filter</Button> : null}
+      
       <DataGrid
-        columns={columns}
-        rows={assignedLead}
-        getRowId={(row) => row._id}
-        sx={{
-          m: 4,
-          fontFamily: "Poppins, sans-serif",
-          boxShadow: "2px 2px 2px 2px rgb(222,226,230)",
-          backgroundColor: "white",
+      columns={columns}
+      rows={assignedLead}
+        initialState={{
+          pagination: {
+            paginationModel: { page: 0, pageSize: 10 },
+          },
         }}
+        autoHeight
+        pageSizeOptions={[5, 10, 15]}
+        getRowId={(row) => row._id}
+        sx={{ fontFamily: 'Poppins, sans-serif', boxShadow: "2px 2px 2px 2px rgb(222,226,230)", backgroundColor: "white", m:4 }}
       />
       <Loader loading={loading} />
       <Modal

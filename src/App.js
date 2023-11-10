@@ -6,11 +6,10 @@ import {
 } from 'react-router-dom';
 import Protected from './components/authProtection/authProtection';
 import Hr from './components/HR/hr';
-// import Telecaller from './components/tellecaller/Dashboard';
-import Tellecaller from './pages/telecaller/Dashboard'
 import Auth from './pages/auth';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import TeleCallerDashboard from './pages/telecaller/TelecallerDashboard'
+import ExecutiveDashboard from './pages/executive/ExecutiveDashboard'
 function App() {
   return (
     <div className="App">
@@ -20,6 +19,7 @@ function App() {
           <Route path="/*" element={<Protected />}>
             <Route path="telecaller/*" element={<TeleCallerDashboard/>}/>
             <Route path="admin/*" element={<AdminDashboard />} />
+            <Route path="executive/*" element={<ExecutiveDashboard />} />
             <Route path="hr/*" element={<Hr />} />
           </Route>
         </Routes>

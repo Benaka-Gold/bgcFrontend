@@ -12,16 +12,13 @@ import Loader from "../Loader";
 
 
 import Otp from "../otp/otp";
-
-const benakaLogo = '/logo/benakaLogo.png'
-
-
 export default function Login({ loginData, setLoginData }) {
   const [error, setError] = useState({});
   const [visible, setVisible] = useState(true)
   const [loading, setLoading] = React.useState(false)
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const auth = useSelector((state) => state.AuthReducer);
+  const benakaLogo = '/logo/benakaLogo.png'
 
   const regexExp = /^[6-9]\d{9}$/;
 
@@ -31,6 +28,9 @@ export default function Login({ loginData, setLoginData }) {
     }
     if (auth?.user?.role === 'Telecaller') {
       return <Navigate to="/telecaller" />;
+    }
+    if (auth?.user?.role === 'Executive') {
+      return <Navigate to="/executive" />;
     }
     if (auth?.user?.role === 'accounts') {
       return <Navigate to="/accounts/dashboard" />;
@@ -57,29 +57,8 @@ export default function Login({ loginData, setLoginData }) {
     }
   };
 
-  // const handleSubmit = async (event) => {
-  //   event.preventDefault();
-  //   setError(validate(loginData));
-  //   setLoading(true)
-  //   setTimeout(() => {
-  //     setLoading(false)
-  //   }, 250)
 
-  //   if (regexExp.test(loginData?.phoneNumber)) {
-      
-  //     const loginRes = await login(loginData);
-  //     setLoading(true)
-  //     if (loginRes.status === 200) {
-  //       setVisible(!visible);
-  //       setLoginData({ ...loginData, otpSent: true });
-  //       setTimeout(() => {
-  //         setLoading(false)
-  //       }, 250)
-  //     } else {
-  //       alert("Number was not registered")
-  //     }
-  //   }
-  // }
+ 
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -88,6 +67,7 @@ export default function Login({ loginData, setLoginData }) {
     if (regexExp.test(loginData?.phoneNumber)) {
       setLoading(true);
       const loginRes = await login(loginData);
+      console.log(loginRes);
   
       if (loginRes.status === 200) {
         setVisible(!visible);
@@ -108,21 +88,19 @@ export default function Login({ loginData, setLoginData }) {
   };
 
   const typographyStyles = {
-    fontFamily: 'Poppins, sans-serif', // Replace 'Your Font Family' with the actual font name
+    fontFamily: 'Poppins, sans-serif', 
   };
   const formStyles = {
     width: { md: '35%', sm: '50%', xs: '85%', lg: '30%' },
-    height: { md: '65vh', sm: '65vh', xs: '65vh', lg: '60vh' },
+    height: { md: '60vh', sm: '60vh', xs: '60vh', lg: '70vh' },
     background: "white",
-    padding: "16px",
     borderRadius: "10px",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     transition: "opacity 0.5s",
-    padding: "10px",
-    boxShadow: "2px 2px 2px 2px rgb(222,226,230)"
+    p:3
   };
 
   const containerStyles = {
@@ -139,20 +117,19 @@ export default function Login({ loginData, setLoginData }) {
   };
 
   return (
-    <Box sx={containerStyles}>
-
+      <Box sx={{...containerStyles}}>
       <Box
         component="form"
         noValidate
         onSubmit={handleSubmit}
-        sx={{ ...formStyles }}
+        sx={{ ...formStyles, boxShadow : 3 }}
       >
-        <img src={benakaLogo} style={{ width: "60px", p: 2 }} alt="Benaka logo" />
+        <img src={benakaLogo} style={{ width: "120px", p: 2 }} alt="Benaka logo" />
 
         <Typography variant="h5" component="h2" sx={{ p: 1, ...typographyStyles }}>
           Benaka Gold Company
         </Typography>
-        <Typography variant="h5" component="h2" sx={{ p: 1, ...typographyStyles }}>
+        <Typography variant="h5" component="h2" sx={{ p: 1, ...typographyStyles, fontSize:"14px" }}>
           Welcome Back
         </Typography>
 

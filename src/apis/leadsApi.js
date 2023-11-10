@@ -43,7 +43,6 @@ async function assignLead(id,userId) {
 }
 
 async function updatedLeadApi(id,payload) {
-  console.log(id, payload);
   try {
     const response = await apiClient().put(`/lead/update/${id}`, payload);
     return response.data 
@@ -56,7 +55,6 @@ async function updatedLeadApi(id,payload) {
 async function freshLeads(id) {
   try {
     const response = await apiClient().get(`/lead/getFreshLeads/${id}`);
-    console.log(response);
     return response.data 
   }
   catch (err) {

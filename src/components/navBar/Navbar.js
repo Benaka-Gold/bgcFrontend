@@ -20,7 +20,7 @@ export default function Navbar({ data }) {
   const benakaLogo = "/logo/benakaLogo.png";
   const [mobileViewOpen, setMobileViewOpen] = useState(false);
   const [open, setOpen] = useState({});
-  const [activeItem, setActiveItem] = useState("Dashboard");
+  const [activeItem, setActiveItem] = useState("");
   const location = useLocation();
 
   useEffect(() => {
@@ -52,10 +52,10 @@ export default function Navbar({ data }) {
     <div style={{ backgroundColor: "rgb(32,33,35)", height: "100%", fontFamily: 'Poppins, sans-serif' }}>
       <img
         src={benakaLogo}
-        style={{ width: "120px", p: 2 }}
+        style={{ width: "100px"}}
+        // { md: '240px', sm: '240px', xs: '0px', lg: '240px'}
         alt="Benaka logo"
       />
-
       <Divider />
       <List>
         {data.map((item, index) => (

@@ -1,9 +1,9 @@
 import apiClient from "./http";
 
-const getTeams = async () => {
+const getTeam = async (payload) => {
     try {
-        let data = await apiClient().get('/teams');
-        console.log(data);
+        let data = await apiClient().get(`/team/${payload}`);
+        return data
     }
     catch (error) {
         return error;
@@ -29,4 +29,14 @@ const getTeamByType = async(teamType) =>{
     }
   }
 
-export {getTeams,getTeamByType,getTeamsById}
+
+  async function getDepartment() {
+    try {
+      const response = await apiClient().get(`/team-types`);
+      return response
+    }
+    catch (err) {
+      return err;
+    }
+  }
+export {getTeam,getTeamByType,getTeamsById , getDepartment}

@@ -39,6 +39,7 @@ export default function CreateLeads() {
         { field: 'name', headerName: 'Name', flex: 1 },
         { field: 'phoneNumber', headerName: 'Phone', flex: 1 },
         { field: 'assignedTeam', headerName: 'Team', flex: 1 },
+        {field : 'source', headerName : "Source",flex : 1},
         { field: 'weight', headerName: 'Weight', flex: 1 },
         { field: 'purity', headerName: 'Purity', flex: 1 },
     ]
@@ -127,11 +128,11 @@ export default function CreateLeads() {
                     .slice(1)
                     .filter(row => row.every(value => value))
                     .map((row, index) => {
-                        const [name, phoneNumber, assignedTeamName] = row;
+                        const [name, phoneNumber, assignedTeamName,source] = row;
                         // Lookup the team ID by name
                         const assignedTeam = teams.find(team => team.name === assignedTeamName);
                         const assignedTeamId = assignedTeam ? assignedTeam._id : null;
-                        return { id: index + 1, name, phoneNumber, assignedTeam: assignedTeamId }; // temporary id for testing
+                        return { id: index + 1, name, phoneNumber, assignedTeam: assignedTeamId,source }; // temporary id for testing
                     });
                 setRows(parsedRows);
             },
@@ -157,7 +158,7 @@ export default function CreateLeads() {
                     </Typography>
                 </Button>
             </Box>
-            <Box sx={{minHeight : '240px'}}>
+            <Box sx={{height : '70vh'}}>
                 <DataGrid
                 columns={columns}
                 rows={rows}

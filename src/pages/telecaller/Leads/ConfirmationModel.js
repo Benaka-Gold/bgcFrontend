@@ -7,7 +7,7 @@ import { assignLead } from '../../../apis/leadsApi';
 import Loader from '../../../components/Loader';
 
 
-export default function ConfirmationModel({ selectedRows, leadsData, userId, fetchTeamById }) {
+export default function ConfirmationModel({ selectedRows, leadsData, userId, fetchTeamById, newLeads }) {
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState([])
   const [loading, setLoading] = React.useState(false)
@@ -44,6 +44,7 @@ export default function ConfirmationModel({ selectedRows, leadsData, userId, fet
             
           }, 250)
           fetchTeamById()
+          newLeads()
         }
       } catch (error) {
         alert("Something went wrong");

@@ -56,12 +56,18 @@ export default function MoveLeads(){
     }
 
     return(
-        <Box sx={{ml:'240px',p:2}}>
+        <Box sx={{ml:'240px',p:2,height : '90vh'}}>
             <DataGrid
             rows={rows}
             columns={columns}
             getRowId={(row)=>row._id}
-            sx={{minHeight : '240px', boxShadow : 3}}
+            initialState={{
+                pagination: {
+                    paginationModel: { page: 0, pageSize: 5 },
+                },
+            }}
+            pageSizeOptions={[5, 10, 15]}
+            sx={{boxShadow : 3}}
             />
         <Loader loading={loading}/>
         </Box>
