@@ -5,13 +5,12 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import ConfirmationModel from "./ConfirmationModel";
-import { getLeads, freshLeads, getLeadsByTeam } from "../../../apis/leadsApi";
-import { getTeamsById } from "../../../apis/team";
+import ConfirmationModel from "./elements/ConfirmationModel";
+import { freshLeads, getLeadsByTeam } from "../../apis/leadsApi";
+import { getTeamsById } from "../../apis/team";
 import Typography from "@mui/material/Typography";
-import Loader from "../../../components/Loader";
-import { getLeadByUser } from "../../../apis/leadsApi";
-import CustomeFilter from "./customeFilter";
+import Loader from "../Loader";
+import CustomeFilter from "./elements/customeFilter";
 import { Fade } from "@mui/material";
 
 const columns = [
@@ -37,6 +36,7 @@ export default function LeadTable() {
   const [formattedData, setFormattedData] = useState([]);
   const [teleTeams, setTeleTeams] = useState([]);
   const [customeRow, setCustomeRow] = useState([]);
+  const [display, setDisplay] = useState(true);
   const [summary, setSummary] = useState({});
   const [loading, setLoading] = useState(false);
   const [teamLeadsData, setTeamLeadsData] = useState([]);
@@ -101,8 +101,13 @@ export default function LeadTable() {
   };
 
   const handleSelected = (rows) => {
-    setCustomeRow(rows);
-    setVisible(false);
+    setLoading(true);
+    setTimeout(() => {
+      setCustomeRow(rows);
+      setDisplay(false);
+      setVisible(false);
+      setLoading(false);
+    }, 250);
   };
 
   const handleChange = (event) => {
@@ -139,14 +144,14 @@ export default function LeadTable() {
       id: item.id,
       name: item.name,
       followup: item.leadsStatus["followup"] || 0,
-      confirmedlead: item.leadsStatus["confirmedlead"] || 0,
+      confirmedlead: item.leadsStatus["confirmed"] || 0,
       invalid: item.leadsStatus["invalid"] || 0,
       new: item.leadsStatus["new"] || 0,
       total:
         (item.leadsStatus["followup"] || 0) +
-          (item.leadsStatus["confirmedlead"] || 0) +
-          (item.leadsStatus["invalid"] || 0) +
-          (item.leadsStatus["new"] || 0) || 0,
+        (item.leadsStatus["confirmed"] || 0) +
+        (item.leadsStatus["invalid"] || 0) +
+        (item.leadsStatus["new"] || 0) || 0,
     }));
     setSummary(transformedResult);
   }, [teamLeadsData]);
@@ -200,6 +205,7 @@ export default function LeadTable() {
           setLeadsdata={setLeadsdata}
           fetchTeamById={fetchTeamById}
           newLeads={newLeads}
+          fetchData={fetchData}
         />
       </Box>
 
@@ -235,51 +241,30 @@ export default function LeadTable() {
       >
         Leads Distribution
       </Typography>
-      <DataGrid
-        rows={summary}
-        columns={summaryColumns}
-        initialState={{
-          pagination: {
-            paginationModel: { page: 0, pageSize: 10 },
-          },
-        }}
-        autoHeight
-        pageSizeOptions={[5, 10, 15]}
-        checkboxSelection
-        sx={{
-          fontFamily: "Poppins, sans-serif",
-          boxShadow: "2px 2px 2px 2px rgb(222,226,230)",
-          backgroundColor: "white",
-        }}
-        onRowSelectionModelChange={handleSelected}
-      />
 
-      {/* <Fade
-        in={!visible}
-        timeout={500}
-        unmountOnExit
-        style={{ position: "inherit" }}
-      >
-        <CustomeFilter />
-      </Fade> */}
-
-      <Fade
-        in={!visible}
-        timeout={500}
-        unmountOnExit
-        style={{ position: "inherit" }}
-      >
-        <Box
+      {display ? (
+        <DataGrid rows={summary} columns={summaryColumns}
+          initialState={{
+            pagination: {
+              paginationModel: { page: 0, pageSize: 10 },},}}
+          autoHeight
+          pageSizeOptions={[5, 10, 15]}
+          checkboxSelection
           sx={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
+            fontFamily: "Poppins, sans-serif",
+            boxShadow: "2px 2px 2px 2px rgb(222,226,230)",
+            backgroundColor: "white",
           }}
-        >
-          <CustomeFilter />
-        </Box>
-      </Fade>
+          onRowSelectionModelChange={handleSelected}
+        />
+      ) : (
+        <Fade in={!visible} timeout={500} unmountOnExit>
+          <Box
+            sx={{ width: "100%",display: "flex",flexDirection: "column",  alignItems: "center" }} >
+            <CustomeFilter  setDisplay={setDisplay} customeRow={customeRow}  teamLeadsData={teamLeadsData}    setLoading={setLoading}/>
+          </Box>
+        </Fade>
+      )}
     </Box>
   );
 }

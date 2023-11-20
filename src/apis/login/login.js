@@ -4,7 +4,6 @@ import apiClient from "../http";
 const login = async (payload) => {
  
   try {
-    console.log("Login Sent")
     const res = await apiClient().post('/auth/login', payload)
     return res
   } catch (error) {

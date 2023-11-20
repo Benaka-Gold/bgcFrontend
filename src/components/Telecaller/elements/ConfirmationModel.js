@@ -4,10 +4,10 @@ import Modal from '@mui/material/Modal';
 import { ModalDialog } from '@mui/joy';
 import Typography from '@mui/material/Typography';
 import { assignLead } from '../../../apis/leadsApi';
-import Loader from '../../../components/Loader';
+import Loader from '../../Loader';
 
 
-export default function ConfirmationModel({ selectedRows, leadsData, userId, fetchTeamById, newLeads }) {
+export default function ConfirmationModel({ selectedRows, leadsData, userId, fetchTeamById, newLeads ,fetchData}) {
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState([])
   const [loading, setLoading] = React.useState(false)
@@ -45,6 +45,7 @@ export default function ConfirmationModel({ selectedRows, leadsData, userId, fet
           }, 250)
           fetchTeamById()
           newLeads()
+          fetchData()
         }
       } catch (error) {
         alert("Something went wrong");

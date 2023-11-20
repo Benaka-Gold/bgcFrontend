@@ -3,15 +3,6 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import {  getLeadsByTeam } from '../../../apis/leadsApi';
 
 
-const data = [
-  { label: 'Group A', value: 2400 },
-  { label: 'Group B', value: 4567 },
-  { label: 'Group C', value: 1398 },
-  { label: 'Group D', value: 9800 },
-  { label: 'Group E', value: 3908 },
-  { label: 'Group F', value: 4800 },
-];
-
 export default function TwoSimplePieChart() {
   const [teamLeadsData, setTeamLeadsData] = useState([])
   const [displayPie, setDispayPie] = useState([])
@@ -52,16 +43,15 @@ useEffect(()=>{
       series={[
         {
           data: displayPie,
-          cx: 500,
-          cy: 200,
-          innerRadius: 40,
-          outerRadius: 80,
+          innerRadius: 70,
+          outerRadius: 120,
         },
       ]}
       height={300}
       slotProps={{
         legend: { hidden: true },
       }}
+      sx={{ml:9}}
     />
   );
 }

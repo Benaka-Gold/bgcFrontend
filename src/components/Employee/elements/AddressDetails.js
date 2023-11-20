@@ -9,7 +9,6 @@ export function AddressDetails() {
       <fieldset style={{ borderColor: 'white', borderRadius: "5px" }}>
         <legend style={{ textAlign: 'center' }}>Address</legend>
         <Box
-          component="form"
           sx={{
             '& .MuiTextField-root': { m: 1, width: '25ch' },
             display: 'flex',

@@ -30,11 +30,6 @@ const initialState =  {
             localStorage.removeItem('user');
             localStorage.removeItem('IsTeamLead')
             return logout;
-
-            
-
-
-            
         default:
             return state
     }

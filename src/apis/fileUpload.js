@@ -12,4 +12,22 @@ async function uploadfiles(file){
     }
 }
 
-export {uploadfiles}
+async function deleteFile (id) {
+    try {
+        return await apiClient().delete(`/file/${id}`)
+    }
+    catch(error){
+        return error    
+    }
+}
+
+async function getFile(id){
+    try{
+        return await apiClient().get(`/download/${id}`)
+    }
+    catch (error){
+        return error
+    }
+}
+
+export {uploadfiles,deleteFile,getFile}

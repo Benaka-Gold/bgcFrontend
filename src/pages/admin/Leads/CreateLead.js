@@ -14,14 +14,14 @@ export default function CreateLeads() {
     const [rows, setRows] = React.useState([])
     const [loading, setLoading] = React.useState(true)
     const upload = React.useRef(null)
-    const [isModalOpen, setModalOpen] = React.useState(false);
+    const [isModalOpen, setIsModelOpen] = React.useState(false);
     const [isSubmitModelOpen, setIsSubmitModalOpen] = React.useState(false)
     const [teams, setTeams] = React.useState([])
     const [successfulLeads, setSuccessfulLeads] = React.useState(0);
 
 
     const handleModal = () => {
-        setModalOpen(!isModalOpen);
+        setIsModelOpen(!isModalOpen);
     };
 
     const fetchTeams = async () => {
@@ -44,10 +44,13 @@ export default function CreateLeads() {
         { field: 'purity', headerName: 'Purity', flex: 1 },
     ]
 
+    console.log(teams);
+
     const handleAddRow = (e) => {
-        const newRow = { id: rows.length + 1, ...e };  // temporary random id for testing
+        const newRow = { id: rows.length + 1, ...e };  
+        console.log(newRow);
         setRows(prevRows => [...prevRows, newRow]);
-        setModalOpen(false);
+        setIsModelOpen(false);
         setLoading(true)
         setTimeout(() => {
             setLoading(false)
@@ -86,10 +89,8 @@ export default function CreateLeads() {
             console.error("Error creating lead:", error.error);
             failedLeads.push(lead);
           }
-          
           setSuccessfulLeads(successCount);
         }
-    
         setRows(failedLeads); // Update rows with the leads that failed to submit
     
         // If there are any failed leads, alert the user

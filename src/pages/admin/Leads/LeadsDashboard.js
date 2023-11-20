@@ -3,6 +3,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { getLeads } from "../../../apis/leadsApi";
 import Loader from "../../../components/Loader";
 import { Typography, Box } from "@mui/material";
+import { grey } from "@mui/material/colors";
 
 export default function LeadsDashboard() {
 
@@ -31,8 +32,9 @@ export default function LeadsDashboard() {
     ];
 
     React.useEffect(() => {
+        setLoading(true)
         fetchLeads()
-        setLoading(false)
+        setTimeout(()=>setLoading(false),500)
     }, [])
 
     const fetchLeads = async () => {
@@ -45,8 +47,17 @@ export default function LeadsDashboard() {
         setLeads(leads)
     }
     return (
-        <Box sx={{ml: { sm: '240px', md: '240px', xs: 0, lg: '240px' }}}>
-            <Typography sx={{textAlign : 'left',p:2,fontFamily : 'Poppins, sans-serif'}} variant="h4">All Leads</Typography>
+        <Box sx={{ml: { sm: '240px', md: '240px', xs: 0, lg: '240px' },p:3}}>
+            <Box sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                m: 1,
+                mt: 0,
+                alignItems: 'center',
+            }}>
+            <Typography sx={{textAlign : 'left',fontFamily : 'Poppins, sans-serif'}} variant="h5">All Leads</Typography>
+            </Box>
+            <Box>
             <DataGrid
                 columns={columns}
                 rows={leads}
@@ -55,13 +66,14 @@ export default function LeadsDashboard() {
                         paginationModel: { page: 0, pageSize: 10 },
                     },
                 }}
-                sx={{ boxShadow: 4 }}
+                sx={{ boxShadow: 4, backgroundColor: grey[50], fontFamily: 'Poppins, sans-serif', borderRadius: 2,minHeight : '3vh' }}
                 pageSizeOptions={[5, 10, 15]}
                 checkboxSelection
                 getRowId={(row) => row._id}
                
             />
             <Loader loading={loading}/>
+            </Box>
         </Box>
     )
 }

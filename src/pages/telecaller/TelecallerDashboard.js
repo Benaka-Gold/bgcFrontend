@@ -1,11 +1,12 @@
 // AdminDashboard.js
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Navbar from '../../components/navBar/Navbar';
 import { Route, Routes } from 'react-router-dom';
 import { DashboardOutlined } from '@mui/icons-material';
-import LeadTable from './Leads/AllLeads';
+import LeadTable from '../../components/Telecaller/AllLeads';
 import Dashboard from './Dashboard';
-import Assignedleads from './Leads/AssignedLeads'
+// import Assignedleads from './Leads/AssignedLeads';
+import Assignedleads from '../../components/Telecaller/AssignedLeads';
 import AssignmentLateOutlinedIcon from '@mui/icons-material/AssignmentLateOutlined';
 import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined';
 

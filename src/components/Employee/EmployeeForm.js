@@ -39,7 +39,7 @@ const EmployeeForm = ({ open, onClose, employeeData, onSave }) => {
     'Company Details'
   ];
   const stepFields = {
-    0: ['firstName', 'lastName', 'email', 'phoneNumber'], // Example fields for PersonalDetails
+    0: ['firstName', 'lastName', 'email', 'phoneNumber','fatherName','dateOfBirth'], // Example fields for PersonalDetails
     1: ['address.street', 'address.city', 'address.state', 'address.zipCode', 'address.country'], // Example fields for AddressDetails
     2: ['documents', 'photo'], // Example fields for DocumentationDetails
     3: ['empCode', 'position', 'department', 'teamId', 'dateHired'], // Example fields for CompanyDetails

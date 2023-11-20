@@ -59,7 +59,6 @@ export function CompanyDetails() {
       <fieldset style={{ borderColor: 'white', borderRadius: "5px" }}>
         <legend style={{ textAlign: 'center' }}>Company Details</legend>
         <Box
-          component="form"
           sx={{
             '& .MuiTextField-root': { m: 1, width: '25ch' },
             display: 'flex',

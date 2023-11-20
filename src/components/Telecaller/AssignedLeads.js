@@ -1,33 +1,35 @@
 import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
-import { Box, Modal } from "@mui/material";
-import { getLeadByUser, updatedLeadApi } from "../../../apis/leadsApi";
+import { Box, Dialog, DialogContent, Modal } from "@mui/material";
+import { getLeadByUser, updatedLeadApi } from "../../apis/leadsApi";
 import UpdateLeads from "./updateLeads";
 import { DataGrid } from "@mui/x-data-grid";
 import { EditOutlined, MoveUpOutlined } from "@mui/icons-material";
-import Loader from "../../../components/Loader";
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
+import Loader from "../Loader";
 import Typography from "@mui/material/Typography";
-import { getTeamByType } from "../../../apis/team";
+import { getTeamByType } from "../../apis/team";
 import { useLocation } from 'react-router-dom';
+import { AddCircleOutline } from "@mui/icons-material";
+import {Divider} from "@mui/material";
+import LeadForm from "../Leads/LeadForm";
+import MoveLeads from "./elements/moveLeads";
+import { createLead } from "../../apis/leadsApi";
 
 
 export default function Assignedleads() {
   const [assignedLead, setAssignedLead] = useState([]);
   const [selectedId, setSelectedId] = useState();
   const [selectedLead, setSelectedLead] = useState({});
-  const [drawer, setDrawer] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-  const [moveLeadModel, setMoveLeadModel] = React.useState(false);
+  const [drawer, setDrawer] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [moveLeadModel, setMoveLeadModel] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [teams, setTeams] = useState([])
   const [selectedTeam, setSelectedteam] = useState("")
+  const [filter, setFilter] = useState(null)
+  const location = useLocation();
   const myObjectSerializedRetrieved = localStorage.getItem("user");
   const userData = JSON.parse(myObjectSerializedRetrieved);
-  const [filter, setFilter] = React.useState(null)
-  const location = useLocation();
 
 
 
@@ -39,6 +41,7 @@ export default function Assignedleads() {
     setLoading(true);
     setTimeout(() => {
       if (leadsById.success) {
+        console.log(leadsById.data);
         setAssignedLead(leadsById.data);
       } else {
         alert("Something went wrong");
@@ -90,7 +93,6 @@ export default function Assignedleads() {
 
   const feedbackFunc = (e) => {
     let { name, value } = e.target;
-
     setSelectedLead({ ...selectedLead, [name]: value });
   };
 
@@ -111,7 +113,6 @@ export default function Assignedleads() {
       source:selectedLead.source,
     };
     let res = await updatedLeadApi(selectedId, updated);
-    console.log(res);
     setLoading(true);
     setTimeout(() => {
       if (res.success) {
@@ -128,7 +129,7 @@ export default function Assignedleads() {
     setDrawer((prevDrawer) => !prevDrawer);
   };
 
-
+  
 
   const fetchTeams = async () => {
     const res = await getTeamByType("Telecaller")
@@ -136,7 +137,6 @@ export default function Assignedleads() {
       setTeams(res.data.data)
     }
   }
-
   React.useEffect(() => {
     fetchTeams()
   }, [])
@@ -162,6 +162,35 @@ export default function Assignedleads() {
     }, 250)
   }
 
+  
+
+  const handleFormSubmit = async (formData) => {
+  const updatedFormData = {
+    ...formData,
+    assignedTeam:userData.teamId,
+    assignedTo:userData._id,
+    weight: Number(formData.weight)
+  };
+  console.log(updatedFormData);
+  setIsModalOpen(false)
+  
+  setLoading(true)
+  setTimeout(()=>{
+    console.log(updatedFormData);
+    setLoading(false)
+  },250)
+  // const response = await createLead(updatedFormData);
+  // console.log(response);
+  };
+  const modalBody = (
+    <Box >
+        <Typography variant="h5">
+            Add a new Lead
+        </Typography>
+        <Divider  />
+        <LeadForm onSubmit={handleFormSubmit} teams={teams} role="Telecaller"  />
+    </Box>
+)
   const style = {
     position: 'absolute',
     top: '50%',
@@ -183,37 +212,18 @@ export default function Assignedleads() {
       renderCell: (params) => {
         return (
           <Box sx={{ display: "flex" }} gap={2}>
-            <Button
-              variant="contained"
-              onClick={() => {
+            <Button variant="contained" onClick={() => {
                 setSelectedId(params.row._id);
-                handleDrawer();
-              }}
-            >
+                handleDrawer() }} >
               <EditOutlined />
             </Button>
-            <Button variant="contained" color="inherit" onClick={() => {
-              setMoveLeadModel(true)
-              setSelectedLead(params.row)
-            }}>
+            <Button variant="contained" color="inherit" onClick={() => { setMoveLeadModel(true) 
+              setSelectedLead(params.row) }}>
               <MoveUpOutlined />
             </Button>
-            <Modal
-              aria-labelledby="modal-title"
-              aria-describedby="modal-desc"
-              open={drawer}
-              onClose={() => setDrawer(false)}
-              sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-            >
-            
-              <UpdateLeads
-                selectedLead={selectedLead}
-                feedbackFunc={feedbackFunc}
-                handleChange={handleChange}
-                updateFunc={updateFunc}
-                sourceFunc={sourceFunc}
-                loading={loading}
-              />
+            <Modal aria-labelledby="modal-title" aria-describedby="modal-desc"  open={drawer} onClose={() => setDrawer(false)}
+              sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <UpdateLeads selectedLead={selectedLead} feedbackFunc={feedbackFunc} handleChange={handleChange} updateFunc={updateFunc} sourceFunc={sourceFunc} loading={loading} />
             </Modal>
           </Box>
         );
@@ -222,7 +232,17 @@ export default function Assignedleads() {
   ];
   return (
     <Box sx={{ ml: { md: '240px', sm: '240px', xs: '0px', lg: '240px', display: "flex", flexDirection: "column" }, height: "92vh", p: -1, backgroundColor: "#f7f7f8" }}>
-      <Typography variant="h6" sx={{ display: "flex", flexDirection: "row", p: 2, pl: 5 }}>Assigned Leads</Typography>
+      <Box>
+        <Box sx={{display:"flex", justifyContent:"space-between", m:4, fontFamily: 'Poppins, sans-serif'}}>
+      <Typography variant="h6" sx={{fontFamily: 'Poppins, sans-serif'}}>Assigned Leads</Typography>
+      <Button onClick={()=> setIsModalOpen(true)} variant='contained' color='primary'>
+                    <AddCircleOutline />
+                    <Typography style={{ color: '#efefef' }} >
+                        Add a Lead
+                    </Typography>
+                </Button>
+                </Box>
+
       {(filter !== null) ? <Button onClick={() => {
         setFilter(null)
         leadsById();
@@ -242,32 +262,16 @@ export default function Assignedleads() {
         sx={{ fontFamily: 'Poppins, sans-serif', boxShadow: "2px 2px 2px 2px rgb(222,226,230)", backgroundColor: "white", m:4 }}
       />
       <Loader loading={loading} />
-      <Modal
-        open={moveLeadModel}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2" sx={{ textAlign: "center" }}>
-            MoveLeads
-          </Typography>
-          <FormControl fullWidth>
-            <InputLabel id="demo-simple-select-label">Teams</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              style={{ marginTop: "10px" }}
-              onChange={handleTeams}
-            >
-              {teams && teams.map((item) => (
-                <MenuItem value={item._id} key={item._id}>{item.name}</MenuItem>
-              ))}
-            </Select>
-            <Button variant="contained" style={{ marginTop: "25px" }} onClick={handleMoveLead} >Update</Button>
-          </FormControl>
-        </Box>
-      </Modal>
+      
+      <MoveLeads moveLeadModel={moveLeadModel} handleClose={handleClose} style={style} handleTeams={handleTeams} teams={teams} handleMoveLead={handleMoveLead} />
+
+
+      <Dialog open={isModalOpen} onClose={()=>setIsModalOpen(false)}>
+        <DialogContent>
+          {modalBody}
+        </DialogContent>
+      </Dialog>
+      </Box>
     </Box>
   );
 }

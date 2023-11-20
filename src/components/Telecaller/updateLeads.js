@@ -7,7 +7,7 @@ import FormControl from '@mui/material/FormControl';
 import { TextField } from '@mui/material';
 import Textarea from '@mui/joy/Textarea';
 import { Box } from "@mui/material";
-import Loader from '../../../components/Loader';
+import Loader from '../Loader';
 
 
 function UpdateLeads({ selectedLead, feedbackFunc, handleChange, updateFunc, loading, sourceFunc }) {
@@ -85,7 +85,7 @@ function UpdateLeads({ selectedLead, feedbackFunc, handleChange, updateFunc, loa
             style={{ marginTop: "10px" }}
           >
             <MenuItem value="Follow up">Follow up</MenuItem>
-            <MenuItem value="Confirmed Lead">Confirmed</MenuItem>
+            <MenuItem value="Confirmed">Confirmed</MenuItem>
             <MenuItem value="Invalid">Invalid</MenuItem>
             <MenuItem value="TCL">TCL</MenuItem>
           </Select>

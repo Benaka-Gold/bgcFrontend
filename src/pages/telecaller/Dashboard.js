@@ -1,25 +1,25 @@
-import  React, {useState, useEffect} from 'react';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import Card from '@mui/material/Card';
-import CardActionArea from '@mui/material/CardActionArea';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
-import { getLeadByUser } from '../../apis/leadsApi';
-import Loader from '../../components/Loader'
-import {useDispatch, useSelector} from "react-redux"
-import { useNavigate } from 'react-router-dom';
-import PieChart from './Leads/pieChart'
+import React, { useState, useEffect } from "react";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Card from "@mui/material/Card";
+import CardActionArea from "@mui/material/CardActionArea";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import { getLeadByUser } from "../../apis/leadsApi";
+import Loader from "../../components/Loader";
+import { useNavigate } from "react-router-dom";
+import PieChart from "../../components/Telecaller/elements/pieChart";
+import LeadsDivision from "../../components/Telecaller/elements/leadsDivision";
 
 const countLeadsByType = (leads) => {
   const counts = {
     confirmed: 0,
     freshLeads: 0,
     invalid: 0,
-    followUp: 0
+    followUp: 0,
   };
 
-  leads.forEach(lead => {
+  leads.forEach((lead) => {
     switch (lead.status) {
       case "Confirmed Lead":
         counts.confirmed++;
@@ -34,7 +34,7 @@ const countLeadsByType = (leads) => {
         counts.followUp++;
         break;
       default:
-        // Handle other statuses or default case
+      // Handle other statuses or default case
     }
   });
 
@@ -47,34 +47,30 @@ export default function Dashboard() {
     confirmed: 0,
     freshLeads: 0,
     invalid: 0,
-    followUp: 0
+    followUp: 0,
   });
-  const [loading, setLoading] = React.useState(false)
-  const dispatch = useDispatch();
-  const post = useSelector((state)=>state);
-  let navigate = useNavigate()
-
-
+  const [loading, setLoading] = React.useState(false);
+  let navigate = useNavigate();
+  const isTeamLeader = JSON.parse(localStorage.getItem("isteamLead"));
 
   useEffect(() => {
     const fetchLeads = async () => {
-      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
       const leads = await getLeadByUser({ userId: userData._id });
 
-      setLoading(true)
+      setLoading(true);
       setTimeout(() => {
-        if(leads.success){
+        if (leads.success) {
           setAllLeadData(leads.data || []);
-        }else{
-          alert("something went wrong")
+        } else {
+          alert("something went wrong");
         }
-        setLoading(false)
-    }, 250)
+        setLoading(false);
+      }, 250);
     };
 
     fetchLeads();
   }, []);
-  
 
   useEffect(() => {
     if (allLeadData.length > 0) {
@@ -83,78 +79,43 @@ export default function Dashboard() {
   }, [allLeadData]);
 
   const handleCardClick = (type) => {
-    console.log(type);
-    if(type === "All%20Leads"){
-      return navigate(`/telecaller/leads`)
-    }else{
-    return navigate(`/telecaller/leads?filter=${type}`)
+    if (type === "All%20Leads") {
+      return navigate(`/telecaller/leads`);
+    } else {
+      return navigate(`/telecaller/leads?filter=${type}`);
     }
   };
   return (
-    <Box sx={{ flexGrow: 1,p:3, ml: {md:"240px",sm:"240px", lg: '240px'}, fontFamily: 'Poppins, sans-serif', backgroundColor:"rgb(248,248,248)", height:{md:"92vh",xs:"auto",sm:"240px", lg: '92vh'} }}>
-      <Grid container spacing={2}  >
-        <Grid item xs={12} sm={6} md={3} >
-          <CardActionArea onClick={() => handleCardClick('All%20Leads')}>
-            <Card sx={{ minWidth: 255, boxShadow: 3 , height:"200px", display:"flex" , flexDirection:"column", justifyContent:"center"}} >
-              <CardContent sx={{backgroundColor: "linear-gradient(180deg, #EF88BB 0%, #291850 100%)"}}>
-                <Typography variant="h5" component="div">
-                  All Leads
-                </Typography>
-                <Typography variant="body2" sx={{fontSize:20}}>
-                  {leadCounts.confirmed + leadCounts.freshLeads + leadCounts.invalid + leadCounts.followUp}
-                </Typography>
-              </CardContent>
-            </Card>
-          </CardActionArea>
-        </Grid>
+    <Box
+      sx={{
+        flexGrow: 1,
+        p: 3,
+        ml: { md: "240px", sm: "240px", lg: "240px" },
+        fontFamily: "Poppins, sans-serif",
+        backgroundColor: "rgb(248,248,248)",
+        height: { md: "92vh", xs: "auto", sm: "240px", lg: "92vh" },
+      }}
+    >
+      < LeadsDivision handleCardClick={handleCardClick} leadCounts ={leadCounts} />
 
-        <Grid item xs={12} sm={6} md={3}>
-          <CardActionArea onClick={() => handleCardClick('Follow%20up')}>
-            <Card sx={{ minWidth: 255, boxShadow: 3 , height:"200px", display:"flex" , flexDirection:"column", justifyContent:"center"}}>
-              <CardContent>
-                <Typography variant="h5" component="div">
-                  Follow Up Leads
-                </Typography>
-                <Typography variant="body2" sx={{fontSize:20}}>
-                  {leadCounts.followUp}
-                </Typography>
-              </CardContent>
-            </Card>
-          </CardActionArea>
-        </Grid>
+      {isTeamLeader[0].isTL ? (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection:"column",
+            height: "350px",
+            mt:4
+          }}
+        >
+          <Typography sx={{ fontFamily: "Poppins, sans-serif",}}>Team Leads</Typography>
+          <PieChart />
+        </Box>
+      ) : (
+        ""
+      )}
 
-        <Grid item xs={12} sm={6} md={3}>
-          <CardActionArea onClick={() => handleCardClick('New')}>
-            <Card sx={{ minWidth: 255, boxShadow: 3 , height:"200px", display:"flex" , flexDirection:"column", justifyContent:"center"}}>
-              <CardContent>
-                <Typography variant="h5" component="div">
-                  Fresh Leads
-                </Typography>
-                <Typography variant="body2" sx={{fontSize:20}}>
-                  {leadCounts.freshLeads}
-                </Typography>
-              </CardContent>
-            </Card>
-          </CardActionArea>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <CardActionArea onClick={() => handleCardClick('Invalid')}>
-            <Card sx={{ minWidth: 255, boxShadow: 3 , height:"200px", display:"flex" , flexDirection:"column", justifyContent:"center"}}>
-              <CardContent>
-                <Typography variant="h5" component="div">
-                  Invalid Leads
-                </Typography>
-                <Typography variant="body2" sx={{fontSize:20}}>
-                  {leadCounts.invalid}
-                </Typography>
-              </CardContent>
-            </Card>
-          </CardActionArea>
-        </Grid>
-      </Grid>
-
-      <PieChart />
       <Loader loading={loading} />
     </Box>
   );

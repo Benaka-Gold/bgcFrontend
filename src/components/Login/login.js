@@ -67,8 +67,6 @@ export default function Login({ loginData, setLoginData }) {
     if (regexExp.test(loginData?.phoneNumber)) {
       setLoading(true);
       const loginRes = await login(loginData);
-      console.log(loginRes);
-  
       if (loginRes.status === 200) {
         setVisible(!visible);
         setLoginData({ ...loginData, otpSent: true });

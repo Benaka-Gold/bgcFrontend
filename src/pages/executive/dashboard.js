@@ -9,9 +9,11 @@ import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import Avatar from '@mui/material/Avatar';
+import {useNavigate} from "react-router-dom";
 
 function Dashboard() {
   const [loading, setLoading] = React.useState(false);
+  let navigate = useNavigate()
 
   const handleRefresh = () => {
     setLoading(true);
@@ -20,6 +22,9 @@ function Dashboard() {
     }, 250);
   };
 
+  const handleCardClick =()=>{
+    navigate('customerdetails')
+  }
   return (
     <Box
       sx={{
@@ -55,7 +60,7 @@ function Dashboard() {
           m: 1,
         }}
       >
-        <CardActionArea onClick={handleRefresh}>
+        <CardActionArea onClick={ handleCardClick}>
           <Card sx={{
             width: "100%",
             height:"70px",
