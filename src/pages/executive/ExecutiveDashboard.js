@@ -7,6 +7,9 @@ import { DashboardOutlined } from "@mui/icons-material";
 import Dashboard from "./dashboard";
 import CustomerDetails from "./elements/customerDetails";
 import CustomerForm from './elements/customerForm'
+import BasicDetails from './elements/basicDetailsForm'
+import OrnamentUploads from "./elements/ornamentUploads";
+import BankDetailsForm from "./elements/bankDetailsForm";
 
 function ExecutiveDashboard() {
   const ExecutiveRoute = [
@@ -21,6 +24,10 @@ function ExecutiveDashboard() {
         })}
         <Route path="customerdetails" element={<CustomerDetails />} />
         <Route path="customerform" element={<CustomerForm />} />
+        <Route path="basicdetails" element={<BasicDetails />} />
+        <Route path="ornamentuploads" element={<OrnamentUploads />} />
+        <Route path="bankdetailsform" element={<BankDetailsForm />} />
+
       </Routes>
     </>
   );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Fab from "@mui/material/Fab";
@@ -10,11 +10,35 @@ import CardContent from "@mui/material/CardContent";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import Avatar from '@mui/material/Avatar';
 import {useNavigate} from "react-router-dom";
+import { executiveTask } from "../../apis/task";
+import moment from "moment"
 
 function Dashboard() {
   const [loading, setLoading] = React.useState(false);
+  const [assignTask, setAssignedTask] = useState([])
   let navigate = useNavigate()
 
+ 
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await executiveTask();
+        if (res.status === 200) {
+          setAssignedTask(res.data.data);
+        } else {
+          alert("Something went wrong Try again");
+        }
+      } catch (error) {
+        // Handle the error appropriately
+        console.error("An error occurred: ", error);
+      }
+    };
+  
+    setLoading(true);
+    fetchData().then(() => setLoading(false));
+  }, []);
+console.log(assignTask);
   const handleRefresh = () => {
     setLoading(true);
     setTimeout(() => {
@@ -22,8 +46,9 @@ function Dashboard() {
     }, 250);
   };
 
-  const handleCardClick =()=>{
-    navigate('customerdetails')
+  const handleCardClick =(id)=>{
+    console.log(id);
+    navigate(`customerdetails?filter=${id}`)
   }
   return (
     <Box
@@ -60,7 +85,9 @@ function Dashboard() {
           m: 1,
         }}
       >
-        <CardActionArea onClick={ handleCardClick}>
+        {assignTask && assignTask.map((item)=>{
+          return(
+            <CardActionArea onClick={() => handleCardClick(item.customerId.leadId)}>
           <Card sx={{
             width: "100%",
             height:"70px",
@@ -71,7 +98,6 @@ function Dashboard() {
             '&:hover': {
               boxShadow: "0 12px 24px 0 rgba(0, 0, 0, 0.2)",
             },
-           
           }}>
             <CardContent
               sx={{
@@ -87,28 +113,38 @@ function Dashboard() {
             >
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Avatar src="/broken-image.jpg" sx={{ width: 45, height: 45, mt: 1, mr:2 }} />
-                <Box>
-                  <Typography sx={{
-                    fontWeight: "medium",
-                    fontSize: "1rem",
-                    color: "black",
-                    fontFamily: "Poppins, sans-serif",
-                  }}>
-                    Chandru
-                  </Typography>
-                  <Typography sx={{
-                    fontSize: "0.75rem",
-                    fontFamily: "Poppins, sans-serif",
-                    color: "black",
-                  }}>
-                    Released Gold
-                  </Typography>
-                </Box>
+                
+                    <Box key={item._id}>
+                      <Typography sx={{
+                        fontWeight: "medium",
+                        fontSize: "1rem",
+                        color: "black",
+                        fontFamily: "Poppins, sans-serif",
+                      }}>
+                        {item.customerId.name}
+                      </Typography>
+                      <Typography sx={{
+                        fontSize: "0.75rem",
+                        fontFamily: "Poppins, sans-serif",
+                        color: "black",
+                      }}>
+                        {item.description}
+                      </Typography>
+                      <Typography sx={{
+                        fontSize: "0.75rem",
+                        fontFamily: "Poppins, sans-serif",
+                        color: "black",
+                      }}>
+                        {moment(item.appointmentTime).format("lll")}
+                      </Typography>
+                    </Box>
               </Box>
               <ArrowForwardIosIcon sx={{ fontSize: 20, color: "#bdbdbd" }} />
             </CardContent>
           </Card>
         </CardActionArea>
+        )
+      })}
       </Box>
 
 
@@ -145,7 +181,6 @@ function Dashboard() {
       >
         <CachedIcon />
       </Fab>
-
       <Loader loading={loading} />
     </Box>
   );

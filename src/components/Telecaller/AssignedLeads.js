@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import { Box, Dialog, DialogContent, Modal } from "@mui/material";
 import { getLeadByUser, updatedLeadApi } from "../../apis/leadsApi";
-import UpdateLeads from "./updateLeads";
+import UpdateLeads from "./elements/updateLeads";
 import { DataGrid } from "@mui/x-data-grid";
 import { EditOutlined, MoveUpOutlined } from "@mui/icons-material";
 import Loader from "../Loader";
@@ -32,7 +32,7 @@ export default function Assignedleads() {
   const userData = JSON.parse(myObjectSerializedRetrieved);
 
 
-
+  // Fetch Leads Based on TeleCaller ID 
   async function leadsById() {
     let payload = {
       userId: userData._id,
@@ -104,6 +104,7 @@ export default function Assignedleads() {
     },250)
    
   }
+  // UpdateLeads by TeleCallers 
   const updateFunc = async () => {
     let updated = {
       purity: selectedLead.purity,
@@ -130,7 +131,7 @@ export default function Assignedleads() {
   };
 
   
-
+  // Fetching All teams 
   const fetchTeams = async () => {
     const res = await getTeamByType("Telecaller")
     if (res.status) {
@@ -141,9 +142,11 @@ export default function Assignedleads() {
     fetchTeams()
   }, [])
 
+
   const handleTeams = (event) => {
     setSelectedteam(event.target.value)
   }
+  // Moving Leads to other Team
   const handleMoveLead = async () => {
     let updated = {
       moveLead: true,
@@ -163,7 +166,7 @@ export default function Assignedleads() {
   }
 
   
-
+  //  Creating New Leads 
   const handleFormSubmit = async (formData) => {
   const updatedFormData = {
     ...formData,
@@ -173,15 +176,18 @@ export default function Assignedleads() {
   };
   console.log(updatedFormData);
   setIsModalOpen(false)
-  
   setLoading(true)
-  setTimeout(()=>{
-    console.log(updatedFormData);
-    setLoading(false)
-  },250)
-  // const response = await createLead(updatedFormData);
-  // console.log(response);
+  const response = await createLead(updatedFormData);
+   if (response.status) {
+    console.log(response);
+    setTimeout(()=>{
+      console.log(updatedFormData);
+      setLoading(false)
+    },250)
+   }
+   leadsById()
   };
+
   const modalBody = (
     <Box >
         <Typography variant="h5">

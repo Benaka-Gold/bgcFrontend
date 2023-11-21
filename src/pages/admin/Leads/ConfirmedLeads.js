@@ -10,19 +10,17 @@ import {
   MenuItem,
   TextField,
   DialogActions,
-  FormLabel
+  FormLabel,
 } from "@mui/material";
 import { AddOutlined } from "@mui/icons-material";
 import { DataGrid } from "@mui/x-data-grid";
 import { getLeadsByStatus } from "../../../apis/leadsApi";
 import Loader from "../../../components/Loader";
 import { getUsersByRole } from "../../../apis/user";
-import {
-  TimePicker,
-  LocalizationProvider,
-} from "@mui/x-date-pickers";
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+
 import { LoadingButton } from "@mui/lab";
+import { assignTask } from "../../../apis/task";
+import AssignLeadDialog from "../../../components/Operations/AssignLeadDialog";
 
 
 export default function ConfirmedLeads() {
@@ -32,7 +30,9 @@ export default function ConfirmedLeads() {
   const [executives, setExecutives] = React.useState([]);
   const [selectedExecutive, setSelectedExecutive] = React.useState("");
   const [appointmentTime, setAppointmentTime] = React.useState(null);
-  const [assignConfirm,setAssignConfirm] = React.useState(false)
+  const [assignConfirm, setAssignConfirm] = React.useState(false);
+  const [selectedRow, setSelectedRow] = React.useState(null);
+  const [goldType, setGoldType] = React.useState("Physical Gold");
 
   React.useEffect(() => {
     setLoading(true);
@@ -51,15 +51,24 @@ export default function ConfirmedLeads() {
     setExecutives(res.data);
   };
 
-  const handleExecutiveSelection = (e) => {
-    setSelectedExecutive(e.target.value);
-  };
-
-  const confirmLeadFunc = async () => {
-    setAssignConfirm(true)
-    setLoading(true)
-    // await confirmLeadFunc(id)
-    console.log(selectedExecutive);
+  const confirmLeadFunc = async (formData) => {
+    setAssignConfirm(true);
+    setLoading(true);
+    const data = {
+      ...formData,
+      lead : selectedRow,
+    }
+    // console.log(data);
+    try{
+      const res = await assignTask(data);
+      if(res.status === 200){
+        alert("Lead assigned successfully!")
+        setLoading(false)
+      }
+    } catch(error) {
+      alert("Error : ",error)
+      setLoading(false)
+    }
   };
   const columns = [
     { field: "name", headerName: "Name", columnMenu: false, flex: 1 },
@@ -79,13 +88,17 @@ export default function ConfirmedLeads() {
         return (
           <Box>
             <LoadingButton
-               loading={assignDialogOpen}
-               variant="contained"
-               color="primary"
-               onClick={() => {
-                 setAssignDialogOpen(true);
-               }}
-               endIcon={<AddOutlined />}>Assign</LoadingButton>
+              loading={assignDialogOpen}
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                setAssignDialogOpen(true);
+                setSelectedRow(params.row);
+              }}
+              endIcon={<AddOutlined />}
+            >
+              Assign
+            </LoadingButton>
           </Box>
         );
       },
@@ -110,63 +123,97 @@ export default function ConfirmedLeads() {
           Confirmed Leads
         </Typography>
       </Box>
-      <Box>
+      <Box sx={{minHeight : '5vh',height:'50vh'}}>
         <DataGrid
           rows={rows}
           columns={columns}
           getRowId={(row) => row._id}
-          sx={{ boxShadow: 4 }}
+          sx={{ boxShadow: 4,
+        fontFamily: "Poppins, sans-serif",
+      }}
           disableRowSelectionOnClick
         />
       </Box>
       <Loader loading={loading} />
-      <Dialog
+      {/* <Dialog
         maxWidth="md"
         open={assignDialogOpen}
         onClose={() => setAssignDialogOpen(!assignDialogOpen)}
       >
-        <DialogTitle sx={{fontFamily : 'Poppins'}} variant="h6">Assign Lead to Executive</DialogTitle>
+        <DialogTitle sx={{ fontFamily: "Poppins" }} variant="h6">
+          Assign Lead to Executive
+        </DialogTitle>
         <DialogContent>
           <Box>
-            <FormLabel>Executive</FormLabel>
-            <Select
-              fullWidth
-              defaultValue={""}
-              onChange={handleExecutiveSelection}
-            >
-              {executives.map((exec, index) => {
-                return (
-                  <MenuItem value={exec._id} key={index}>
-                    {exec.name}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-            <FormLabel>Appointment Time</FormLabel>
+            <Box m={1}>
+              <FormLabel>Gold Type</FormLabel>
+              <Select
+                fullWidth
+                defaultValue={goldType}
+                value={goldType}
+                onChange={(e) => setGoldType(e.target.value)}
+              >
+                <MenuItem value="Physical Gold">Physical Gold</MenuItem>
+                <MenuItem value="Releasing Pledged Gold">
+                  Releasing Pledged Gold
+                </MenuItem>
+              </Select>
+            </Box>
+            <Box m={1}>
+              <FormLabel>Executive</FormLabel>
+              <Select
+                fullWidth
+                defaultValue={""}
+                onChange={handleExecutiveSelection}
+              >
+                {executives.map((exec, index) => {
+                  return (
+                    <MenuItem value={exec._id} key={index}>
+                      {exec.name}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </Box>
+            <Box m={1}>
+              <FormLabel>Appointment Time</FormLabel>
 
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <div style={{ display: "flex", gap: "1rem" }}>
-                <TimePicker
-                  label="Appointment Time"
-                  value={appointmentTime}
-                  onChange={(newValue) => {
-                    setAppointmentTime(newValue);
-                  }}
-                  renderInput={(params) => <TextField {...params} />}
-                />
-              </div>
-            </LocalizationProvider>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <div style={{ display: "flex", gap: "1rem" }}>
+                  <TimePicker
+                    label="Appointment Time"
+                    value={appointmentTime}
+                    onChange={(newValue) => {
+                      setAppointmentTime(newValue);
+                    }}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                </div>
+              </LocalizationProvider>
+            </Box>
           </Box>
         </DialogContent>
         <DialogActions>
-            <LoadingButton loading={assignConfirm} onClick={confirmLeadFunc} variant="contained">Confirm</LoadingButton>
-            <Button onClick={()=>{
-                setAssignDialogOpen(!assignDialogOpen)
-                setAssignConfirm(false)
-                setLoading(false)
-            }} variant="outlined">Cancel</Button>
+          <LoadingButton
+            loading={assignConfirm}
+            onClick={confirmLeadFunc}
+            variant="contained"
+          >
+            Confirm
+          </LoadingButton>
+          <Button
+            onClick={() => {
+              setAssignDialogOpen(!assignDialogOpen);
+              setAssignConfirm(false);
+              setLoading(false);
+            }}
+            variant="outlined"
+          >
+            Cancel
+          </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
+      <AssignLeadDialog confirmLeadFunc={confirmLeadFunc} assignConfirm={assignConfirm} setAssignConfirm={setAssignConfirm} executives={executives} assignDialogOpen={assignDialogOpen} setAssignDialogOpen={setAssignDialogOpen} />
     </Box>
   );
 }

@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Box,
   TextField,
@@ -7,48 +8,56 @@ import {
   Select,
   FormHelperText,
   Typography,
+  Button,
 } from "@mui/material";
-import { useFormContext, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 
 function BankDetailsForm() {
   const {
     register,
     control,
+    handleSubmit,
     formState: { errors },
-  } = useFormContext();
-  return (
-    <Box>
-      <Typography>Bank Details</Typography>
+  } = useForm({
+    defaultValues: {
+      bankDetails: {
+        accountHolderName: '',
+        bankName: '',
+        accountType: '',
+        ifscMicr: '',
+        branch: '',
+        accountNumber:''
+      }
+    }
+  });
 
-      <TextField
-        fullWidth
-        required
-        label="Account Holder Name"
-        name="accountHolderName"
-        {...register("bankDetails.accountHolderName", { required: "Account Holder name is required" })}
-        error={!!errors.bankDetails?.accountHolderName}
-        helperText={errors.bankDetails?.accountHolderName?.message}
-      />
+  const onSubmit = data => {
+    // Handle form submission
+    console.log(data);
+  };
+
+  return (
+    <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+      <Typography variant="h6">Bank Details</Typography>
       <TextField
         fullWidth
         required
         label="Bank Name"
-        name="bankName"
-        {...register("bankDetails.bankName", { required: "Bank name is required" })}
+        {...register("bankDetails.bankName", { required: "Bank Name is required" })}
         error={!!errors.bankDetails?.bankName}
         helperText={errors.bankDetails?.bankName?.message}
       />
-      <FormControl fullWidth margin="normal" error={!!errors.bankDetails?.accountType}>
-        <InputLabel id="employment-status-label">Account Type</InputLabel>
+       <FormControl fullWidth margin="normal" error={!!errors.bankDetails?.accountType}>
+        <InputLabel id="account-type-label">Account Type</InputLabel>
         <Controller
           name="bankDetails.accountType"
           control={control}
           rules={{ required: "Account Type is required" }}
           render={({ field }) => (
             <Select
-              labelId="employment-status-label"
-              id="source-of-ornament"
-              label="Source of Ornament"
+              labelId="account-type-label"
+              id="account-type"
+              label="Account Type"
               {...field}
             >
               <MenuItem value="Savings Account">Savings Account</MenuItem>
@@ -63,24 +72,47 @@ function BankDetailsForm() {
       <TextField
         fullWidth
         required
-        label="IFSC / MICR"
-        name="ifscCode"
-        {...register("bankDetails.ifscCode", { required: "IFSC / MICR is required" })}
-        error={!!errors.bankDetails?.ifscCode}
-        helperText={errors.bankDetails?.ifscCode?.message}
+        label="Account Number"
+        {...register("bankDetails.accountNumber", { required: "Account Number is required" })}
+        error={!!errors.bankDetails?.accountNumber}
+        helperText={errors.bankDetails?.accountNumber?.message}
+      />
+      <TextField
+        fullWidth
+        required
+        label="Account Holder Name"
+        {...register("bankDetails.accountHolderName", { required: "Account Holder name is required" })}
+        error={!!errors.bankDetails?.accountHolderName}
+        helperText={errors.bankDetails?.accountHolderName?.message}
       />
 
       <TextField
         fullWidth
         required
-        label="Branch"
-        name="branch"
-        {...register("bankDetails.branch", { required: "Branch is required" })}
+        label="ifsc / Micr"
+        {...register("bankDetails.ifscMicr", { required: "ifscMicr is required" })}
+        error={!!errors.bankDetails?.ifscMicr}
+        helperText={errors.bankDetails?.ifscMicr?.message}
+      />
+      <TextField
+        fullWidth
+        required
+        label="branch"
+        {...register("bankDetails.branch", { required: "branch is required" })}
         error={!!errors.bankDetails?.branch}
         helperText={errors.bankDetails?.branch?.message}
       />
 
+
+      {/* Account Type */}
      
+
+      {/* ... other fields remain the same ... */}
+
+      {/* Submit Button */}
+      <Button type="submit" variant="contained" color="primary">
+        Submit
+      </Button>
     </Box>
   );
 }

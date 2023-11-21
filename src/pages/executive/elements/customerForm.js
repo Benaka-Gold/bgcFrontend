@@ -9,20 +9,25 @@ import { useForm, FormProvider } from 'react-hook-form';
 import BasicDetailsForm from './basicDetailsForm';
 import BankDetailsForm from './bankDetailsForm';
 // import VerificationForm from './verificationForm'
-import VerificationForm from './verificationForm'
+import VerificationForm from './uploadDocuments'
+import OfficeDetails from './officeDetails';
+import VerificationalForm from './verificationForm';
+import { useLocation } from 'react-router-dom';
+
+
 export default function HorizontalLinearStepper() {
-
+  const location = useLocation();
   const [activeStep, setActiveStep] = React.useState(0);
-  const [skipped, setSkipped] = React.useState(new Set());
-  const steps = ['Basic Details', 'Bank Details', 'Create an ad'];
+  const steps = ['Basic Details','Office Details' ,'Verification Details'];
 
-
+  const customerDetailsData = location.state?.customerDetailsData || {};
+  console.log(customerDetailsData);
 
   const methods = useForm({
     defaultValues:  {
       name: '',
       phoneNumber: '',
-      altphoneNumber: '',
+      altPhone: '',
       landline: '',
       email: '',
       officePhone: '',
@@ -34,7 +39,7 @@ export default function HorizontalLinearStepper() {
       natureOfOrnament: '',
       totalNumberOfOrnaments:'',
       jewelleryBoughtFrom: '',
-      dateOfPurchase: null,
+      dateOfPurchaseOrPledge: null,
       gender: '',
       maritalStatus: '',
       currentAddress: '',
@@ -46,21 +51,9 @@ export default function HorizontalLinearStepper() {
       dateOfBirth: null,
       addressProof: '',
       addressProofNumber: '',
-      bankDetails:{
-        bankName:"",
-        accountType:"",
-        accountHolderName	:"",
-        ifscCode:	"",
-        branch:"",
-      },
-      source:"",
-      verificationRequired:false,
-      typesOfVerification:"",
-      verificationFeedback:"",
     }
   });
 
-  const { handleSubmit, reset, trigger } = methods;
 
   
 
@@ -85,23 +78,19 @@ export default function HorizontalLinearStepper() {
       case 0:
         return <BasicDetailsForm />;
       case 1:
-        return <BankDetailsForm />;
-      case 2:
-        return <VerificationForm />;
-
-      default:
-        return 'Unknown step';
+        return <OfficeDetails />;
+        case 2:
+        return <VerificationalForm />;
     }
   };
   const onSubmit = (data) => {
     console.log(data);
-    // Handle form submission
   };
 
   return (
     <FormProvider {...methods}>
-    <Box sx={{ width: '100%' }}>
-      <Stepper activeStep={activeStep}>
+    <Box sx={{ width: '100%' , p:2}}>
+      <Stepper activeStep={activeStep} >
         {steps.map((label) => (
           <Step key={label}>
             <StepLabel>{label}</StepLabel>

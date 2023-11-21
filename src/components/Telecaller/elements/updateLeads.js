@@ -7,7 +7,7 @@ import FormControl from '@mui/material/FormControl';
 import { TextField } from '@mui/material';
 import Textarea from '@mui/joy/Textarea';
 import { Box } from "@mui/material";
-import Loader from '../Loader';
+import Loader from '../../Loader';
 
 
 function UpdateLeads({ selectedLead, feedbackFunc, handleChange, updateFunc, loading, sourceFunc }) {

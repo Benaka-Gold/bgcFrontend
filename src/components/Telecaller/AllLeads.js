@@ -155,58 +155,29 @@ export default function LeadTable() {
     }));
     setSummary(transformedResult);
   }, [teamLeadsData]);
+  
   return (
     <Box
-      sx={{
-        ml: { md: "240px", sm: "240px", xs: "0px", lg: "240px" },
-        p: 3,
-        fontFamily: "Poppins, sans-serif",
-        backgroundColor: "#f7f7f8",
-        height: "93vh",
-      }}
-    >
-      <Typography
-        variant="h6"
-        sx={{ display: "flex", flexDirection: "row", pl: 5, fontSize: "25px" }}
-      >
+      sx={{ml: { md: "240px", sm: "240px", xs: "0px", lg: "240px" },p: 3,fontFamily: "Poppins, sans-serif",
+        backgroundColor: "#f7f7f8", height: "93vh",}}>
+      <Typography variant="h6" sx={{ display: "flex", flexDirection: "row", pl: 5, fontSize: "25px" }}>
         All Leads
       </Typography>
+
       <Box sx={{ display: "flex", justifyContent: "flex-end", p: 1 }} gap={2}>
-        <FormControl
-          sx={{ width: "100px" }}
-          disabled={selectedRows.length <= 0 ? true : false}
-        >
-          <InputLabel
-            id="demo-simple-select-label"
-            sx={{ fontFamily: "Poppins, sans-serif", backgroundColor: "white" }}
-          >
+        <FormControl sx={{ width: "100px" }} disabled={selectedRows.length <= 0 ? true : false}>
+          <InputLabel  id="demo-simple-select-label" sx={{ fontFamily: "Poppins, sans-serif", backgroundColor: "white" }}>
             Team
           </InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={userId}
-            label="user"
+          <Select labelId="demo-simple-select-label" id="demo-simple-select" value={userId} label="user"
             onChange={handleChange}
             sx={{ backgroundColor: "white" }}
           >
-            {teleTeams &&
-              teleTeams.map((item) => (
-                <MenuItem value={item._id} key={item._id}>
-                  {item.name}
-                </MenuItem>
-              ))}
+            {teleTeams && teleTeams.map((item) => (<MenuItem value={item._id} key={item._id}> {item.name}</MenuItem>))}
           </Select>
         </FormControl>
-        <ConfirmationModel
-          selectedRows={selectedRows}
-          userId={userId}
-          leadsData={leadsData}
-          setLeadsdata={setLeadsdata}
-          fetchTeamById={fetchTeamById}
-          newLeads={newLeads}
-          fetchData={fetchData}
-        />
+        <ConfirmationModel selectedRows={selectedRows} userId={userId} leadsData={leadsData}
+          setLeadsdata={setLeadsdata} fetchTeamById={fetchTeamById}  newLeads={newLeads} fetchData={fetchData} />
       </Box>
 
       <DataGrid
@@ -231,14 +202,7 @@ export default function LeadTable() {
 
       <Typography
         variant="h6"
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          pl: 5,
-          fontSize: "25px",
-          p: 3,
-        }}
-      >
+        sx={{display: "flex", flexDirection: "row", pl: 5,fontSize: "25px", p: 3, }}>
         Leads Distribution
       </Typography>
 
