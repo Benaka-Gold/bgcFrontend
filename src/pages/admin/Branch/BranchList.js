@@ -9,7 +9,7 @@ import {
 import { grey } from "@mui/material/colors";
 import Loader from "../../../components/Loader";
 import {  getBranches,deleteBranch } from "../../../apis/branch";
-import BranchDialog from "../../../components/Admin/Branch/BranchForm";
+import BranchDialog from "../../../components/Branch/BranchForm";
 import { Dialog,DialogTitle,DialogContent,DialogContentText,DialogActions } from "@mui/material";
 
 const BranchList = () => {

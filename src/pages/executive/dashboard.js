@@ -11,20 +11,20 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import Avatar from '@mui/material/Avatar';
 import {useNavigate} from "react-router-dom";
 import { executiveTask } from "../../apis/task";
+import { Grid } from "@mui/material";
 import moment from "moment"
 
 function Dashboard() {
   const [loading, setLoading] = React.useState(false);
   const [assignTask, setAssignedTask] = useState([])
   let navigate = useNavigate()
-
- 
   
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await executiveTask();
         if (res.status === 200) {
+          console.log(res.data.data);
           setAssignedTask(res.data.data);
         } else {
           alert("Something went wrong Try again");
@@ -38,7 +38,7 @@ function Dashboard() {
     setLoading(true);
     fetchData().then(() => setLoading(false));
   }, []);
-console.log(assignTask);
+// console.log(assignTask);
   const handleRefresh = () => {
     setLoading(true);
     setTimeout(() => {
@@ -47,7 +47,6 @@ console.log(assignTask);
   };
 
   const handleCardClick =(id)=>{
-    console.log(id);
     navigate(`customerdetails?filter=${id}`)
   }
   return (
@@ -76,77 +75,28 @@ console.log(assignTask);
         Assigned Jobs
       </Typography>
 
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          height:"70px",
-          alignItems:"center",
-          m: 1,
-        }}
-      >
-        {assignTask && assignTask.map((item)=>{
-          return(
-            <CardActionArea onClick={() => handleCardClick(item.customerId.leadId)}>
-          <Card sx={{
-            width: "100%",
-            height:"70px",
-            boxShadow: 3,
-            background: "white",
-            borderRadius: "16px",
-            transition: "box-shadow 0.3s ease-in-out",
-            '&:hover': {
-              boxShadow: "0 12px 24px 0 rgba(0, 0, 0, 0.2)",
-            },
-          }}>
-            <CardContent
-              sx={{
-                width:"100%",
-                height:"100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                py: 2,
-                px: 3,
-                margin:"auto"
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Avatar src="/broken-image.jpg" sx={{ width: 45, height: 45, mt: 1, mr:2 }} />
-                
-                    <Box key={item._id}>
-                      <Typography sx={{
-                        fontWeight: "medium",
-                        fontSize: "1rem",
-                        color: "black",
-                        fontFamily: "Poppins, sans-serif",
-                      }}>
-                        {item.customerId.name}
-                      </Typography>
-                      <Typography sx={{
-                        fontSize: "0.75rem",
-                        fontFamily: "Poppins, sans-serif",
-                        color: "black",
-                      }}>
-                        {item.description}
-                      </Typography>
-                      <Typography sx={{
-                        fontSize: "0.75rem",
-                        fontFamily: "Poppins, sans-serif",
-                        color: "black",
-                      }}>
-                        {moment(item.appointmentTime).format("lll")}
-                      </Typography>
+    
+      <Grid container spacing={2}>
+        {assignTask.map((item) => (
+          <Grid item xs={12} sm={6} md={4} lg={3} key={item._id}>
+            <CardActionArea onClick={() => handleCardClick(item.customerId._id)}>
+              <Card sx={{ display: "flex", flexDirection: "column", boxShadow: 3, borderRadius: "16px", '&:hover': { boxShadow: "0 12px 24px 0 rgba(0, 0, 0, 0.2)" } }}>
+                <CardContent sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", py: 2, px: 3 }}>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Avatar src="/broken-image.jpg" sx={{ width: 45, height: 45, mr: 2 }} />
+                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                      <Typography sx={{ fontWeight: "medium", fontSize: "1rem", color: "black" }}>{item.customerId.name}</Typography>
+                      <Typography sx={{ fontSize: "0.75rem", color: "RGB(140, 140, 140)" }}>{item.description}</Typography>
+                      <Typography sx={{ fontSize: "0.75rem", color: "RGB(140, 140, 140)" }}>{moment(item.appointmentTime).format("lll")}</Typography>
                     </Box>
-              </Box>
-              <ArrowForwardIosIcon sx={{ fontSize: 20, color: "#bdbdbd" }} />
-            </CardContent>
-          </Card>
-        </CardActionArea>
-        )
-      })}
-      </Box>
-
+                  </Box>
+                  <ArrowForwardIosIcon sx={{ fontSize: 20, color: "#bdbdbd" }} />
+                </CardContent>
+              </Card>
+            </CardActionArea>
+          </Grid>
+        ))}
+      </Grid>
 
      
       <Box sx={{ flexGrow: 1 }} />
@@ -160,10 +110,10 @@ console.log(assignTask);
           borderRadius: "5px",
         }}
       >
-        <Typography sx={{ fontWeight: "medium" }}>
+        <Typography sx={{ fontWeight: "medium",  fontFamily: "Poppins, sans-serif", }}>
           In hand Cash: ₹ 1,00,000
         </Typography>
-        <Typography sx={{ fontWeight: "medium" }}>
+        <Typography sx={{ fontWeight: "medium" ,  fontFamily: "Poppins, sans-serif",}}>
           EOD Cash to be Submitted: ₹ 1,00,000
         </Typography>
       </Box>

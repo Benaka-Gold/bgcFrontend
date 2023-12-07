@@ -9,6 +9,7 @@ import {
   MenuItem,
   InputLabel,
 } from "@mui/material";
+import { getAllDivision } from "../../apis/divisions";
 
 const LeadForm = ({ onSubmit, teams, role }) => {
   const {
@@ -16,6 +17,19 @@ const LeadForm = ({ onSubmit, teams, role }) => {
     handleSubmit,
     formState: { errors },
   } = useForm();
+
+  const [division,setDivision] = React.useState([])
+
+  React.useEffect(()=>{
+    fetchDivision()
+  },[])
+
+  const fetchDivision = async() => {
+    const res = await getAllDivision()
+    console.log(res.data)
+    setDivision(res.data)
+
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -64,7 +78,7 @@ const LeadForm = ({ onSubmit, teams, role }) => {
           rules={{ required: "Assigned Team is required" }}
           render={({ field }) => {
             return (
-              <Select fullWidth {...field}>
+              <Select fullWidth {...field} >
                 {teams.map((team, key) => {
                   return (
                     <MenuItem key={key} value={team._id}>
@@ -157,6 +171,27 @@ const LeadForm = ({ onSubmit, teams, role }) => {
                 <MenuItem value="Confirmed">Confirmed</MenuItem>
                 <MenuItem value="Invalid">Invalid</MenuItem>
                 <MenuItem value="TCL">TCL</MenuItem>
+              </Select>
+            )}
+          />
+          {errors.status && (
+            <FormHelperText>{errors.status.message}</FormHelperText>
+          )}
+        </FormControl>
+        <FormControl fullWidth margin="normal" error={!!errors.status}>
+            <InputLabel id="division-label">Division</InputLabel>
+            <Controller
+            name="division"
+            control={control}
+            rules={{ required: "division is required" }}
+            render={({ field }) => (
+              <Select
+                labelId="division-label"
+                id="division"
+                label="Division"
+                {...field}
+              >
+               {division.map(d => <MenuItem value={d._id} key={d._id}>{d.divisionName}</MenuItem>)}
               </Select>
             )}
           />

@@ -3,7 +3,7 @@ import { getLeadByUser } from "../../../apis/leadsApi";
 import { Button, Box, ButtonGroup } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import {TextField} from "@mui/material";
-import {Dialog, DialogActions, DialogTitle, DialogContent} from "@mui/material";
+import {Dialog, DialogActions, DialogTitle, DialogContent, FormControl, InputLabel, Select, MenuItem} from "@mui/material";
 
 function CustomeFilter({ customeRow, setDisplay,setLoading }) {
   const [allLeads, setAllLeads] = useState([]);
@@ -12,6 +12,8 @@ function CustomeFilter({ customeRow, setDisplay,setLoading }) {
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
    const [openDialog, setOpenDialog] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState();
+
 
   useEffect(() => {
     async function leadsById() {
@@ -28,9 +30,22 @@ function CustomeFilter({ customeRow, setDisplay,setLoading }) {
         alert("Something went wrong. Please Try again");
       }
     }
-
     leadsById();
   }, [customeRow]);
+
+  useEffect(() => {
+    const filteredLeads = filterByDate(copyLeads, activeFilter); // Filter by date first
+    // Then filter by selected status if one is selected
+    const finalLeads = selectedStatus
+      ? filteredLeads.filter((lead) => lead.status === selectedStatus)
+      : filteredLeads;
+
+    setAllLeads(finalLeads);
+  }, [selectedStatus, copyLeads, activeFilter]);
+
+  const handleChange = (event) => {
+    setSelectedStatus(event.target.value);
+  };
 
   const columns = [
     { field: "name", headerName: "Name", flex: 1 },
@@ -109,11 +124,32 @@ function CustomeFilter({ customeRow, setDisplay,setLoading }) {
 
   return (
     <Box sx={{ width: "100%", height: "auto" }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", m: 2 }}>
-        <ButtonGroup variant="contained" aria-label="outlined primary button group">
-          <Button onClick={handleBack}>Back</Button>
-        </ButtonGroup>
-
+      <Box sx={{ display: "flex", justifyContent: "space-between", m: 2, height:"40px" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <ButtonGroup variant="contained" aria-label="outlined primary button group">
+            <Button onClick={handleBack}>Back</Button>
+          </ButtonGroup>
+          
+          <FormControl variant="outlined" sx={{ minWidth: 150}} >
+            <InputLabel id="demo-simple-select-label" >Select Status</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={selectedStatus}
+              label="Select Status"
+              onChange={handleChange}
+            >
+              <MenuItem value='Confirmed'>Confirmed</MenuItem>
+              <MenuItem value='Pending'>Pending</MenuItem>
+              <MenuItem value="Assigned">Assigned</MenuItem>
+              <MenuItem value="Follow up">Follow up</MenuItem>
+              <MenuItem value="New">New</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+       
+        
+      
         <ButtonGroup variant="contained" aria-label="outlined primary button group">
           <Button
             onClick={() => handleFilterClick("today")}
@@ -137,9 +173,7 @@ function CustomeFilter({ customeRow, setDisplay,setLoading }) {
         Custom Date
       </Button>
         </ButtonGroup>
-
-      
-      </Box>
+        </Box>
 
       <Dialog open={openDialog} onClose={handleCustomFilterClose} >
         <DialogTitle sx={{textAlign:"center"}}>Filter by Date</DialogTitle>

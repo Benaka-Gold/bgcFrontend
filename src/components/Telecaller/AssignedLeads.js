@@ -41,8 +41,10 @@ export default function Assignedleads() {
     setLoading(true);
     setTimeout(() => {
       if (leadsById.success) {
-        console.log(leadsById.data);
-        setAssignedLead(leadsById.data);
+        const filtered = leadsById.data.filter((item)=>{
+          return item.status == "Follow up" || item.status == "Invalid" || item.status == "New"
+        })
+        setAssignedLead(filtered);
       } else {
         alert("Something went wrong");
       }
@@ -174,14 +176,11 @@ export default function Assignedleads() {
     assignedTo:userData._id,
     weight: Number(formData.weight)
   };
-  console.log(updatedFormData);
   setIsModalOpen(false)
   setLoading(true)
   const response = await createLead(updatedFormData);
    if (response.status) {
-    console.log(response);
     setTimeout(()=>{
-      console.log(updatedFormData);
       setLoading(false)
     },250)
    }

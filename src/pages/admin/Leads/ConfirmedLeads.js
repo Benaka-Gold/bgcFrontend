@@ -61,6 +61,7 @@ export default function ConfirmedLeads() {
     // console.log(data);
     try{
       const res = await assignTask(data);
+      console.log(res)
       if(res.status === 200){
         alert("Lead assigned successfully!")
         setLoading(false)
@@ -135,84 +136,6 @@ export default function ConfirmedLeads() {
         />
       </Box>
       <Loader loading={loading} />
-      {/* <Dialog
-        maxWidth="md"
-        open={assignDialogOpen}
-        onClose={() => setAssignDialogOpen(!assignDialogOpen)}
-      >
-        <DialogTitle sx={{ fontFamily: "Poppins" }} variant="h6">
-          Assign Lead to Executive
-        </DialogTitle>
-        <DialogContent>
-          <Box>
-            <Box m={1}>
-              <FormLabel>Gold Type</FormLabel>
-              <Select
-                fullWidth
-                defaultValue={goldType}
-                value={goldType}
-                onChange={(e) => setGoldType(e.target.value)}
-              >
-                <MenuItem value="Physical Gold">Physical Gold</MenuItem>
-                <MenuItem value="Releasing Pledged Gold">
-                  Releasing Pledged Gold
-                </MenuItem>
-              </Select>
-            </Box>
-            <Box m={1}>
-              <FormLabel>Executive</FormLabel>
-              <Select
-                fullWidth
-                defaultValue={""}
-                onChange={handleExecutiveSelection}
-              >
-                {executives.map((exec, index) => {
-                  return (
-                    <MenuItem value={exec._id} key={index}>
-                      {exec.name}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </Box>
-            <Box m={1}>
-              <FormLabel>Appointment Time</FormLabel>
-
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <div style={{ display: "flex", gap: "1rem" }}>
-                  <TimePicker
-                    label="Appointment Time"
-                    value={appointmentTime}
-                    onChange={(newValue) => {
-                      setAppointmentTime(newValue);
-                    }}
-                    renderInput={(params) => <TextField {...params} />}
-                  />
-                </div>
-              </LocalizationProvider>
-            </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <LoadingButton
-            loading={assignConfirm}
-            onClick={confirmLeadFunc}
-            variant="contained"
-          >
-            Confirm
-          </LoadingButton>
-          <Button
-            onClick={() => {
-              setAssignDialogOpen(!assignDialogOpen);
-              setAssignConfirm(false);
-              setLoading(false);
-            }}
-            variant="outlined"
-          >
-            Cancel
-          </Button>
-        </DialogActions>
-      </Dialog> */}
       <AssignLeadDialog confirmLeadFunc={confirmLeadFunc} assignConfirm={assignConfirm} setAssignConfirm={setAssignConfirm} executives={executives} assignDialogOpen={assignDialogOpen} setAssignDialogOpen={setAssignDialogOpen} />
     </Box>
   );

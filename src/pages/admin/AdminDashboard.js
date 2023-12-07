@@ -3,13 +3,16 @@ import React from 'react';
 import Navbar from '../../components/navBar/Navbar';
 import { Route, Routes } from 'react-router-dom';
 import Dashboard from './dashboard';
-import { Assignment, AssignmentOutlined, BuildOutlined, DashboardOutlined, GroupOutlined, List, ListOutlined, MoveDownOutlined, UploadFileOutlined, VerifiedUserOutlined } from '@mui/icons-material';
+import { ApprovalOutlined, Assignment, AssignmentOutlined, BuildOutlined, CurrencyRupeeOutlined, DashboardOutlined, GroupOutlined, List, ListOutlined, MoveDownOutlined, UploadFileOutlined, VerifiedUserOutlined } from '@mui/icons-material';
 import LeadsDashboard from './Leads/LeadsDashboard';
 import CreateLeads from './Leads/CreateLead';
 import MoveLeads from './Leads/MoveLeads';
 import EmployeesList from './Employee/EmployeeList';
 import BranchList from './Branch/BranchList';
 import ConfirmedLeads from './Leads/ConfirmedLeads';
+import FundList from './Fund/FundList';
+import Divisions from './Divisions/Divisions';
+import Approval from '../operations/Approval/Approval';
 
 
 
@@ -23,7 +26,9 @@ const AdminDashboard = () => {
     {name : "Assign Leads",link : 'leads/assign-leads',icon : <AssignmentOutlined/>}
     ]},
     {name : 'Branches',icon : <BuildOutlined />,link : 'branch'},
-
+    {name : "Fund",icon : <CurrencyRupeeOutlined/>,link : 'fund'},
+    {name : "Divisions",icon : <BuildOutlined/>,link : 'division'},
+    {name : "Approval",icon : <ApprovalOutlined/>,link : 'approval'},
   ]
 
   return (
@@ -37,6 +42,9 @@ const AdminDashboard = () => {
         <Route path='leads/move-lead' element={<MoveLeads/>}/>
         <Route path='branch' element={<BranchList/>}/>
         <Route path='leads/assign-leads' element={<ConfirmedLeads/>}/>
+        <Route path='fund' element={<FundList/>}/>
+        <Route path='division' element={<Divisions/>}/>
+        <Route path='approval' element={<Approval/>}/>
       </Routes> {/* This line allows nested routes to render */}
     </>
   );

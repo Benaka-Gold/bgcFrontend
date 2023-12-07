@@ -25,7 +25,7 @@ export default function TwoSimplePieChart() {
 
   function summarizeLeads() {
     const summary = new Map();
-    teamLeadsData.forEach(item => {
+    teamLeadsData?.forEach(item => {
       const label = item.assignedTo && item.assignedTo.name ? item.assignedTo.name : 'Unassigned';
       summary.set(label, (summary.get(label) || 0) + 1);
     });

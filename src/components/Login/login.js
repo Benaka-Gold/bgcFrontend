@@ -56,10 +56,7 @@ export default function Login({ loginData, setLoginData }) {
       setLoginData({ ...loginData, [name]: value });
     }
   };
-
-
- 
-
+   console.log(loginData);
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(validate(loginData));
@@ -67,6 +64,7 @@ export default function Login({ loginData, setLoginData }) {
     if (regexExp.test(loginData?.phoneNumber)) {
       setLoading(true);
       const loginRes = await login(loginData);
+      console.log(loginRes);
       if (loginRes.status === 200) {
         setVisible(!visible);
         setLoginData({ ...loginData, otpSent: true });

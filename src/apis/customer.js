@@ -1,3 +1,4 @@
+import { da } from "date-fns/locale";
 import apiClient from "./http";
 
 // Create a new customer
@@ -32,6 +33,7 @@ async function getCustomerById(id) {
 
 // Update a customer by ID
 async function updateCustomer(id, data) {
+    console.log(id, data);
     try {
         const res = await apiClient().put(`/customers/${id}`, data);
         return res;
@@ -60,11 +62,16 @@ async function searchCustomers(queryParams) {
     }
 }
 
+
+
+
+
 export {
     createCustomer,
     getCustomers,
     getCustomerById,
     updateCustomer,
     deleteCustomer,
-    searchCustomers
+    searchCustomers,
+    
 };

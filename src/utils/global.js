@@ -1,5 +1,5 @@
 export default {
-  baseURL: 'http://192.168.1.109:4000/api/v1',
+  baseURL: 'https://192.168.1.109:4000/api/v1',
   // baseURL: 'https://benaka.gold/api',
   
   states: [
