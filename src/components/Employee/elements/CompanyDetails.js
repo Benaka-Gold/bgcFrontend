@@ -6,7 +6,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { getDepartment, getTeamByType } from '../../../apis/team';
 
 export function CompanyDetails() {
-  const { register, setValue, getValues, formState: { errors } } = useFormContext();
+  const { register, setValue, getValues, formState: { errors } ,watch } = useFormContext();
   const [departments, setDepartments] = useState([]);
   const [teams, setTeams] = useState([]);
 
@@ -37,12 +37,22 @@ export function CompanyDetails() {
 
   // Handle change in department
   const handleDeptChange = (event) => {
-    const selectedDepartment = event.target.value;
-    console.log(event.target.value);
-    setValue('department', selectedDepartment);
-    fetchTeams(selectedDepartment);
+    setValue('department', event.target.value);
+    fetchTeams(event.target.value);
     setValue('teamId', ''); // Reset teamId when department changes
+    const role = fetchRole(event.target.value)
+    setValue('role',role)
   };
+
+  const fetchRole = (department) =>{
+    switch(department){
+      case "Telecaller" : return "Telecaller";
+      case "Tech" : return "Tech";
+      case "Executives" : return "executive";
+      case "Accounts" : return "accounts";
+      default : return department;
+    }
+  }
 
   const handleTeamChange = (event) => {
     const selectedTeam = event.target.value;

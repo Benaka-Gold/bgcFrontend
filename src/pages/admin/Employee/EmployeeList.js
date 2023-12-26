@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Box, IconButton, Typography, Button } from '@mui/material';
-import { getEmployeeById, getEmployees } from '../../../apis/employee';
+import { createEmployee, deleteEmployee, getEmployeeById, getEmployees } from '../../../apis/employee';
 import { AddOutlined, DeleteOutlineOutlined, EditOutlined, VisibilityOutlined } from '@mui/icons-material';
 import EmployeeForm from '../../../components/Employee/EmployeeForm';
 import { grey } from '@mui/material/colors';
 import Loader from '../../../components/Loader';
 import ViewEmployeeDialog from '../../../components/Employee/EmployeeView';
+import {SnackbarProvider,enqueueSnackbar,closeSnackbar } from 'notistack';
 
 const EmployeesList = () => {
     const [rows, setRows] = useState([]);
@@ -15,7 +16,6 @@ const EmployeesList = () => {
     const [loading,setLoading] = React.useState(false)
     const [openEmployee,setOpenEmployee] = useState(false)
     const [selectedEmployeeData,setSelectedEmployeeData] = useState({})
-
 
     useEffect(() => {
         setLoading(true)
@@ -41,10 +41,36 @@ const EmployeesList = () => {
     };
 
     const handleDelete = async (id) => {
-        console.log(id)
+        setLoading(true)
+        console.log(id);
+        try{
+            const response = await deleteEmployee(id);
+            if(response.status === 200){
+                enqueueSnackbar({message : "Employee Deleted Successfully",variant :"success"})
+            }
+        } catch(error){
+            enqueueSnackbar({message : error.message,variant : 'error'})
+        }
+        finally{
+            await fetchEmployees();
+            setTimeout(()=>{setLoading(false)},250)
+        }
     }
-    const handleSubmit = async () => {
-        console.log(employee)
+
+    const handleSubmit = async (data) => {
+        setLoading(true)
+        try{
+            const response = await createEmployee(data)
+            if(response.status===200){
+                enqueueSnackbar("Employee Created Successfully","success")
+            }
+        } catch (error) {
+            enqueueSnackbar(error,{variant : 'error'})
+        }
+        finally {
+        await fetchEmployees();
+        setTimeout(()=>{setLoading(false)},250)
+        }
     }
 
     const columns = [
@@ -71,6 +97,7 @@ const EmployeesList = () => {
     ];
 
     return (
+        <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
         <Box sx={{ ml: { md: '240px', sm: '240px', xs: '0px', lg: '240px' }, p: 3, fontFamily: 'Poppins, sans-serif', backgroundColor: "#f7f7f8", height : '90vh' }}>
 
             <Box sx={{
@@ -110,14 +137,17 @@ const EmployeesList = () => {
                             setOpenEmployee(true)
                             getEmpById(params.row._id)
                     }}
+                    disableRowSelectionOnClick
                     sx={{ boxShadow: 4, backgroundColor: grey[50], fontFamily: 'Poppins, sans-serif', borderRadius: 2,minHeight : '3vh' }}
                 />
             </Box>
 
-            <EmployeeForm open={open} employeeData={employee} onClose={() => { setOpen(!open) }} onSave={handleSubmit} />
+            <EmployeeForm open={open} employeeData={employee} onClose={() => { 
+                setOpen(!open) }} onSave={handleSubmit} />
             <Loader loading={loading}/>
             <ViewEmployeeDialog open={openEmployee} onClose={()=>{setOpenEmployee(!openEmployee)}} employeeData={selectedEmployeeData}/>
         </Box>
+        </SnackbarProvider>
     );
 };
 

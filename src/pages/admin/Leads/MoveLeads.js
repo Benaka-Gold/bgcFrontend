@@ -4,6 +4,7 @@ import { getMoveLeads, updatedLeadApi } from "../../../apis/leadsApi";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box,Button } from "@mui/material";
 import Loader from "../../../components/Loader";
+import { SnackbarProvider, enqueueSnackbar } from "notistack";
 
 
 export default function MoveLeads(){
@@ -40,25 +41,27 @@ export default function MoveLeads(){
             moveLead : false,
             assignedTo : null
         }
-        // console.log({'_id' : data._id,updatedLead})
         setLoading(true)
-        const res = await updatedLeadApi(data._id,updatedLead)
-        if(res.success){
-            alert("Lead moved successfully")
-            await fetchData()
+        try {
+            const res = await updatedLeadApi(data._id,updatedLead)
+            enqueueSnackbar({message : "Lead Moved Successfully",variant : 'success'})
         }
-        else {
-            // alert(res.data.error)
-            console.log(res)
-            await fetchData()
+        catch(error){
+            enqueueSnackbar({message : error.response.data.message,variant : 'error'})
         }
-        setLoading(false)
+        finally {
+            await fetchData()
+            setLoading(false)
+        }
+       
     }
 
     return(
+        <SnackbarProvider>
         <Box sx={{ml:'240px',p:2,height : '90vh'}}>
             <DataGrid
             rows={rows}
+            autoHeight
             columns={columns}
             getRowId={(row)=>row._id}
             initialState={{
@@ -71,6 +74,6 @@ export default function MoveLeads(){
             />
         <Loader loading={loading}/>
         </Box>
-
+        </SnackbarProvider>
     )
 }

@@ -9,9 +9,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { Navigate } from "react-router-dom";
 import { Fade } from '@mui/material'
 import Loader from "../Loader";
-
-
 import Otp from "../otp/otp";
+import { enqueueSnackbar } from "notistack";
 export default function Login({ loginData, setLoginData }) {
   const [error, setError] = useState({});
   const [visible, setVisible] = useState(true)
@@ -56,22 +55,26 @@ export default function Login({ loginData, setLoginData }) {
       setLoginData({ ...loginData, [name]: value });
     }
   };
-   console.log(loginData);
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(validate(loginData));
     setButtonDisabled(true); 
     if (regexExp.test(loginData?.phoneNumber)) {
       setLoading(true);
-      const loginRes = await login(loginData);
-      console.log(loginRes);
-      if (loginRes.status === 200) {
-        setVisible(!visible);
-        setLoginData({ ...loginData, otpSent: true });
-      } else {
-        alert("Number was not registered");
+      try {
+        const loginRes = await login(loginData);
+        console.log(loginRes.data);
+        if (loginRes.status === 200) {
+          setVisible(!visible);
+          setLoginData({ ...loginData, otpSent: true });
+          enqueueSnackbar({message : "OTP Sent Successfully",variant : 'info'})
+        } 
+      } catch (error) {
+        enqueueSnackbar({message : error.message,variant : 'error'})
       }
-      setLoading(false);
+      finally {
+        setLoading(false);
+      }
     }
   };
 

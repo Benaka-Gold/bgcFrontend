@@ -7,29 +7,31 @@ import { DocumentationDetails } from './elements/DocumentationDetails';
 import { CompanyDetails } from './elements/CompanyDetails';
 
 const EmployeeForm = ({ open, onClose, employeeData, onSave }) => {
+
+  const initialValue = {
+    empCode: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    fatherName: ' ',
+    dateOfBirth: null,
+    address: {
+      street: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      country: ''
+    },
+    position: '',
+    department: '',
+    teamId: ' ',
+    dateHired: new Date(),
+    documents: [],
+    photo: null,
+  }
   const methods = useForm({
-    defaultValues: employeeData || {
-      empCode: '',
-      firstName: '',
-      lastName: '',
-      email: '',
-      phoneNumber: '',
-      fatherName: ' ',
-      dateOfBirth: null,
-      address: {
-        street: '',
-        city: '',
-        state: '',
-        zipCode: '',
-        country: ''
-      },
-      position: '',
-      department: '',
-      teamId: ' ',
-      dateHired: new Date(),
-      documents: [],
-      photo: null,
-    }
+    defaultValues: employeeData || initialValue
   });
 
   const steps = [
@@ -80,7 +82,8 @@ const EmployeeForm = ({ open, onClose, employeeData, onSave }) => {
         // New employee creation logic
         console.log('Creating new employee...', data);
       }
-      onSave(); // This should be the logic to save the data to your backend or state management
+      onSave(data); // This should be the logic to save the data to your backend or state management
+      setActiveStep(0)
       onClose(); // Close the dialog upon successful save
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -93,7 +96,10 @@ const EmployeeForm = ({ open, onClose, employeeData, onSave }) => {
   }, [employeeData, reset]);
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth={true} maxWidth="md">
+    <Dialog open={open} onClose={()=>{
+      reset(initialValue)
+      onClose();
+      }} fullWidth={true} maxWidth="md">
       <FormProvider {...methods}> {/* Provide the form context to child components */}
         <DialogTitle>{employeeData ? 'Edit Employee' : 'Create New Employee'}</DialogTitle>
         <DialogContent>

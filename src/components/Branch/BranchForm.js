@@ -8,21 +8,19 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { useDropzone } from "react-dropzone";
 import { uploadfiles, deleteFile, getFile } from "../../apis/fileUpload";
-import { Box } from "@mui/material";
+import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { DeleteOutline } from "@mui/icons-material";
 import { createBranch, updateBranch } from "../../apis/branch";
 import Loader from "../Loader";
+import {getAllDivision} from '../../apis/divisions'
+import { enqueueSnackbar } from "notistack";
 
-function BranchDialog({ open, handleClose, branchData, saveBranch }) {
+function BranchDialog({ open,handleClose, branchData, saveBranch }) {
   const [loading, setLoading] = React.useState(false);
-
-  const {
-    control,
-    reset,
-    setValue,
-    getValues,
-    formState: { errors },
-  } = useForm({
+  const [imagePreview, setImagePreview] = useState(null);
+  const [divisions,setDivisions] = React.useState([])
+  
+  const { control, reset, setValue, getValues, formState: { errors }, } = useForm({
     defaultValues: {
       branchName: "",
       branchImage: "",
@@ -38,44 +36,59 @@ function BranchDialog({ open, handleClose, branchData, saveBranch }) {
     
     if (branchData && branchData._id) {
       // Update branch
-      res = await updateBranch(branchData._id, formData);
+      try{
+        res = await updateBranch(branchData._id, formData);
+        enqueueSnackbar({message : "Branch Updated Successfully",variant : "success"})
+      }
+      catch(error) {enqueueSnackbar({message : error.response.data.message,variant : 'error'})}
     } else {
       // Create new branch
-      res = await createBranch(formData);
-    }
-
-    if (res && res.status === 200) {
-      alert("Branch Saved Successfully");
-      saveBranch && saveBranch(res.data); // If you have a callback to update the list or state
-    } else {
-      alert(res ? res.error.message : "An error occurred");
+      try{
+        res = await createBranch(formData);
+        enqueueSnackbar({message : "Branch Created Successfully",variant : "success"})
+      }
+      catch(error) {
+        enqueueSnackbar({message : error.response.data.message,variant : 'error'})}
     }
 
     setLoading(false);
-    handleClose();
+    handleClose()
   };
 
-  const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
     if (branchData) {
-      // Populate form with existing data including branchImage
       Object.keys(branchData).forEach((key) => {
         setValue(key, branchData[key]);
       });
       if (branchData.branchImage) {
-        // Set image preview if branch image exists
-        const file = async () => {
-          const file = await getFile(branchData.branchImage);
-          if(file.data?.data){
-            setImagePreview(file.data.data);
-          }
-     
-        };
         file()
       }
     }
   }, [branchData, setValue]);
+
+  useEffect(()=>{
+    fetchDivisions()
+  },[])
+
+  const fetchDivisions = async() => {
+    try {
+      const res = await getAllDivision()
+      setDivisions(res.data)
+    } catch(error) {
+      enqueueSnackbar({message : error.message,variant : 'error'})
+    }
+  }
+  const file = async () => {
+    try {
+      const file = await getFile(branchData.branchImage);
+      if(file.data?.data){
+        setImagePreview(file.data.data);
+      } 
+    } catch(error) {
+      enqueueSnackbar({message : error.response.data.message,variant : 'error'})}
+    }
+
 
   const onDrop = useCallback(
     async (acceptedFiles) => {
@@ -113,11 +126,23 @@ function BranchDialog({ open, handleClose, branchData, saveBranch }) {
       setImagePreview("");
     }
   };
-  React.useEffect(() => {
+
+  useEffect(() => {
     if (branchData) {
-      reset(branchData);
+      reset(branchData); // Populate form with branch data for editing
+    } else {
+      reset({
+        branchName: "",
+        location: "",
+        goldStock: 0, // Assuming a default value of 0 for numeric fields
+        goldMovementThreshold: 0,
+        divisionId: "",
+        branchImage: "", // Or null if you prefer
+        // ... include other fields as necessary with their default empty/null values ...
+      });
     }
   }, [branchData, reset]);
+
 
   return (
     <Dialog open={open} onClose={handleClose}>
@@ -225,6 +250,36 @@ function BranchDialog({ open, handleClose, branchData, saveBranch }) {
             )}
           />
 
+          <FormControl fullWidth sx={{mt : 1,mb :1}}>
+          <InputLabel id="division-label">Division</InputLabel>
+          <Controller 
+            name="division"
+            control={control}
+            defaultValue={0}
+            rules={{ required: "Division is required" }}
+            render={({ field }) => (
+              <Select 
+              {...field} 
+              fullWidth
+              defaultValue={''}
+              error={!!errors.divisionId}
+              helperText={
+                  errors.divisionId
+                    ? errors.divisionId.message
+                    : ""
+              }
+              labelId="division-label"
+              label="Division"
+              margin="dense"
+
+              >
+                {divisions.map((division)=><MenuItem value={division._id} key={division._id}>{division.divisionName}</MenuItem>)}
+              </Select>
+              )}
+            />
+          </FormControl>
+         
+
           <Box
             {...getRootProps()}
             sx={{
@@ -253,7 +308,6 @@ function BranchDialog({ open, handleClose, branchData, saveBranch }) {
             )}
           </Box>
 
-          {/* You can similarly add fields for employees and branchImage, depending on how you want to handle those */}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>

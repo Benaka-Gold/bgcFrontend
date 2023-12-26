@@ -57,16 +57,17 @@ export default function LeadsDashboard() {
             }}>
             <Typography sx={{textAlign : 'left',fontFamily : 'Poppins, sans-serif'}} variant="h5">All Leads</Typography>
             </Box>
-            <Box>
+            <Box sx={{minHeight : '5vh',height : '5vh'}}>
             <DataGrid
                 columns={columns}
                 rows={leads}
+                autoHeight
                 initialState={{
                     pagination: {
                         paginationModel: { page: 0, pageSize: 10 },
                     },
                 }}
-                sx={{ boxShadow: 4, backgroundColor: grey[50], fontFamily: 'Poppins, sans-serif', borderRadius: 2,minHeight : '3vh' }}
+                sx={{ boxShadow: 4, backgroundColor: grey[50], fontFamily: 'Poppins, sans-serif', borderRadius: 2 }}
                 pageSizeOptions={[5, 10, 15]}
                 checkboxSelection
                 getRowId={(row) => row._id}

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import Otp from "../components/otp/otp";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Login from "../components/Login/login";
+import { SnackbarProvider } from "notistack";
 
 export default function Auth() {
   const [loginData, setLoginData] = useState({
@@ -13,7 +13,9 @@ export default function Auth() {
   const defaultTheme = createTheme();
   return (
     <ThemeProvider theme={defaultTheme}>
+      <SnackbarProvider>
       <Login setLoginData={setLoginData} loginData={loginData} />
+      </SnackbarProvider>
     </ThemeProvider>
   )
 }

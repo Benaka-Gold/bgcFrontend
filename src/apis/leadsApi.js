@@ -5,7 +5,7 @@ async function getLeads() {
     const response = await apiClient().get("/lead/getLeads");
     return response.data;
   } catch (err) {
-    return err;
+    throw err;
   }
 }
 
@@ -16,7 +16,7 @@ async function getLeadsByTeam(team) {
     });
     return response.data;
   } catch (err) {
-    return err;
+    throw err;
   }
 }
 
@@ -25,7 +25,7 @@ async function getLeadByUser(payload) {
     const response = await apiClient().post("/lead/getLeadByUser", payload);
     return response.data;
   } catch (err) {
-    return err;
+    throw err;
   }
 }
 
@@ -36,7 +36,7 @@ async function assignLead(id, userId) {
     });
     return response.data;
   } catch (err) {
-    return err;
+    throw err;
   }
 }
 
@@ -45,7 +45,7 @@ async function updatedLeadApi(id, payload) {
     const response = await apiClient().put(`/lead/update/${id}`, payload);
     return response.data;
   } catch (err) {
-    return err;
+    throw err;
   }
 }
 
@@ -54,7 +54,7 @@ async function freshLeads(id) {
     const response = await apiClient().get(`/lead/getFreshLeads/${id}`);
     return response.data;
   } catch (err) {
-    return err;
+    throw err;
   }
 }
 
@@ -63,7 +63,7 @@ async function getMoveLeads() {
     const response = await apiClient().get("/lead/getMoveLeads");
     return response.data;
   } catch (err) {
-    return err;
+    throw err;
   }
 }
 
@@ -72,7 +72,7 @@ async function createLead(data) {
     const response = await apiClient().post("/lead/create", data);
     return response.data;
   } catch (err) {
-    return err;
+    throw err;
   }
 }
 
@@ -81,7 +81,7 @@ async function getLeadsByStatus(status) {
     const response = await apiClient().get(`/lead/bystatus/${status}`);
     return response.data;
   } catch (error) {
-    return error;
+    throw error;
   }
 }
 

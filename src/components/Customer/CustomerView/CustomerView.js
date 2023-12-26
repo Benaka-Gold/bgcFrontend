@@ -4,10 +4,13 @@ import BasicDetails from "./subComponents/BasicDetails";
 import BankDetails from "./subComponents/BankDetails";
 import Ornaments from "./subComponents/Ornaments";
 import Verification from "./subComponents/VerificationDetails";
+import Documents from "./subComponents/Documents";
+import BusinessDetails from "./subComponents/BusinessDetails";
 
-export default function CustomerView({customer,open,setOpen,ornaments}){
+export default function CustomerView({customer,open,setOpen,ornaments,business}){
     const [tab,setTab] = React.useState(0)
 
+    
     const handleTabChange = (e,val) => {
         setTab(val);
     }
@@ -23,6 +26,12 @@ export default function CustomerView({customer,open,setOpen,ornaments}){
                 return <BankDetails customer={customer}/>
             case 3:
                 return <Ornaments ornaments={ornaments}/>
+            case 4:
+                return <Documents customer={customer}/> 
+            case 5:
+                return <BusinessDetails business={business}/> 
+            case 6:
+                return <Box sx={{height : '60vh'}}>Business Lists</Box>;
             default:
                 return <Typography>Unknown Tab</Typography>;
         }
@@ -32,7 +41,7 @@ export default function CustomerView({customer,open,setOpen,ornaments}){
         <Dialog open={open} onClose={()=>{
             setOpen(false)
             setTab(0)
-            }} fullWidth maxWidth >
+            }} maxWidth={'lg'} fullWidth>
             <DialogTitle>Customer Details</DialogTitle>
             <DialogContent>
                 <Box sx={{width : '100%'}}>
@@ -40,7 +49,9 @@ export default function CustomerView({customer,open,setOpen,ornaments}){
                     <Tab value={0} label="Basic Details"/>
                     <Tab value={1} label="Verification Details"/>
                     <Tab value={2} label="Bank Details"/>
-                    <Tab value={3} label="Ornaments"/>
+                    {ornaments ? <Tab value={3} label="Ornaments"/> : null}
+                    <Tab value={4} label="Documentation"/>
+                    {business ?  <Tab value={5} label="Business Details"/> : <Tab value={6} label="Business List"/>}
                 </Tabs>
                 {renderTabContent(tab)}
 

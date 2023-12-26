@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Divider } from '@mui/material';
 import { getFile } from '../../../../apis/fileUpload';
 import Loader from '../../../Loader';
+import { Player } from 'video-react';
+import "/node_modules/video-react/dist/video-react.css";
+import { enqueueSnackbar } from 'notistack';
 
 export default function Verification({ customer }) {
     const [houseVerificationUrl, setHouseVerificationUrl] = useState(null);
@@ -18,7 +21,7 @@ export default function Verification({ customer }) {
                 const res = await getFile(customer.houseVerification);
                 setHouseVerificationUrl(res.data.data);
             } catch (error) {
-                console.error('Error fetching house verification video:', error);
+                enqueueSnackbar({message : error.response.data.error,variant : 'error'})
             } finally {
                 setLoading(false);
             }
@@ -38,7 +41,7 @@ export default function Verification({ customer }) {
     );
 
     return (
-        <Box mt={3} p={2} sx={{ fontFamily: 'Poppins, sans-serif' }}>
+        <Box mt={3} p={2} sx={{ fontFamily: 'Poppins, sans-serif' , minHeight : '60vh'}}>
             {loading && <Loader />}
             <Grid container spacing={2}>
                 <Grid item xs={12}>
@@ -46,10 +49,9 @@ export default function Verification({ customer }) {
                     <InfoRow title="Types of Verification:" value={customer.typesOfVerification.join(', ') || 'N/A'} />
                     {/* Display house verification video if available */}
                     {houseVerificationUrl && (
-                        <Box>
-                            <Typography sx={{ fontWeight: 'bold' }}>House Verification Video:</Typography>
-                            <video src={houseVerificationUrl} controls style={{ maxWidth: '100%', height: 'auto' }} />
-                        </Box>
+                        <InfoRow title={"House Verification Video"} value={
+                            <Player  src={houseVerificationUrl} fluid={false} width={350} height={350}  />
+                        }/>
                     )}
                 </Grid>
             </Grid>

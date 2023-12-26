@@ -6,7 +6,7 @@ const getTeam = async (payload) => {
         return data
     }
     catch (error) {
-        return error;
+        throw error;
     }
 }
 
@@ -15,7 +15,7 @@ const getTeamByType = async(teamType) =>{
         return await apiClient().get(`/teams/by-type/${teamType}`)
     }
     catch (error) {
-        return error;
+        throw error;
     }
 }
 
@@ -25,7 +25,7 @@ const getTeamByType = async(teamType) =>{
       return response.data 
     }
     catch (err) {
-      return err;
+      throw err;
     }
   }
 
@@ -36,7 +36,7 @@ const getTeamByType = async(teamType) =>{
       return response
     }
     catch (err) {
-      return err;
+      throw err;
     }
   }
 export {getTeam,getTeamByType,getTeamsById , getDepartment}

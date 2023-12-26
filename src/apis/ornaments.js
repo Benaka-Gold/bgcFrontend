@@ -5,25 +5,27 @@ async function createOrnament(payload) {
         const res = await apiClient().post('/ornaments', payload);
         return res;
     } catch (error) {
-        return error;
+        throw error;
     }
 }
 
-async function getOrnamentsList(id) {
+async function getOrnamentsList(customerId,businessId) {
     try {
-        const res = await apiClient().get(`/ornaments/customer/${id}`);
+        const res = await apiClient().post(`/ornaments/customer`,{customerId : customerId,businessId : businessId});
         return res;
     } catch (error) {
-        return error;
+        throw error;
     }
 }
+
+
 
 async function deleteOrnament(id) {
     try {
         const res = await apiClient().delete(`/ornaments/${id}`);
         return res;
     } catch (error) {
-        return error;
+        throw error;
     }
 }
 

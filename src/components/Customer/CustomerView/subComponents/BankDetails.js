@@ -17,12 +17,12 @@ export default function BankDetails({ customer }) {
     );
 
     return(
-        <Box mt={3} p={2} sx={{ fontFamily: 'Poppins, sans-serif' }}>
-            <InfoRow title={"Bank Name : "} value={customer.bankDetails.bankName}/>
-            <InfoRow title={"Account Type : "} value={customer.bankDetails.accountType}/>
-            <InfoRow title={"Account Number : "} value={customer.bankDetails.accountNumber}/>
-            <InfoRow title={"Account Holder Name : "} value={customer.bankDetails.accountHolderName}/>
-            <InfoRow title={"IFSC/MICR : "} value={customer.bankDetails.ifscMicr}/>
+        <Box mt={3} p={2} sx={{ fontFamily: 'Poppins, sans-serif',minHeight : '60vh' }}>
+            <InfoRow title={"Bank Name : "} value={customer.bankDetails?.bankName}/>
+            <InfoRow title={"Account Type : "} value={customer.bankDetails?.accountType}/>
+            <InfoRow title={"Account Number : "} value={customer.bankDetails?.accountNumber}/>
+            <InfoRow title={"Account Holder Name : "} value={customer.bankDetails?.accountHolderName}/>
+            <InfoRow title={"IFSC/MICR : "} value={customer.bankDetails?.ifscMicr}/>
         </Box>
     )
 }

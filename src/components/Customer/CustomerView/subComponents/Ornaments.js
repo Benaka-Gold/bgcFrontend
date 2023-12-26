@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { getFile } from '../../../../apis/fileUpload';
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import ModalImage from "react-modal-image";
+import { enqueueSnackbar } from 'notistack';
 
 export default function Ornaments({ ornaments }) {
     const [rows, setRows] = useState([]);
-
     const fetchImages = async () => {
-        const updatedRows = await Promise.all(ornaments.map(async (ornament) => {
+        try {
+            const updatedRows = await Promise.all(ornaments.map(async (ornament) => {
             const res = await getFile(ornament.image);
             return { ...ornament, imageUrl: res.data.data };
-        }));
+            }));
+            setRows(updatedRows);
+        } catch(error) {
+            enqueueSnackbar({message : error.response.data.error,variant : 'error'})
+        }
 
-        setRows(updatedRows);
     };
 
     useEffect(() => {
@@ -21,9 +25,11 @@ export default function Ornaments({ ornaments }) {
 
     const totalNetWeight = rows.reduce((sum, row) => sum + row.netWeight, 0);
     const totalGrossWeight = rows.reduce((sum, row) => sum + row.grossWeight, 0);
+    // const totalGrossWeight = rows.reduce((sum, row) => sum + row.grossWeight, 0);
+
 
     return (
-        <TableContainer >
+        <TableContainer sx={{ fontFamily: 'Poppins, sans-serif',height : '60vh',minHeight : '60vh',mt : 3}}>
             <Table stickyHeader sx={{ minWidth: 700, marginTop : 2 }} aria-label="spanning table">
                 <TableHead >
                     <TableRow >
@@ -38,7 +44,7 @@ export default function Ornaments({ ornaments }) {
                         <TableRow key={row._id}>
                             <TableCell>{row.name}</TableCell>
                             <TableCell>
-                            <div style={{ width: 75, height: 75 }}>
+                            <div style={{ width: 50, height: 50 }}>
                                 <ModalImage
                                     small={row.imageUrl}
                                     large={row.imageUrl}
@@ -53,11 +59,16 @@ export default function Ornaments({ ornaments }) {
                     <TableRow>
                         <TableCell rowSpan={3} />
                         <TableCell colSpan={2} sx={{fontWeight : 'bold'}}>Total Net Weight</TableCell>
-                        <TableCell align="right">{totalNetWeight}</TableCell>
+                        <TableCell align="right">{ Number(totalNetWeight.toFixed(2))}</TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell colSpan={2} sx={{fontWeight : 'bold'}}>Total Gross Weight</TableCell>
-                        <TableCell align="right">{totalGrossWeight}</TableCell>
+                        <TableCell align="right">{ Number(totalGrossWeight.toFixed(2))}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell rowSpan={3} />
+                        <TableCell colSpan={2} sx={{fontWeight : 'bold'}}>Total Net Weight</TableCell>
+                        <TableCell align="right">{ Number(totalNetWeight.toFixed(2))}</TableCell>
                     </TableRow>
                 </TableBody>
             </Table>

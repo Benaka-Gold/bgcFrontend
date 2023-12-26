@@ -8,6 +8,7 @@ import FundDialog from "../../../components/Fund/FundDialog";
 import { createFund, updateFund, deleteFund, getFunds } from "../../../apis/fund";
 import { getUsersByRole } from "../../../apis/user";
 import { getBranches } from "../../../apis/branch";
+import { enqueueSnackbar, SnackbarProvider } from "notistack";
 
 export default function FundList() {
     const [rows, setRows] = useState([]);
@@ -27,22 +28,25 @@ export default function FundList() {
     };
 
     const handleSaveFund = async (fundData) => {
-        // try {
-        //     setLoading(true);
-        //     if (currentFund && currentFund._id) {
-        //         await updateFund(currentFund._id, fundData);
-        //     } else {
-        //         await createFund(fundData);
-        //     }
-        //     const updatedFunds = await getFunds();
-        //     setRows(updatedFunds.data);
-        // } catch (error) {
-        //     console.error("Error saving fund:", error);
-        // } finally {
-        //     setLoading(false);
-        //     handleDialogClose();
-        // }
-        console.log(fundData)
+        try {
+            setLoading(true);
+            var message = ""
+            if (currentFund && currentFund._id) {
+                const response = await updateFund(currentFund._id, fundData);
+                message = "Fund Updated Successfully";
+            } else {
+                const response = await createFund(fundData);
+                    message = "Fund Created Successfully";
+            }
+            const updatedFunds = await getFunds();
+            setRows(updatedFunds.data);
+            enqueueSnackbar({message : message,variant : "success"})
+        } catch (error) {
+            enqueueSnackbar({message : error.message,variant : "error"})
+        } finally {
+            setLoading(false);
+            handleDialogClose();
+        }
     };
 
     const handleDeleteFund = async (id) => {
@@ -51,8 +55,9 @@ export default function FundList() {
             await deleteFund(id);
             const updatedFunds = await getFunds();
             setRows(updatedFunds.data);
+            enqueueSnackbar({message : "Fund Deleted Successfully",variant : "success"})
         } catch (error) {
-            console.error("Error deleting fund:", error);
+            enqueueSnackbar({message : error.message,variant : "error"})
         } finally {
             setLoading(false);
         }
@@ -102,6 +107,7 @@ export default function FundList() {
     }, []);
 
     return (
+        <SnackbarProvider autoHideDuration={2000} maxSnack={3}>
         <Box sx={{ ml: { md: '240px', sm: '240px', xs: '0px', lg: '240px' }, p: 3, fontFamily: 'Poppins, sans-serif', backgroundColor: "#f7f7f8", height: '90vh' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography variant="h5" gutterBottom sx={{ color: grey[800], fontFamily: 'Poppins, sans-serif', textAlign: "left" }}>
@@ -118,6 +124,8 @@ export default function FundList() {
                     columns={columns}
                     pageSizeOptions={[5, 10]}
                     autoHeight
+                    disableRowSelectionOnClick
+                    onRowDoubleClick={(params) => handleDialogOpen(params.row)}
                     initialState={{
                         pagination: {
                             pageSize: 5,
@@ -131,12 +139,13 @@ export default function FundList() {
             <FundDialog
                 open={dialogOpen}
                 handleClose={handleDialogClose}
-                handleSave={handleSaveFund}
+                onSubmit={handleSaveFund}
                 initialData={currentFund}
                 branches={data?.branches}
                 executives={data?.executive}
             />
             <Loader loading={loading} />
         </Box>
+        </SnackbarProvider>
     );
 }

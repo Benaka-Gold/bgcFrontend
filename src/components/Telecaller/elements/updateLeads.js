@@ -14,13 +14,7 @@ function UpdateLeads({ selectedLead, feedbackFunc, handleChange, updateFunc, loa
   return (
     <Box sx={{ width: "40%" }}>
       <FormControl sx={{ p: 5, borderRadius: "10px", width: "70%", backgroundColor: "white" }}>
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          id="name"
-          label="Name"
-          name="name"
+        <TextField margin="normal"  required fullWidth id="name" label="Name"  name="name"
           autoComplete="phone"
           autoFocus
           disabled

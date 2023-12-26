@@ -29,7 +29,6 @@ export default function DivisionForm({ open, onSubmit, division, setOpen }) {
                             error={!!errors.divisionName}
                             helperText={errors.divisionName?.message}
                         />
-                        {/* Add more fields as needed, following the same pattern */}
                     </Box>
                 </DialogContent>
                 <DialogActions>

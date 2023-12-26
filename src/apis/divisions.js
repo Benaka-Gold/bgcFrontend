@@ -5,7 +5,7 @@ async function createDivision (data) {
         const res = await apiClient().post('/division',data)
         return res
     } catch (error) {
-        return error
+        throw error
     }
 }
 
@@ -13,7 +13,7 @@ async function updateDivision (id,data) {
     try{
         const res = await apiClient().put(`/division/${id}`,data)
         return res;
-    } catch (error) { return error;}
+    } catch (error) { throw error;}
 }
 
 async function getAllDivision(){
@@ -21,7 +21,7 @@ async function getAllDivision(){
         const res = await apiClient().get('/divisions')
         return res;
     } catch(error) {
-        return error;
+        throw error;
     }
 }
 
@@ -30,7 +30,7 @@ async function getDivision(id){
         const res = await apiClient().get(`/division/${id}`)
         return res;
     }
-    catch (error){return error;}
+    catch (error){throw error;}
 
 }
 

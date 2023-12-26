@@ -1,38 +1,22 @@
 import React from "react";
-import {
-  Box,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Button,
-  Typography,
-  Select,
-  MenuItem,
-  TextField,
-  DialogActions,
-  FormLabel,
-} from "@mui/material";
+import { Box,Typography,} from "@mui/material";
 import { AddOutlined } from "@mui/icons-material";
 import { DataGrid } from "@mui/x-data-grid";
 import { getLeadsByStatus } from "../../../apis/leadsApi";
 import Loader from "../../../components/Loader";
 import { getUsersByRole } from "../../../apis/user";
-
 import { LoadingButton } from "@mui/lab";
 import { assignTask } from "../../../apis/task";
 import AssignLeadDialog from "../../../components/Operations/AssignLeadDialog";
-
+import { enqueueSnackbar, SnackbarProvider } from "notistack";
 
 export default function ConfirmedLeads() {
   const [rows, setRows] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [assignDialogOpen, setAssignDialogOpen] = React.useState(false);
   const [executives, setExecutives] = React.useState([]);
-  const [selectedExecutive, setSelectedExecutive] = React.useState("");
-  const [appointmentTime, setAppointmentTime] = React.useState(null);
   const [assignConfirm, setAssignConfirm] = React.useState(false);
   const [selectedRow, setSelectedRow] = React.useState(null);
-  const [goldType, setGoldType] = React.useState("Physical Gold");
 
   React.useEffect(() => {
     setLoading(true);
@@ -47,8 +31,17 @@ export default function ConfirmedLeads() {
   };
 
   const fetchExecutives = async () => {
-    const res = await getUsersByRole("executive");
-    setExecutives(res.data);
+    const user = JSON.parse(localStorage.getItem('user'))
+    const userDivisionId = user.division;
+    console.log(userDivisionId)
+    try{
+      const res = await getUsersByRole("executive");
+      const filteredExecutives = res.data.filter(executive => executive.division === userDivisionId);
+      setExecutives(filteredExecutives);
+    } catch (error) {
+      enqueueSnackbar({message : error.response.data.message,variant : 'error'})
+    }
+
   };
 
   const confirmLeadFunc = async (formData) => {
@@ -58,17 +51,19 @@ export default function ConfirmedLeads() {
       ...formData,
       lead : selectedRow,
     }
-    // console.log(data);
     try{
       const res = await assignTask(data);
-      console.log(res)
       if(res.status === 200){
-        alert("Lead assigned successfully!")
-        setLoading(false)
+        enqueueSnackbar({message :'Lead assigned successfully!',variant : 'success'})
       }
     } catch(error) {
-      alert("Error : ",error)
+      enqueueSnackbar({message :error.message,variant : 'error'})
+    }
+    finally {
       setLoading(false)
+      setAssignConfirm(false);
+      setAssignDialogOpen(false)
+      fetchConfirmedLead()
     }
   };
   const columns = [
@@ -107,6 +102,7 @@ export default function ConfirmedLeads() {
   ];
 
   return (
+    <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
     <Box
       sx={{
         ml: { md: "240px", sm: "240px", xs: "0px", lg: "240px" },
@@ -124,9 +120,10 @@ export default function ConfirmedLeads() {
           Confirmed Leads
         </Typography>
       </Box>
-      <Box sx={{minHeight : '5vh',height:'50vh'}}>
+      <Box sx={{minHeight : '5vh',height:'5vh'}}>
         <DataGrid
           rows={rows}
+          autoHeight
           columns={columns}
           getRowId={(row) => row._id}
           sx={{ boxShadow: 4,
@@ -138,5 +135,6 @@ export default function ConfirmedLeads() {
       <Loader loading={loading} />
       <AssignLeadDialog confirmLeadFunc={confirmLeadFunc} assignConfirm={assignConfirm} setAssignConfirm={setAssignConfirm} executives={executives} assignDialogOpen={assignDialogOpen} setAssignDialogOpen={setAssignDialogOpen} />
     </Box>
+    </SnackbarProvider>
   );
 }

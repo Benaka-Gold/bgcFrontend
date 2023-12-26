@@ -10,7 +10,7 @@ async function uploadfiles(file,entityType,entityName){
         return res.data
     }
     catch(error) {
-        return error
+        throw error;
     }
 }
 
@@ -19,7 +19,7 @@ async function deleteFile (id) {
         return await apiClient().delete(`/file/${id}`)
     }
     catch(error){
-        return error    
+        throw error;    
     }
 }
 
@@ -28,7 +28,7 @@ async function getFile(id){
         return await apiClient().get(`/download/${id}`)
     }
     catch (error){
-        return error
+        throw error;
     }
 }
 

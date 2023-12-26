@@ -17,7 +17,7 @@ async function getCustomers() {
         const res = await apiClient().get('/customers');
         return res;
     } catch (error) {
-        return error;
+        throw error;
     }
 }
 
@@ -27,18 +27,17 @@ async function getCustomerById(id) {
         const res = await apiClient().get(`/customers/${id}`);
         return res;
     } catch (error) {
-        return error;
+        throw error;
     }
 }
 
 // Update a customer by ID
 async function updateCustomer(id, data) {
-    console.log(id, data);
     try {
         const res = await apiClient().put(`/customers/${id}`, data);
         return res;
     } catch (error) {
-        return error;
+        throw error;
     }
 }
 
@@ -48,7 +47,7 @@ async function deleteCustomer(id) {
         const res = await apiClient().delete(`/customers/${id}`);
         return res;
     } catch (error) {
-        return error;
+        throw error;
     }
 }
 
@@ -58,13 +57,27 @@ async function searchCustomers(queryParams) {
         const res = await apiClient().get('/customers/search', { params: queryParams });
         return res;
     } catch (error) {
-        return error;
+        throw error;
     }
 }
 
+async function customerVerify (id){
+    try {
+        const res = await apiClient().get(`/customer/verify-otp/${id}`)
+        return res
+    } catch (error) {
+        throw error
+    }
+}
 
-
-
+async function customerOtpVerify (payload){
+    try {
+        const res = await apiClient().post(`/customer/verify-otp`, payload)
+        return res
+    } catch (error) {
+        throw error
+    }
+}
 
 export {
     createCustomer,
@@ -73,5 +86,6 @@ export {
     updateCustomer,
     deleteCustomer,
     searchCustomers,
-    
+    customerVerify,
+    customerOtpVerify
 };

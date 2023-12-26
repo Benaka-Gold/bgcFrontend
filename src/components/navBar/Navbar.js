@@ -14,6 +14,8 @@ import { Outlet } from "react-router-dom";
 import { Collapse } from "@mui/material";
 import { ArrowDropDownCircleOutlined } from "@mui/icons-material";
 import Appbar from "./Appbar";
+import { SnackbarProvider, enqueueSnackbar } from 'notistack';
+
 
 export default function Navbar({ data }) {
   const drawWidth = 240;
@@ -170,13 +172,13 @@ export default function Navbar({ data }) {
 
       <Box component="main" sx={{
         flexGrow: 1,
-        width: { sm: `calc(100% - ${drawWidth}px)` },
+        width: `calc(100% - ${drawWidth}px)` ,
       }}>
         <Appbar handleToggle={handleToggle} />
-        <Box sx={{mt : 1}}>
+        {/* <Box sx={{mt : 1}}> */}
         <Outlet />
           
-        </Box>
+        {/* </Box> */}
       </Box>
     </Box>
   );

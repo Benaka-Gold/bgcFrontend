@@ -10,13 +10,16 @@ import Typography from "@mui/material/Typography";
 import { getTeamByType } from "../../apis/team";
 import { useLocation } from 'react-router-dom';
 import { AddCircleOutline } from "@mui/icons-material";
-import {Divider} from "@mui/material";
 import LeadForm from "../Leads/LeadForm";
 import MoveLeads from "./elements/moveLeads";
 import { createLead } from "../../apis/leadsApi";
+import { enqueueSnackbar, SnackbarProvider } from "notistack";
+import { getGoldRate } from "../../apis/goldRate";
+import { getAllDivision } from "../../apis/divisions";
 
 
 export default function Assignedleads() {
+
   const [assignedLead, setAssignedLead] = useState([]);
   const [selectedId, setSelectedId] = useState();
   const [selectedLead, setSelectedLead] = useState({});
@@ -37,7 +40,8 @@ export default function Assignedleads() {
     let payload = {
       userId: userData._id,
     };
-    let leadsById = await getLeadByUser(payload);
+    try{
+      let leadsById = await getLeadByUser(payload);
     setLoading(true);
     setTimeout(() => {
       if (leadsById.success) {
@@ -45,16 +49,17 @@ export default function Assignedleads() {
           return item.status == "Follow up" || item.status == "Invalid" || item.status == "New"
         })
         setAssignedLead(filtered);
-      } else {
-        alert("Something went wrong");
       }
       setLoading(false);
       checkFilter(leadsById.data)
     }, 250);
+  }catch(error){
+    enqueueSnackbar({message :error.message,variant : 'error'})
+  }
   }
 
-
-  React.useEffect(() => {
+  
+  useEffect(() => {
     leadsById();
   }, []);
 
@@ -85,47 +90,27 @@ export default function Assignedleads() {
   }
 
   
-  const handleChange = (e) => {
-    setLoading(true);
-    setTimeout(() => {
-      setSelectedLead({ ...selectedLead, ["status"]: e.target.value });
-      setLoading(false);
-    }, 250);
-  };
-
-  const feedbackFunc = (e) => {
-    let { name, value } = e.target;
-    setSelectedLead({ ...selectedLead, [name]: value });
-  };
-
-  const sourceFunc = (e)=>{
-    setLoading(true)
-    setTimeout(()=>{
-      setSelectedLead({ ...selectedLead, ['source']: e.target.value });
-      setLoading(false);
-    },250)
-   
-  }
   // UpdateLeads by TeleCallers 
-  const updateFunc = async () => {
+  const updateFunc = async (data) => {
     let updated = {
-      purity: selectedLead.purity,
-      status: selectedLead.status,
-      weight: Number(selectedLead.weight),
-      feedback: selectedLead.feedback,
-      source:selectedLead.source,
+      purity: data.purity,
+      status: data.status,
+      weight: Number(data.weight),
+      source:data.source,
     };
+    try{
     let res = await updatedLeadApi(selectedId, updated);
     setLoading(true);
     setTimeout(() => {
       if (res.success) {
         setDrawer(false);
         leadsById();
-      } else {
-        alert("Something went wrong");
-      }
+      } 
       setLoading(false);
-    }, 250);
+    }, 250)
+  }catch(error){
+    enqueueSnackbar({message :error.message,variant : 'error'})
+  }
   };
   const handleClose = () => setMoveLeadModel(false);
   const handleDrawer = () => {
@@ -135,12 +120,15 @@ export default function Assignedleads() {
   
   // Fetching All teams 
   const fetchTeams = async () => {
-    const res = await getTeamByType("Telecaller")
+   try{
+     const res = await getTeamByType("Telecaller")
     if (res.status) {
       setTeams(res.data.data)
+    }}catch(error){
+    enqueueSnackbar({message :error.message,variant : 'error'})
     }
   }
-  React.useEffect(() => {
+  useEffect(() => {
     fetchTeams()
   }, [])
 
@@ -148,27 +136,28 @@ export default function Assignedleads() {
   const handleTeams = (event) => {
     setSelectedteam(event.target.value)
   }
-  // Moving Leads to other Team
+  
   const handleMoveLead = async () => {
     let updated = {
       moveLead: true,
       moveTo: selectedTeam
     };
-    const res = await updatedLeadApi(selectedLead._id, updated)
+   try{
+     const res = await updatedLeadApi(selectedLead._id, updated)
     setLoading(true)
     setMoveLeadModel(false)
     setTimeout(() => {
       if (res.success) {
         setLoading(false)
-      } else {
-        alert("Something went wrong")
-      }
+      } 
       leadsById()
-    }, 250)
+    }, 250)}
+    catch(error){
+    enqueueSnackbar({message :error.message,variant : 'error'})
+      
+    }
   }
 
-  
-  //  Creating New Leads 
   const handleFormSubmit = async (formData) => {
   const updatedFormData = {
     ...formData,
@@ -178,6 +167,7 @@ export default function Assignedleads() {
   };
   setIsModalOpen(false)
   setLoading(true)
+  try{
   const response = await createLead(updatedFormData);
    if (response.status) {
     setTimeout(()=>{
@@ -185,17 +175,12 @@ export default function Assignedleads() {
     },250)
    }
    leadsById()
+  }catch(error){
+    enqueueSnackbar({message :error.message,variant : 'error'})
+  }
   };
 
-  const modalBody = (
-    <Box >
-        <Typography variant="h5">
-            Add a new Lead
-        </Typography>
-        <Divider  />
-        <LeadForm onSubmit={handleFormSubmit} teams={teams} role="Telecaller"  />
-    </Box>
-)
+  
   const style = {
     position: 'absolute',
     top: '50%',
@@ -228,7 +213,14 @@ export default function Assignedleads() {
             </Button>
             <Modal aria-labelledby="modal-title" aria-describedby="modal-desc"  open={drawer} onClose={() => setDrawer(false)}
               sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <UpdateLeads selectedLead={selectedLead} feedbackFunc={feedbackFunc} handleChange={handleChange} updateFunc={updateFunc} sourceFunc={sourceFunc} loading={loading} />
+              <LeadForm
+                open={drawer}
+                setOpen={setDrawer}
+                onSubmit={updateFunc}
+                initialState={selectedLead} 
+                teams={teams}
+                role="Telecaller"
+              />
             </Modal>
           </Box>
         );
@@ -236,6 +228,7 @@ export default function Assignedleads() {
     },
   ];
   return (
+    <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
     <Box sx={{ ml: { md: '240px', sm: '240px', xs: '0px', lg: '240px', display: "flex", flexDirection: "column" }, height: "92vh", p: -1, backgroundColor: "#f7f7f8" }}>
       <Box>
         <Box sx={{display:"flex", justifyContent:"space-between", m:4, fontFamily: 'Poppins, sans-serif'}}>
@@ -269,14 +262,9 @@ export default function Assignedleads() {
       <Loader loading={loading} />
       
       <MoveLeads moveLeadModel={moveLeadModel} handleClose={handleClose} style={style} handleTeams={handleTeams} teams={teams} handleMoveLead={handleMoveLead} />
-
-
-      <Dialog open={isModalOpen} onClose={()=>setIsModalOpen(false)}>
-        <DialogContent>
-          {modalBody}
-        </DialogContent>
-      </Dialog>
+      <LeadForm open={isModalOpen} setOpen={setIsModalOpen} onSubmit={handleFormSubmit} teams={teams} setTeams={setTeams}  role="Telecaller"/>
       </Box>
     </Box>
+    </SnackbarProvider>
   );
 }

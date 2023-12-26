@@ -6,6 +6,8 @@ import { useDispatch } from "react-redux"
 import { verifyLogin } from '../../apis/login/login';
 import { Box } from '@mui/material';
 import Loader from "../Loader";
+import { enqueueSnackbar, SnackbarProvider } from "notistack";
+
 
 
 const Otp = ({ loginData, setLoginData }) => {
@@ -15,11 +17,7 @@ const Otp = ({ loginData, setLoginData }) => {
 
   let navigate = useNavigate()
   const dispatch = useDispatch();
-
-
-
   const handleChange = (newValue) => {
-
     if (isNaN(newValue)) {
       setError("Enter Only Numbers")
     }
@@ -39,9 +37,6 @@ const Otp = ({ loginData, setLoginData }) => {
     else if (otpRes?.user?.role === "Telecaller") {
       return navigate('/telecaller')
     }
-    else {
-      // console.log(false);
-    }
   }, [otpRes])
 
   const loginFunc = async (e) => {
@@ -53,16 +48,20 @@ const Otp = ({ loginData, setLoginData }) => {
     };
   
     if (loginData.otp !== " " && loginData.otp.length >= 6 && !isNaN(loginData.otp)) {
+      try{
       const response = await verifyLogin(payload);
       if (response.status === 200) {
         dispatch({ type: "LOGGEDIN", payload: response.data, isteamLead:  response.data.teamMembers});
         setOtpRes(response.data);
-      } else {
-        alert("Invalid OTP");
-      }
+      }else{
+        enqueueSnackbar({message : 'Invalid OTP' ,variant : 'success'})
+      } 
       setTimeout(()=>{
         setLoading(false)
       },250)
+    }catch(error){
+      enqueueSnackbar({message : error.message ,variant : 'success'})
+    }
     } 
     setTimeout(()=>{
       setLoading(false)
@@ -70,6 +69,7 @@ const Otp = ({ loginData, setLoginData }) => {
   };
 
   return (
+    <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
     <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", m: 1 }}>
       <MuiOtpInput length={6} name="otp" value={loginData.otp} onChange={handleChange} sx={{ minWidth: "330px", margin: "auto", gap:"10px", marginLeft:"45px", marginRight:"45px", m:3 }} autoFocus />
       <span>{error}</span>
@@ -85,6 +85,7 @@ const Otp = ({ loginData, setLoginData }) => {
       </Button>
       <Loader loading={loading} />
     </Box>
+    </SnackbarProvider>
   )
 }
 

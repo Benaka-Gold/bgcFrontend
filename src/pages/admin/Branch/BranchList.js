@@ -8,9 +8,10 @@ import {
 } from "@mui/icons-material";
 import { grey } from "@mui/material/colors";
 import Loader from "../../../components/Loader";
-import {  getBranches,deleteBranch } from "../../../apis/branch";
+import { getBranches,deleteBranch } from "../../../apis/branch";
 import BranchDialog from "../../../components/Branch/BranchForm";
 import { Dialog,DialogTitle,DialogContent,DialogContentText,DialogActions } from "@mui/material";
+import { enqueueSnackbar, SnackbarProvider } from "notistack";
 
 const BranchList = () => {
   const [rows, setRows] = useState([]);
@@ -24,6 +25,7 @@ const BranchList = () => {
     setLoading(true);
     fetchBranches();
     setTimeout(() => setLoading(false), 500);
+
   }, []);
 
   const fetchBranches = async () => {
@@ -31,7 +33,7 @@ const BranchList = () => {
       const response = await getBranches();
       setRows(response.data);
     } catch (error) {
-      console.error("Error fetching Branches:", error);
+      enqueueSnackbar({message : error.message,variant : "error"})
     }
   };
 
@@ -43,12 +45,13 @@ const BranchList = () => {
   const handleDeleteConfirm = async () => {
     if (branchToDelete) {
       setLoading(true)
-      const res = await deleteBranch(branchToDelete)
-      if(res.status === 200){
-        alert("Branch Deleted Successfully")
-      }
-      else {
-        alert("Error deleting branch")
+      try{
+        const res = await deleteBranch(branchToDelete)
+        if(res.status === 200){
+          enqueueSnackbar({message : "Branch Deleted Successfully", variant : "error"})
+        }
+      } catch (error) {
+        enqueueSnackbar({message : "Branch Deleted Successfully", variant : "error"})
       }
       await fetchBranches();
     }
@@ -75,8 +78,8 @@ const BranchList = () => {
             <IconButton
               color="primary"
               onClick={() => {
-                setOpen(true);
                 setBranch(params.row);
+                setOpen(true);
               }}
             >
               <EditOutlined />
@@ -95,6 +98,7 @@ const BranchList = () => {
   ];
 
   return (
+    <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
     <Box
       sx={{
         ml: { md: "240px", sm: "240px", xs: "0px", lg: "240px" },
@@ -128,11 +132,10 @@ const BranchList = () => {
           variant="contained"
           onClick={(e) => {
             e.preventDefault();
-            setOpen(!open);
             setBranch(null);
+            setOpen(true);
           }}
-        >
-          <AddOutlined />
+          startIcon={<AddOutlined />}>
           Add
         </Button>
       </Box>
@@ -143,6 +146,11 @@ const BranchList = () => {
           pageSize={5}
           rowsPerPageOptions={[5]}
           getRowId={(row) => row._id}
+          disableRowSelectionOnClick
+          onRowDoubleClick={(params)=>{
+            setBranch(params.row)
+            setOpen(true)
+          }}
           sx={{
             boxShadow: 4,
             backgroundColor: grey[50],
@@ -152,13 +160,13 @@ const BranchList = () => {
           }}
         />
       </Box>
-      <BranchDialog
-        open={open}
+      <BranchDialog open={open}
         branchData={branch}
-        handleClose={async () => {
+        handleClose={() => {
           setLoading(true);
           setOpen(!open);
-          await fetchBranches();
+          fetchBranches();
+          setBranch(null);
           setLoading(false);
         }}
         saveBranch={async () => {
@@ -186,6 +194,7 @@ const BranchList = () => {
         </DialogActions>
       </Dialog>
     </Box>
+    </SnackbarProvider>
   );
 };
 

@@ -63,7 +63,6 @@ export default function CreateLeads() {
                 Add a new Lead
             </Typography>
             <Divider />
-            <LeadForm onSubmit={handleAddRow} teams={teams} setTeams={setTeams} />
         </Box>
     );
 
@@ -163,6 +162,7 @@ export default function CreateLeads() {
                 <DataGrid
                 columns={columns}
                 rows={rows}
+                autoHeight
                 initialState={{
                     pagination: {
                         paginationModel: { page: 0, pageSize: 10 },
@@ -176,7 +176,7 @@ export default function CreateLeads() {
             
 
             <Loader loading={loading} />
-            <Modal
+            {/* <Modal
                 open={isModalOpen}
                 onClose={handleModal}
                 aria-labelledby="modal-modal-title"
@@ -185,7 +185,9 @@ export default function CreateLeads() {
                 <Fade in timeout={500} unmountOnExit >
                     {modalBody}
                 </Fade>
-            </Modal>
+            </Modal> */}
+            <LeadForm open={isModalOpen} setOpen={setIsModelOpen} onSubmit={handleAddRow} teams={teams} setTeams={setTeams} />
+
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', m: 3 }}>
                 <Button variant='contained' color='primary' onClick={handleSubmit}>Submit Leads</Button>
             </Box>
@@ -204,6 +206,7 @@ export default function CreateLeads() {
                 </Fade>
 
             </Modal>
+
         </Box>
     )
 }

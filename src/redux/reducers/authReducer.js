@@ -17,7 +17,6 @@ const initialState =  {
             localStorage.setItem('isteamLead', JSON.stringify(action.isteamLead))
 
             return login;
-            
 
             case 'LOGOUT':
             let logout = {...state,

@@ -6,6 +6,7 @@ import Loader from "../../../components/Loader";
 import { createDivision, updateDivision, getAllDivision, deleteDivision } from "../../../apis/divisions";
 import DivisionForm from "../../../components/Division/divisionForm";
 import { grey } from "@mui/material/colors";
+import { SnackbarProvider, enqueueSnackbar } from "notistack";
 
 export default function Divisions() {
     const [rows, setRows] = React.useState([]);
@@ -19,13 +20,11 @@ export default function Divisions() {
 
             const res = await deleteDivision(data._id);
             if (res.status === 200) {
-                alert("Deleted Successfully");
+                enqueueSnackbar({message : "Division Selected Successfully",variant : 'success'})
                 fetchData(); // Refresh the list after deletion
-            } else {
-                alert(res.data);
             }
         } catch (error) {
-            alert(error);
+            enqueueSnackbar({message : error.response.data.message,variant : 'error'})
         } finally {
             setLoading(false);
         }
@@ -46,12 +45,10 @@ export default function Divisions() {
                 response = await createDivision(data);
             }
             if (response.status === 200) {
-                alert(`Division ${data._id ? 'Updated' : 'Created'} Successfully`);
-            } else {
-                alert(response.statusText);
-            }
+                enqueueSnackbar({message : `Division ${data._id ? 'Updated' : 'Created'} Successfully`,variant : 'success'})
+            } 
         } catch (error) {
-            alert(error.message);
+            enqueueSnackbar({message : error.response.data.message,variant : 'error'})
         } finally {
             fetchData();
             setLoading(false);
@@ -95,6 +92,7 @@ export default function Divisions() {
     };
 
     return (
+        <SnackbarProvider>
         <Box sx={{ ml: { md: '240px', sm: '240px', xs: '0px', lg: '240px' }, p: 3, fontFamily: 'Poppins, sans-serif', backgroundColor: "#f7f7f8", height : '90vh' }}>
             <Box sx={{display : 'flex',justifyContent : 'space-between',mb : 1}}>
                 <Typography variant="h5">Divisions</Typography>
@@ -117,10 +115,16 @@ export default function Divisions() {
                       }}
                     getRowId={row => row._id}
                     sx={{ boxShadow: 4, backgroundColor: grey[50], fontFamily: 'Poppins, sans-serif', borderRadius: 2,minHeight : '3vh' }}
+                    disableRowSelectionOnClick
+                    onRowDoubleClick={(params) => {
+                        setDivision(null)
+                        handleDialogOpen(params.row)
+                    }}
                 />
             </Box>
             <Loader loading={loading} />
             <DivisionForm open={dialog} onSubmit={handleFormSubmit} division={division} setOpen={setDialog} />
         </Box>
+        </SnackbarProvider>
     );
 }

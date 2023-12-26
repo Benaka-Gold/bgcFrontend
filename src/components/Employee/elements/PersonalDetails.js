@@ -78,6 +78,7 @@ export function PersonalDetails() {
                     label="Date of Birth"
                     value={value}
                     onChange={onChange}
+                    format='dd/MM/yyyy'
                     renderInput={(params) => (
                       <TextField
                         {...params}

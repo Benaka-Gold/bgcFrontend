@@ -4,6 +4,8 @@ import { getLeadByUser } from '../../../apis/leadsApi'
 import { getAssignedTasks } from '../../../apis/task';
 import { DataGrid } from "@mui/x-data-grid";
 import Loader from '../../Loader';
+import { enqueueSnackbar, SnackbarProvider } from "notistack";
+
 
 
 function ConfirmedLeads() {
@@ -16,43 +18,64 @@ function ConfirmedLeads() {
     let payload = {
       userId: userData._id,
     };
+    try{
     let response = await getLeadByUser(payload);
     if(response.success){
-      
       let filtered = response.data.filter((item) => {
         return item.status === "Confirmed" || item.status === "Assigned" || item.status === "pending" || item.status === "started";
       });
       return filtered;
     }
     return []; 
+  }catch(error){
+    enqueueSnackbar({message : error.message ,variant : 'error'})
+  }
   }
 
   async function fetchTasks(filteredLeads) {
-    const taskPromises = filteredLeads?.map((lead) => getAssignedTasks(lead.taskId));
-    const taskResponses = await Promise.all(taskPromises);
-    const taskData = taskResponses.map(response => response.data.data);
-    setLoading(true)
-      setTimeout(()=>{
-        setCustomerData(taskData)
-        setLoading(false)
-      }, 250)
+    try {
+      if (!filteredLeads) {
+        return;
+      }
+  
+      const tasksToFetch = filteredLeads.filter((lead) => lead.taskId !== null);
+      if (tasksToFetch.length === 0) {
+        return;
+      }
+  
+      const taskPromises = tasksToFetch.map((lead) => getAssignedTasks(lead.taskId));
+      const taskResponses = await Promise.all(taskPromises);
+      const taskData = taskResponses
+        .map((response) => (response && response.data ? response.data.data : null))
+        .filter((item) => item !== null);
+  
+      setLoading(true);
+      setTimeout(() => {
+        setCustomerData(taskData);
+        setLoading(false);
+      }, 250);
+    } catch (error) {
+      enqueueSnackbar({ message: error.message, variant: 'error' });
+    }
   }
+  
 
   useEffect(() => {
     async function fetchData() {
       const filteredLeads = await leadsById(); 
+      console.log(filteredLeads);
       await fetchTasks(filteredLeads); 
     }
     fetchData();
   }, []);
   const columns = [
     { field: "cname", headerName: "Customer Name", flex: 1 ,renderCell : (params) => {return params.row.customerId.name}},
-    { field: "name", headerName: "Executive ", flex: 1 ,renderCell : (params) => {return params.row.assignedTo.name}},
+    { field: "name", headerName: "Assigned To ", flex: 1 ,renderCell : (params) => {return params.row.assignedTo.name}},
     { field: "status", headerName: "Status", flex: 1 }
   ]
-  
 
   return (
+    <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
     <Box sx={{ ml: { md: '240px', sm: '240px', xs: '0px', lg: '240px', display: "flex", flexDirection: "column" }, height: "92vh", p: -1, backgroundColor: "#f7f7f8" }}>
         <Typography
         variant="h6"
@@ -70,12 +93,13 @@ function ConfirmedLeads() {
         }}
         autoHeight
         pageSizeOptions={[5, 10, 15]}
-        getRowId={(row) => row._id}
+        getRowId={(row) => row ? row._id : undefined}
         sx={{ fontFamily: 'Poppins, sans-serif', boxShadow: "2px 2px 2px 2px rgb(222,226,230)", backgroundColor: "white", m:4 }}
       />
       </Box>
       <Loader loading={loading} />
      </Box>
+     </SnackbarProvider>
   )
 }
 

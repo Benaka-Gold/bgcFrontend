@@ -6,7 +6,7 @@ async function getBranches() {
     const branches = await apiClient().get("/branches");
     return branches.data;
   } catch (error) {
-    return error;
+    throw error;
   }
 }
 
@@ -16,7 +16,7 @@ async function getBranchById(id) {
     const branch = await apiClient().get(`/branch/${id}`);
     return branch.data;
   } catch (error) {
-    return error;
+    throw error;
   }
 }
 
@@ -24,11 +24,9 @@ async function getBranchById(id) {
 async function createBranch(payload) {
   try {
     const res = await apiClient().post("/branch", payload);
-    console.log(res)
     return res;
   } catch (error) {
-    console.log(error)
-    return error;
+    throw error;
   }
 }
 
@@ -38,7 +36,7 @@ async function updateBranch(id, payload) {
     const res = await apiClient().put(`/branch/${id}`, payload);
     return res;
   } catch (error) {
-    return error;
+    throw error;
   }
 }
 
@@ -48,7 +46,7 @@ async function deleteBranch(id) {
     const res = await apiClient().delete(`/branch/${id}`);
     return res;
   } catch (error) {
-    return error;
+    throw error;
   }
 }
 

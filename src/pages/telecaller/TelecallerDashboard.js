@@ -16,7 +16,7 @@ const TeleCallerDashboard = () => {
   const myObjectSerializedRetrieved = localStorage.getItem("isteamLead");
   const teamLead = JSON.parse(myObjectSerializedRetrieved);
   
-  const adminRoutes = [
+  const telecallerRoutes = [
     { name: 'Dashboard', link: '/', icon: <DashboardOutlined />, element: <Dashboard /> },
     ...(teamLead[0]?.isTL ? [{ name: 'Assign Leads', link: 'allLeads', icon: <AssignmentLateOutlinedIcon />, element: <LeadTable /> }] : []),
     { name: 'Leads', link: 'leads', icon: <LeaderboardOutlinedIcon />, element: <Assignedleads /> },
@@ -24,7 +24,7 @@ const TeleCallerDashboard = () => {
   ]
   return (
     <>
-      <Navbar data={adminRoutes} />
+      <Navbar data={telecallerRoutes} />
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="allLeads" element={<LeadTable />} />

@@ -4,6 +4,8 @@ import { Button, Box, ButtonGroup } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import {TextField} from "@mui/material";
 import {Dialog, DialogActions, DialogTitle, DialogContent, FormControl, InputLabel, Select, MenuItem} from "@mui/material";
+import { enqueueSnackbar, SnackbarProvider } from "notistack";
+
 
 function CustomeFilter({ customeRow, setDisplay,setLoading }) {
   const [allLeads, setAllLeads] = useState([]);
@@ -20,14 +22,16 @@ function CustomeFilter({ customeRow, setDisplay,setLoading }) {
       const payload = {
         userId: customeRow[0],
       };
-      const response = await getLeadByUser(payload);
+      try{
+        const response = await getLeadByUser(payload);
       if (response.success) {
         const todayFilteredLeads = filterByDate(response.data, "today");
         setAllLeads(todayFilteredLeads);
         setCopyLeads(response.data);
         setActiveFilter("today"); 
-      } else {
-        alert("Something went wrong. Please Try again");
+      }}
+      catch(error){
+        enqueueSnackbar({message :error.message,variant : 'error'})
       }
     }
     leadsById();
@@ -35,7 +39,6 @@ function CustomeFilter({ customeRow, setDisplay,setLoading }) {
 
   useEffect(() => {
     const filteredLeads = filterByDate(copyLeads, activeFilter); // Filter by date first
-    // Then filter by selected status if one is selected
     const finalLeads = selectedStatus
       ? filteredLeads.filter((lead) => lead.status === selectedStatus)
       : filteredLeads;
@@ -105,7 +108,6 @@ function CustomeFilter({ customeRow, setDisplay,setLoading }) {
     setActiveFilter("custom")
     setOpenDialog(true);
   };
-  console.log(activeFilter);
   const handleCustomFilterApply = () => {
     handleCustomDateFilter();
     setOpenDialog(false);
@@ -123,22 +125,16 @@ function CustomeFilter({ customeRow, setDisplay,setLoading }) {
   }
 
   return (
+    <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
     <Box sx={{ width: "100%", height: "auto" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", m: 2, height:"40px" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 5 }}>
           <ButtonGroup variant="contained" aria-label="outlined primary button group">
             <Button onClick={handleBack}>Back</Button>
           </ButtonGroup>
-          
           <FormControl variant="outlined" sx={{ minWidth: 150}} >
             <InputLabel id="demo-simple-select-label" >Select Status</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={selectedStatus}
-              label="Select Status"
-              onChange={handleChange}
-            >
+            <Select labelId="demo-simple-select-label"   id="demo-simple-select" value={selectedStatus} label="Select Status" onChange={handleChange}  >
               <MenuItem value='Confirmed'>Confirmed</MenuItem>
               <MenuItem value='Pending'>Pending</MenuItem>
               <MenuItem value="Assigned">Assigned</MenuItem>
@@ -147,57 +143,30 @@ function CustomeFilter({ customeRow, setDisplay,setLoading }) {
             </Select>
           </FormControl>
         </Box>
-       
-        
-      
+
         <ButtonGroup variant="contained" aria-label="outlined primary button group">
-          <Button
-            onClick={() => handleFilterClick("today")}
-            color={activeFilter === "today" ? "primary" : "inherit"}
-          >
+          <Button onClick={() => handleFilterClick("today")}  color={activeFilter === "today" ? "primary" : "inherit"} >
             Today
           </Button>
-          <Button
-            onClick={() => handleFilterClick("thisWeek")}
-            color={activeFilter === "thisWeek" ? "primary" : "inherit"}
-          >
+          <Button onClick={() => handleFilterClick("thisWeek")} color={activeFilter === "thisWeek" ? "primary" : "inherit"} >
             This Week
           </Button>
-          <Button
-            onClick={() => handleFilterClick("thisMonth")}
-            color={activeFilter === "thisMonth" ? "primary" : "inherit"}
-          >
+          <Button onClick={() => handleFilterClick("thisMonth")}  color={activeFilter === "thisMonth" ? "primary" : "inherit"} >
             This Month
           </Button>
           <Button onClick={handleCustomFilterOpen} color={activeFilter === "custom" ? "primary" : "inherit"}>
-        Custom Date
-      </Button>
+            Custom Date
+          </Button>
         </ButtonGroup>
         </Box>
 
       <Dialog open={openDialog} onClose={handleCustomFilterClose} >
         <DialogTitle sx={{textAlign:"center"}}>Filter by Date</DialogTitle>
         <DialogContent  >
-          <TextField
-            label="From"
-            type="date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            sx={{m:2}}
-          />
-          <TextField
-            label="To"
-            type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            sx={{m:2}}
-          />
+          <TextField label="From" type="date" value={fromDate}   onChange={(e) => setFromDate(e.target.value)}
+            InputLabelProps={{  shrink: true, }} sx={{m:2}} />
+          <TextField label="To"  type="date" value={toDate}  onChange={(e) => setToDate(e.target.value)}
+            InputLabelProps={{ shrink: true,  }} sx={{m:2}} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCustomFilterClose}>Cancel</Button>
@@ -205,26 +174,13 @@ function CustomeFilter({ customeRow, setDisplay,setLoading }) {
         </DialogActions>
       </Dialog>
 
-      <DataGrid
-        columns={columns}
-        rows={allLeads}
-        initialState={{
-          pagination: {
-            paginationModel: { page: 0, pageSize: 10 },
-          },
-        }}
-        autoHeight
-        pageSizeOptions={[5, 10, 15]}
-        getRowId={(row) => row._id}
-        sx={{
-          fontFamily: "Poppins, sans-serif",
-          boxShadow: "2px 2px 2px 2px rgb(222,226,230)",
-          backgroundColor: "white",
-          m: 2,
-        }}
-      />
+      <DataGrid columns={columns}  rows={allLeads} initialState={{ pagination: { paginationModel: { page: 0, pageSize: 10 }, }, }}
+        autoHeight pageSizeOptions={[5, 10, 15]} getRowId={(row) => row._id}
+        sx={{ fontFamily: "Poppins, sans-serif",  boxShadow: "2px 2px 2px 2px rgb(222,226,230)",   backgroundColor: "white", m: 2, }} />
     </Box>
+    </SnackbarProvider>
   );
 }
+
 
 export default CustomeFilter;

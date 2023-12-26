@@ -6,7 +6,7 @@ async function getEmployees(){
         return res.data
     }
     catch(error) {
-        return error
+        throw error
     }
 }
 
@@ -16,7 +16,7 @@ async function createEmployee(payload){
         return res.data
     }
     catch(error){
-        return error
+        throw error
     }
 }
 
@@ -26,7 +26,7 @@ async function getEmployeeById(id){
         return res.data
     }
     catch (error){
-        return error
+        throw error
     }
 }
 
@@ -36,7 +36,7 @@ async function updateEmployee(id,data){
         return res.data
     }
     catch (error){
-        return error
+        throw error
     }
 }
 
@@ -46,7 +46,7 @@ async function deleteEmployee(id){
         return res
     }
     catch (error) {
-        return error
+        throw error
     }
 }
 

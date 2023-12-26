@@ -5,7 +5,7 @@ async function getUsersByRole(role){
         const res = await apiClient().get(`/user/${role}`)
         return res.data
     } catch (error) {
-        return error
+        throw error
     }
 }
 

@@ -12,6 +12,8 @@ import Typography from "@mui/material/Typography";
 import Loader from "../Loader";
 import CustomeFilter from "./elements/customeFilter";
 import { Fade } from "@mui/material";
+import { enqueueSnackbar, SnackbarProvider } from "notistack";
+
 
 const columns = [
   { field: "name", headerName: "Name", flex: 1 },
@@ -59,21 +61,20 @@ export default function LeadTable() {
       setTimeout(() => {
         if (newVar.success) {
           setTeleTeams(newVar.data);
-        } else {
-          alert("Something went wrong");
         }
         setLoading(false);
       }, 250);
     } catch (error) {
-      console.log(error);
+      enqueueSnackbar({message :error.message,variant : 'error'})
     }
   };
   const newLeads = async () => {
+    try{
     const res = await freshLeads(items.teamId);
     if (res.success) {
       setLeadsdata(res.data);
-    } else {
-      console.log(res);
+    }}catch(error){
+      enqueueSnackbar({message :error.message,variant : 'error'})
     }
   };
 
@@ -157,6 +158,7 @@ export default function LeadTable() {
   }, [teamLeadsData]);
   
   return (
+    <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
     <Box
       sx={{ml: { md: "240px", sm: "240px", xs: "0px", lg: "240px" },p: 3,fontFamily: "Poppins, sans-serif",
         backgroundColor: "#f7f7f8", height: "93vh",}}>
@@ -230,5 +232,6 @@ export default function LeadTable() {
         </Fade>
       )}
     </Box>
+    </SnackbarProvider>
   );
 }
