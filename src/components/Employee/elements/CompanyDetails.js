@@ -4,11 +4,17 @@ import { Box, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { getDepartment, getTeamByType } from '../../../apis/team';
+import { getAllDivision } from '../../../apis/divisions';
+import dayjs from 'dayjs'; // ensure dayjs is imported
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { Controller } from 'react-hook-form';
 
 export function CompanyDetails() {
-  const { register, setValue, getValues, formState: { errors } ,watch } = useFormContext();
+  const { register, setValue, getValues, formState: { errors } ,control } = useFormContext();
   const [departments, setDepartments] = useState([]);
+  const [division, setDivision] = useState([])
   const [teams, setTeams] = useState([]);
+  let dayjsDate = dayjs(getValues('dateHired')); // converting to dayjs object
 
   const fetchDepartments = async () => {
     try {
@@ -29,17 +35,21 @@ export function CompanyDetails() {
       console.error('Error fetching teams:', error);
     }
   };
-
+const fetchDivisions = async()=>{
+  const response = await getAllDivision()
+  setDivision(response.data)
+}
   // Load departments when component mounts
   useEffect(() => {
     fetchDepartments();
+    fetchDivisions()
   }, []);
 
   // Handle change in department
   const handleDeptChange = (event) => {
     setValue('department', event.target.value);
     fetchTeams(event.target.value);
-    setValue('teamId', ''); // Reset teamId when department changes
+    setValue('team', ''); // Reset teamId when department changes
     const role = fetchRole(event.target.value)
     setValue('role',role)
   };
@@ -56,10 +66,9 @@ export function CompanyDetails() {
 
   const handleTeamChange = (event) => {
     const selectedTeam = event.target.value;
-    setValue('teamId', selectedTeam, { shouldValidate: true });
+    setValue('team', selectedTeam, { shouldValidate: true });
   };
-  
-  // Register dateHired field for form validation
+
   useEffect(() => {
     register('dateHired', { required: 'Hire date is required' });
   }, [register]);
@@ -101,6 +110,7 @@ export function CompanyDetails() {
               labelId="department-label"
               id="department-select"
               label="Department"
+              defaultValue={''}
               {...register('department')}
               value={getValues('department') || ''}
               onChange={handleDeptChange}
@@ -116,10 +126,11 @@ export function CompanyDetails() {
               labelId="team-label"
               id="team-select"
               label="Teams"
-              {...register('teamId')}
-              value={getValues('teamId') || ''}
-              onChange={handleTeamChange}
+              {...register('team')}
+              value={getValues('team')}
               disabled={teams.length < 1}
+              defaultValue={''}
+              onChange={handleTeamChange}
             >
               {teams.map((team,key) => 
                 {
@@ -128,11 +139,13 @@ export function CompanyDetails() {
           </FormControl>
           </Box>
 
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', width:"60%"  , gap:2} }>
+
+          {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DatePicker
               label="Date Hired"
-              value={getValues('dateHired') || null}
-              onChange={(date) => setValue('dateHired', date, { shouldValidate: true })}
+              value={getValues('dateHired')}
+              onChange={(date) => setValue('dateHired', date)}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -142,7 +155,37 @@ export function CompanyDetails() {
                 />
               )}
             />
-          </LocalizationProvider>
+          </LocalizationProvider> */}
+
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Controller  name="dateHired" control={control} rules={{ required: 'Date of birth is required' }}
+                  render={({ field }) => (
+                    <DatePicker
+                      label="Date of Joining"
+                      {...field}
+                      value={dayjsDate} // ensure this is a dayjs object
+                      renderInput={(params) => (
+                        <TextField {...params} fullWidth error={!!errors.dateHired} helperText={errors.dateHired?.message} />
+                      )}
+                    />
+                  )}/>
+              </LocalizationProvider>
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="team-label">Division</InputLabel>
+            <Select
+              labelId="team-label"
+              id="team-select"
+              label="Division"
+              {...register('division')}
+              defaultValue={''}
+              value={getValues('division') }
+            >
+              {division.map((team,key) => 
+                {
+                  return <MenuItem value={team._id} key={key}>{team.divisionName}</MenuItem>})}
+            </Select>
+          </FormControl>
+          </Box>
         </Box>
       </fieldset>
     </Box>

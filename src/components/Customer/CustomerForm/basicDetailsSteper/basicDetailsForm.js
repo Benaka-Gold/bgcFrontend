@@ -7,7 +7,7 @@ import {
   InputLabel,
   MenuItem,
   Grid,
-  Select, FormHelperText, styled, TextareaAutosize
+  Select, FormHelperText, styled, TextareaAutosize, Typography
 } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -111,7 +111,7 @@ function ApplicationForm() {
               ]} />
          
           <CustomTextField name={'annualIncome'} label={'Annual Income'} isRequired={true}  type={'number'}/> 
-
+          
           <Grid item xs={12} md={6}>
             <FormControl fullWidth margin="normal" error={!!errors.dateOfBirth}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -123,6 +123,10 @@ function ApplicationForm() {
               </LocalizationProvider>
               {errors.dateOfBirth && <FormHelperText error>{errors.dateOfBirth.message}</FormHelperText>}
             </FormControl>
+              <StyledTextareaAutosize minRows={3} placeholder="Current Address" name="currentAddress" style={{ width: '100%', margin: '8px 0' }}
+                {...register('currentAddress', { required: 'Current Address  is required' })}
+                error={!!errors.currentAddress} helperText={errors.currentAddress?.message} />
+                {errors.currentAddress && (<Typography color="error"> {errors.currentAddress.message} </Typography>)}
           </Grid>
           
           <CustomSelect name={"maritalStatus"}  label={'Marital Status'}
@@ -133,6 +137,7 @@ function ApplicationForm() {
                 {value : "Divorced",label : 'Divorced'},
               ]} />
           </Grid>
+
         </Box>
       </StyledFormBox>
     </LocalizationProvider>

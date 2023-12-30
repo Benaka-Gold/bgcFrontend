@@ -13,7 +13,7 @@ async function getEmployees(){
 async function createEmployee(payload){
     try {
         const res = await apiClient().post('/employee',payload)
-        return res.data
+        return res
     }
     catch(error){
         throw error
@@ -33,7 +33,7 @@ async function getEmployeeById(id){
 async function updateEmployee(id,data){
     try {
         const res = await apiClient().put(`/employee/${id}`,data)
-        return res.data
+        return res
     }
     catch (error){
         throw error

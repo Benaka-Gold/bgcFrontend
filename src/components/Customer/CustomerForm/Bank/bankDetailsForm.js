@@ -8,7 +8,7 @@ import { updateTask } from '../../../../apis/task';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { fetchAssignedTask } from '../CustomerBasic/subComponent/CustomerVerification';
 import { enqueueSnackbar, SnackbarProvider } from "notistack";
-import {updateBusiness} from '../../../../apis/business'
+import {updateBusiness, getBussiness} from '../../../../apis/business'
 
 function BankDetails() {
   const [loading, setLoading] = useState(false);
@@ -65,6 +65,12 @@ function BankDetails() {
      console.log(response[0].businessId);
      setAssignedTask(response)
      setBusinessId(response[0].businessId)
+     try{
+      const businessResponse =await getBussiness(response[0].businessId)
+      setTransferType(businessResponse.data.transactionType)
+     }catch(error){
+      enqueueSnackbar({message : error.message ,variant : 'error'})
+     }
     } 
     task()
    },[])
@@ -112,7 +118,6 @@ function BankDetails() {
     }
   };
 
-
 const businessUpdate =async()=>{
   setLoading(true)
   const updatedTask = { ...Task };
@@ -127,8 +132,11 @@ const businessUpdate =async()=>{
     enqueueSnackbar({message:"Form Submitted", variant:'success'})
   } catch (error) {
     enqueueSnackbar({message:error.message, variant:'error'})
-  }finally{
-    setLoading(false)
+  }finally {
+      setLoading(false);
+      setTimeout(()=>{
+        navigate(`/executive/customerdetails?filter=${customerId}`);
+      }, 500)
   }
 }
   
@@ -143,7 +151,7 @@ const businessUpdate =async()=>{
         </Typography>
       </Box>
 
-      <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ width: '80%', maxWidth: '500px', height: "80%", margin: "auto" , mb:2}}  >
+      <Box sx={{ width: '80%', maxWidth: '500px', margin: "auto" , mb:2}}>
       <FormControl fullWidth>
         <InputLabel id="demo-simple-select-label">Transaction Type</InputLabel>
         <Select
@@ -157,8 +165,10 @@ const businessUpdate =async()=>{
           <MenuItem value='account_transfer'>Account Transfer</MenuItem>
         </Select>
       </FormControl>
+      </Box>
 
-        {isAccountTransfer ?
+      {isAccountTransfer ?
+      <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ width: '80%', maxWidth: '500px', height: "80%", margin: "auto" , mb:2}}  >
         <Box sx={{mt:3}}>
         <TextField fullWidth required label="Bank Name" variant="outlined"
           {...register('bankDetails.bankName', { required: 'Bank Name is required' })}
@@ -221,10 +231,10 @@ const businessUpdate =async()=>{
           Submit
         </Button>
         </Box>
-        :
-        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }} fullWidth disabled={!transferType} onClick={businessUpdate} >Submit</Button>
-        }
       </Box>
+      :
+      <Button type="submit" variant="contained" color="primary" sx={{ mt: 2, width:'80%' }}  disabled={!transferType} onClick={businessUpdate} >Submit</Button>
+      }
     </Box>
     </SnackbarProvider>
   );

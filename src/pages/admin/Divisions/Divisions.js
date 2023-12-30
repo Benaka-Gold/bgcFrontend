@@ -95,7 +95,7 @@ export default function Divisions() {
         <SnackbarProvider>
         <Box sx={{ ml: { md: '240px', sm: '240px', xs: '0px', lg: '240px' }, p: 3, fontFamily: 'Poppins, sans-serif', backgroundColor: "#f7f7f8", height : '90vh' }}>
             <Box sx={{display : 'flex',justifyContent : 'space-between',mb : 1}}>
-                <Typography variant="h5">Divisions</Typography>
+                <Typography variant="h5" fontFamily={'Poppins, sans-serif'}>Divisions</Typography>
                 <Button onClick={() => handleDialogOpen()} variant="contained" color="primary" startIcon={<Add />}>
                     Add Division
                 </Button>

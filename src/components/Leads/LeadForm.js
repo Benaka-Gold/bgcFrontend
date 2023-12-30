@@ -43,11 +43,12 @@ const FormSelectControl = ({ name, label, rules, control, options, error  }) => 
 );
 
 const LeadForm = ({ onSubmit, teams, role, open, setOpen,initialState,divisions = [],goldRates = []}) => {
-  const { control, handleSubmit, formState: { errors },reset, watch } = useForm();
+  const { control, handleSubmit, formState: { errors },reset, watch,setValue,getValues } = useForm();
   const { enqueueSnackbar } = useSnackbar();
   const [division, setDivision] = React.useState(divisions);
   const [goldRate, setGoldRate] = React.useState(goldRates);
   const goldType = watch("goldType");
+  
   React.useEffect(() => {
      fetchDivision();
      fetchGoldRate();
@@ -56,6 +57,19 @@ const LeadForm = ({ onSubmit, teams, role, open, setOpen,initialState,divisions 
     }
   }, [open, reset, initialState]);
 
+    let releaseAmount = watch('releaseAmount');
+    let netWeight = watch('netWeight')
+    let billingRate = watch('billingRate')
+
+  React.useEffect(()=>{
+    if(goldType === 'release'){
+      let releaseAmount = getValues('releaseAmount');
+      let netWeight = getValues('netWeight')
+      let billingRate = getValues('billingRate')
+      const releasingPurity = (releaseAmount / billingRate / netWeight) * 100
+      setValue('releasingPurity',releasingPurity.toFixed(2))
+    }
+  },[goldType,releaseAmount,netWeight,billingRate])
 
   const fetchDivision = async () => {
     try {
@@ -75,8 +89,6 @@ const LeadForm = ({ onSubmit, teams, role, open, setOpen,initialState,divisions 
     }
   };
   
-
-
   return (
     <SnackbarProvider>
     <Dialog open={open} onClose={() => setOpen(false)} fullWidth={true}>
@@ -191,6 +203,37 @@ const LeadForm = ({ onSubmit, teams, role, open, setOpen,initialState,divisions 
                     )}
                   </FormControl>
                 )}
+                {goldType === "release" && (
+                  <FormControl
+                    fullWidth
+                    margin="normal"
+                    error={Boolean(errors.releaseAmount)}
+                  >
+                    <Controller
+                      name="releaseAmount"
+                      control={control}
+                      defaultValue=""
+                      rules={{ required: "Releasing Amount is required" }}
+                      render={({ field }) => (
+                        <TextField label="Releasing Amount" variant="outlined" fullWidth {...field} type="number"/>
+                      )}
+                    />
+                    {errors.releaseAmount && (
+                      <FormHelperText>{errors.releaseAmount.message}</FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+
+                <FormControl fullWidth margin="normal" >
+                  <Controller
+                    name="feedback"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <TextField label="Feedback" variant="outlined" fullWidth {...field} />
+                    )}
+                  />
+                </FormControl>
             </Grid>
             <Grid item md={6} xs={12}>
                 {role === "Telecaller" ? null :
@@ -230,13 +273,29 @@ const LeadForm = ({ onSubmit, teams, role, open, setOpen,initialState,divisions 
                   { value: "Follow up", label: "Follow up" },
                   { value: "Confirmed", label: "Confirmed" },
                   { value: "Invalid", label: "Invalid" },
-                  { value: "TCL", label: "TCL" },
                 ]}
                 error={errors.status}
               />
                 
-              
-               
+              <FormControl
+                fullWidth
+                margin="normal"
+                error={Boolean(errors.location)}
+              > 
+              <Controller
+                name="location"
+                control={control}
+                defaultValue=""
+                rules={{ required: "Location is required" }}
+                render={({ field }) => (
+                <TextField label="Location" variant="outlined" fullWidth {...field}  />
+                )}
+                />
+                {errors.location && (
+                <FormHelperText>{errors.location.message}</FormHelperText>
+                )}
+              </FormControl>
+
               <FormSelectControl
                 name="division"
                 label="Division"
@@ -245,6 +304,71 @@ const LeadForm = ({ onSubmit, teams, role, open, setOpen,initialState,divisions 
                 options={division.map(d => ({ value: d._id, label: d.divisionName }))}
                 error={errors.division}
               />
+              
+              {goldType === "release" && (
+                  <FormControl
+                    fullWidth
+                    margin="normal"
+                    error={Boolean(errors.nbfc)}
+                  >
+                    <Controller
+                      name="nbfc"
+                      control={control}
+                      defaultValue=""
+                      rules={{ required: "NBFC is required" }}
+                      render={({ field }) => (
+                        <TextField label="NBFC" variant="outlined" fullWidth {...field} />
+                      )}
+                    />
+                    {errors.nbfc && (
+                      <FormHelperText>{errors.nbfc.message}</FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+
+                {goldType === "release" && (
+                  <FormControl
+                    fullWidth
+                    margin="normal"
+                    error={Boolean(errors.billingRate)}
+                  >
+                    <Controller
+                      name="billingRate"
+                      control={control}
+                      defaultValue=""
+                      rules={{ required: "Billing Rate is required" }}
+                      render={({ field }) => (
+                        <TextField label="Billing Rate" variant="outlined" fullWidth {...field} />
+                      )}
+                    />
+                    {errors.billingRate && (
+                      <FormHelperText>{errors.billingRate.message}</FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+
+                {goldType === "release" && (
+                  <FormControl
+                    fullWidth
+                    disabled
+                    margin="normal"
+                    error={Boolean(errors.releasingPurity)}
+                  >
+                    <Controller
+                      name="releasingPurity"
+                      control={control}
+                      defaultValue=""
+                      disabled
+                      render={({ field }) => (
+                        <TextField disabled label="Releasing Purity" variant="outlined" fullWidth {...field} />
+                      )}
+                    />
+                    {errors.releasingPurity && (
+                      <FormHelperText>{errors.releasingPurity.message}</FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+             
             </Grid>
           </Grid>
           <DialogActions>

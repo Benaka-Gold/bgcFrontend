@@ -24,6 +24,7 @@ function Dashboard() {
           let filtered = res?.data?.data?.filter((item)=>{
             return item.assignedTo === userData._id 
           })
+          console.log(filtered);
           setAssignedTask(filtered);
           setLoading(false)
         }, 250)

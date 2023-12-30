@@ -26,6 +26,7 @@ function PledgedForm() {
     let customerId = query.get('filter');
     
     const fetchCustomerAndBusinessData = async () => {
+        setLoading(true)
         try {
             const customerResponse = await getCustomerById(customerId);
             if (customerResponse.status === 200) {
@@ -57,6 +58,10 @@ function PledgedForm() {
             }
         } catch (error) {
             enqueueSnackbar({message: error.message, variant: 'error'});
+        }finally{
+            setTimeout(()=>{
+                setLoading(false)
+            }, 250)
         }
     };
     
@@ -99,6 +104,7 @@ function PledgedForm() {
                  res = await uploadfiles(file, "customer", `${name}/pledgeCopy`);
                 }
                 if (res.success) {
+                    console.log(res);
                     setTimeout(()=>{
                         setValue(fieldName, res.data._id, { shouldValidate: true });
                         setImagePreviews(prev => ({ ...prev, [fieldName]: URL.createObjectURL(file) }));
@@ -224,7 +230,7 @@ function PledgedForm() {
                     {...register("releasingAmount", {
                         required: "Releasing Amount is required",
                         valueAsNumber: true,
-                        min: { value: 0.01, message: "Releasing Amount must be greater than 0" }
+                        min: { value: 0.01, message: "Releasing Amount is required" }
                     })}
                     error={!!errors.releasingAmount} helperText={errors.releasingAmount?.message} sx={{ mb: 2 }} />
 
@@ -246,8 +252,7 @@ function PledgedForm() {
                 />
             </fieldset>
 
-                     <TextField fullWidth label="Gross Weight"
-                    type='number'
+                     <TextField fullWidth label="Gross Weight" type='number'
                         {...register("grossWeight", {
                             required: "Gross Weight is required",
                             pattern: {
@@ -259,27 +264,20 @@ function PledgedForm() {
                         InputLabelProps={{  shrink: true, }}
                     />
 
-                    <TextField
-                        fullWidth
-                        label="Net Weight" type='number'
+                    <TextField fullWidth label="Net Weight" type='number'
                         {...register("netWeight", {
                             required: "Net Weight is required",
+                            min: { value: 0.01, message: "Net Weight is required" },
                             pattern: {
                                 value: /^[0-9]*\.?[0-9]+$/,
-                                message: "Invalid net weight"
+                                message: "Invalid net weight",
                             }
                         })}
-                        error={!!errors.netWeight}
-                        helperText={errors.netWeight?.message}
-                        sx={{ mb: 2 }}
-                        InputLabelProps={{ 
-                            shrink: true,
-                          }}
-                    />
-                    
-                    
 
-                <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+                      
+                        error={!!errors.netWeight} helperText={errors.netWeight?.message} sx={{ mb: 2 }}
+                        InputLabelProps={{ shrink: true, }}/>
+                <Button type="submit" variant="contained" sx={{ mt: 2, mb:2 }} fullWidth>
                     Submit
                 </Button>
             </Box>

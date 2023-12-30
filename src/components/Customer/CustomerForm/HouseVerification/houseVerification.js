@@ -74,27 +74,29 @@ const Verification = () => {
     fetchInitialData();
   }, [customerId]);
 
-  const fetchInitialData = async (houseVerification,verificationFeedback) => {
+  const fetchInitialData = async (houseVerification,verificationFeedback,typesOfVerification) => {
     setLoading(true);
     try {
       const res = await getCustomerById(customerId);
-      console.log("fileRes",houseVerification);
       if (res.data) {
         setCustomerData(res.data);
         if(houseVerification){
+          
           const fileRes =  await getFile(houseVerification)
-          setMediaBlobUrl(fileRes ? fileRes.data.data : null);
+          setTimeout(()=>{
+            setMediaBlobUrl(fileRes ? fileRes.data.data : null);
+            setLoading(false)
+          },250)
+          
         }else return
-        setFormData({
-          houseVerification: houseVerification || '',
-          verificationFeedback: verificationFeedback || '',
-          typesOfVerification: res.data.typesOfVerification || []
-        });
+            setFormData({
+              houseVerification: houseVerification || '',
+              verificationFeedback: verificationFeedback || '',
+              typesOfVerification: res.data.typesOfVerification || []
+            });
       }
     } catch (error) {
       enqueueSnackbar({message: "Failed to fetch customer data: " + error.message, variant: 'error'});
-    } finally {
-      setLoading(false);
     }
   };
   const Task = assignedTask?.find(lead => lead.customerId._id === customerId);
@@ -109,8 +111,9 @@ const Verification = () => {
           setbusinessId(response[0].businessId);
           const businessResponse = await getBussiness(response[0].businessId);
           if (businessResponse && businessResponse.data) {
-            setOtpVerified(businessResponse.data.otpVerification);
-            fetchInitialData(businessResponse.data.houseVerification, businessResponse.data.otpVerification);
+              setOtpVerified(businessResponse.data.otpVerification);
+              fetchInitialData(businessResponse.data.houseVerification, 
+                businessResponse.data.otpVerification, businessResponse.data.typesOfVerification);
           }
         }
       } catch (error) {
@@ -121,7 +124,6 @@ const Verification = () => {
     };
     task();
   }, [customerId]);
-  
 
   const handleInputChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
@@ -222,7 +224,6 @@ const Verification = () => {
           videoRef.current.style.display = 'none';
         } catch (error) {
           enqueueSnackbar({message : error.message ,variant : 'error'})
-
           setUploadError(true);
         }
       };
@@ -231,7 +232,6 @@ const Verification = () => {
       enqueueSnackbar({message : error.message ,variant : 'error'})
     }
   };
-
 
   useEffect(() => {
     let newTypes = [...formData.typesOfVerification];
@@ -248,7 +248,7 @@ const Verification = () => {
     setLoading(true)
     try{
        const response = await customerVerify(customerId)
-       console.log(response.data);
+       console.log(response);
        if(response.status === 200){
         enqueueSnackbar({message : "OTP Sent Succesfully" ,variant : 'success'})
        }
@@ -275,10 +275,8 @@ const Verification = () => {
     updatedTask.state.isVerification = true;
     const updatedBusiness ={...formData, otpVerification :otpVerified}
     try {
-      // const response = await updateCustomer(customerId, formData);
       const taskResponse = await updateTask(updatedTask._id, updatedTask)
       const responseBusiness = await updateBusiness(businessId, updatedBusiness)
-      console.log(responseBusiness);
       setTimeout(()=>{
         setLoading(false)
         navigate(`/executive/customerdetails?filter=${customerId}`);
@@ -338,7 +336,6 @@ const Verification = () => {
             <Button color="primary" onClick={startRecording}>Start Recording</Button>
           </Box>
       )}
-      {console.log(formData)}
       
     <video ref={videoRef} autoPlay style={{ width: '100%', maxHeight: '500px', display: 'none' }} /><br/>
         {mediaBlobUrl && (
@@ -364,7 +361,7 @@ const Verification = () => {
       <OtpVerify open={dialogOpen} setDialogOpen={setDialogOpen} phoneNumber={customerData.phoneNumber} setOtpVerified={setOtpVerified} setLoading={setLoading} />
       
       </Box>
-        <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>Submit</Button>
+        <Button type="submit" variant="contained" color="primary" disabled={!formData.houseVerification && !mediaBlobUrl} fullWidth sx={{ mt: 2 }}>Submit</Button>
       <Loader loading={loading} />
     </Box>
     </SnackbarProvider>

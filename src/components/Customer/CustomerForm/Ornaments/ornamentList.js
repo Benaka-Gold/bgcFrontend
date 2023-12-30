@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography,Button, Card, CardContent,CardMedia,IconButton} from '@mui/material';
+import { Box, Typography,Button, Card, CardContent,CardMedia,IconButton,Table,TableRow, TableBody, TableCell, Select, MenuItem} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -27,7 +27,7 @@ function OrnamentList() {
   const navigate = useNavigate();
   const query = new URLSearchParams(location.search);
   const customerId = query.get('filter');
-
+  const [serviceAmount,setServiceAmount] = useState(0)
 
   const Task = assignedTask?.find(lead => lead.customerId._id === customerId);
   const Ornaments = async (customerId, businessIds) => {
@@ -38,6 +38,7 @@ function OrnamentList() {
     updatedTask.state.isOrnamentDetails = false;
     try{
       const ornamentResponse = await getOrnamentsList(customerId, businessIds)
+      console.log(ornamentResponse.data);
       if (ornamentResponse.status === 200) {
         setLoading(true);
         
@@ -81,12 +82,17 @@ function OrnamentList() {
       return;
     }
     const totalAmount = ornamentData.reduce((total, item) => total + item.amount, 0);
+    const totalGrossWeight = ornamentData.reduce((total, item) => total + item.grossWeight, 0);
+    const totalNetWeight = ornamentData.reduce((total, item) => total + item.netWeight, 0);
+
+
     const payload = {
-      grossAmount: totalAmount
+      grossAmount: totalAmount,
+      netWeight:totalNetWeight.toFixed(2),
+      grossWeight:totalGrossWeight.toFixed(2)
     };
     try {
       const response = await updateBusiness(businessId, payload);
-      console.log(response.data);
     } catch (error) {
       enqueueSnackbar({ message: error.message, variant: 'error' });
     }
@@ -99,6 +105,8 @@ function OrnamentList() {
    useEffect(()=>{
     gettask()
    },[])
+
+   
   const handleDelete = async (id) => {
     setLoading(true);
     try{
@@ -113,9 +121,11 @@ function OrnamentList() {
       enqueueSnackbar({message : error.message ,variant : 'error'})
     }
   };
+
   const totalItems = ornamentData.length;
   const totalNetWeight = ornamentData.reduce((total, item) => total + item.netWeight, 0);
   const totalAmount = ornamentData.reduce((total, item) => total + item.amount, 0);
+  const totalGrossWeight = ornamentData.reduce((total, item) => total + item.grossWeight, 0);
 
   return (
     <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
@@ -157,13 +167,53 @@ function OrnamentList() {
         </Button>
       </Box>
       
-      {totalItems !==0 &&
-      <Box sx={{ display: 'flex',flexDirection:'column', justifyContent: 'space-evenly', p: 2}}>
-        <Typography variant="body1" sx={{fontFamily: "Poppins, sans-serif"}}>Total Items: {totalItems}</Typography>
-        <Typography variant="body1" sx={{fontFamily: "Poppins, sans-serif"}}>Total Net Weight: {Number(totalNetWeight.toFixed(2))} g</Typography>
-        <Typography variant="body1" sx={{fontFamily: "Poppins, sans-serif"}}>Total Amount: {new Intl.NumberFormat('en-IN').format(totalAmount)} </Typography>
-      </Box>
-      }
+      {totalItems !== 0 && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', p: 2 }}>
+          {/* <Typography variant="body1" sx={{ fontFamily: "Poppins, sans-serif" }}>
+            Total Items: {totalItems}
+          </Typography>
+          <Typography variant="body1" sx={{ fontFamily: "Poppins, sans-serif" }}>
+            Total Net Weight: {Number(totalNetWeight.toFixed(2))} g
+          </Typography>
+          <Typography variant="body1" sx={{ fontFamily: "Poppins, sans-serif" }}>
+            Total Amount: {new Intl.NumberFormat('en-IN').format(totalAmount)}
+          </Typography> */}
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell sx={{fontFamily : 'Poppins,sans-serif'}}>Total Items : </TableCell>
+                <TableCell align='center' sx={{fontFamily : 'Poppins,sans-serif'}}>{totalItems}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{fontFamily : 'Poppins,sans-serif'}}>Gross Weight : </TableCell>
+                <TableCell align='center' sx={{fontFamily : 'Poppins,sans-serif'}}>{Number(totalGrossWeight.toFixed(2))}g</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{fontFamily : 'Poppins,sans-serif'}}>Net Weight : </TableCell>
+                <TableCell align='center' sx={{fontFamily : 'Poppins,sans-serif'}}>{Number(totalNetWeight.toFixed(2))}g</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{fontFamily : 'Poppins,sans-serif'}}>Service Amount : 
+                  <Select defaultValue={3} onChange={(e)=>{
+                    setServiceAmount(()=>{return totalAmount * (Number(e.target.value) / 100)})
+                  }}>
+                    <MenuItem value={1}>1%</MenuItem>
+                    <MenuItem value={1.5}>1.5%</MenuItem>
+                    <MenuItem value={2}>2%</MenuItem>
+                    <MenuItem value={2.5}>2.5%</MenuItem>
+                    <MenuItem value={3}>3%</MenuItem>
+                  </Select>
+                  </TableCell>
+                <TableCell align='center' sx={{fontFamily : 'Poppins,sans-serif'}}>₹ {serviceAmount.toFixed(2)}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{fontFamily : 'Poppins,sans-serif'}}>Total Amount : </TableCell>
+                <TableCell align='center' sx={{fontFamily : 'Poppins,sans-serif'}}>₹ {Number(totalAmount-serviceAmount).toFixed(2)}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </Box>
+      )}
       </> 
       <Loader loading={loading} />
     </Box>

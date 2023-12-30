@@ -1,10 +1,8 @@
 import React from "react";
-import { Box,Grid,Table,IconButton, TableBody, TableCell, TableRow, Typography, Paper, TableHead, Divider, Button, TableFooter, Slide } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import { getComplianceVerifyTaskData, getTasksByStatus, updateTask } from "../../apis/task";
-import { ArrowLeftOutlined, ArrowRightAltOutlined, ArrowRightOutlined, CancelOutlined, CheckOutlined, ForkRightOutlined } from "@mui/icons-material";
-import { SnackbarProvider, enqueueSnackbar } from "notistack";
-import { grey } from "@mui/material/colors";
+import { Box,Table,IconButton,TableBody, TableCell, TableRow, Paper, TableHead, Button, Typography } from "@mui/material";
+import { updateTask } from "../../apis/task";
+import { ArrowLeftOutlined, CancelOutlined, CheckOutlined } from "@mui/icons-material";
+import { enqueueSnackbar } from "notistack";
 import Loader from "../Loader";
 import { updateBusiness } from "../../apis/business";
 import { getOrnamentsList } from "../../apis/ornaments";
@@ -16,11 +14,11 @@ const ApprovalView = ({data= {},setVisible}) => {
     const [customerDialog,setCustomerDialog] = React.useState(false)
     const [ornaments,setOrnaments] = React.useState()
     const [businessDetails,setBusinessDetails] = React.useState({})
-
     const handleApprove = async() => {
         setLoading(true)
+        if(data.status === "comp_approval"){
         try{
-            let status = 'comp_approved'
+            let status = 'op_approval'
             const res = await updateBusiness(data.businessId._id,{status : status})
             const res2 = await updateTask(data._id,{status : status})
         } catch(error) {
@@ -29,8 +27,20 @@ const ApprovalView = ({data= {},setVisible}) => {
             setLoading(false)
             setVisible(false)
         }
+      }else if(data.status === "release_approval"){
+        try{
+          let status = 'release_op_approval'
+          const res = await updateBusiness(data.businessId._id,{status : status})
+          const res2 = await updateTask(data._id,{status : status})
+      } catch(error) {
+          enqueueSnackbar({message : error.response.data.message,variant : 'error'})
+      } finally {
+          setLoading(false)
+          setVisible(false)
+      }
+      }
     }
-    
+    console.log(data);
     const handleCustomerView = async() => {
         try{
             setCustomerData(data.customerId)
@@ -64,16 +74,15 @@ const ApprovalView = ({data= {},setVisible}) => {
       <Box>
         <Box>
           <Table component={Paper}>
-            <TableHead>
+            <TableHead >
               <TableRow>
-                <TableCell>
-                  <IconButton onClick={()=>setVisible(false)}>
-                    <ArrowLeftOutlined/>
-                  </IconButton>
-                </TableCell>
-                <TableCell colSpan={5} sx={{fontFamily: 'Poppins, sans-serif'}} align="center">
+              <TableCell colSpan={6} sx={{ fontFamily: 'Poppins, sans-serif' }}>
+                <IconButton sx={{ 
+                }} onClick={() => setVisible(false)}>
+                  <ArrowLeftOutlined />
+                </IconButton>
                   Lead Data by Telecaller
-                </TableCell>
+            </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -84,7 +93,7 @@ const ApprovalView = ({data= {},setVisible}) => {
              ])}
              {customTableRow([
               { label: "Business Source", data: data?.leadId?.source },
-              { label: "Lead Verified", data: data?.leadId?.verified },
+              { label: "Lead Verified", data: ((data?.leadId?.verified) ? 'Yes' : 'No') },
               { label: "Lead Verified By", data: data?.leadId?.verifiedBy?.name },
             ])}
               {customTableRow([
@@ -114,7 +123,6 @@ const ApprovalView = ({data= {},setVisible}) => {
                   </Button>
                 </TableCell>
               </TableRow>
-  
             </TableBody>
           </Table>
           <Box sx={{display : 'flex',justifyContent : 'flex-end', m : 2}} gap={2}>

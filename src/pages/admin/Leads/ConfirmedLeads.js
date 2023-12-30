@@ -1,22 +1,27 @@
 import React from "react";
-import { Box,Typography,} from "@mui/material";
-import { AddOutlined } from "@mui/icons-material";
+import { Box,IconButton,Typography,} from "@mui/material";
+import { AddOutlined, CheckCircleOutline } from "@mui/icons-material";
+import CancelIcon from '@mui/icons-material/Cancel';
 import { DataGrid } from "@mui/x-data-grid";
-import { getLeadsByStatus } from "../../../apis/leadsApi";
+import { getLeadsByStatus, updatedLeadApi } from "../../../apis/leadsApi";
 import Loader from "../../../components/Loader";
 import { getUsersByRole } from "../../../apis/user";
 import { LoadingButton } from "@mui/lab";
 import { assignTask } from "../../../apis/task";
 import AssignLeadDialog from "../../../components/Operations/AssignLeadDialog";
 import { enqueueSnackbar, SnackbarProvider } from "notistack";
+import CancelLeadDialog from "../../../components/Operations/CancelLeadDialog";
 
 export default function ConfirmedLeads() {
   const [rows, setRows] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [assignDialogOpen, setAssignDialogOpen] = React.useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false)
   const [executives, setExecutives] = React.useState([]);
   const [assignConfirm, setAssignConfirm] = React.useState(false);
   const [selectedRow, setSelectedRow] = React.useState(null);
+  const [selectedCancel, setSelectedCancel] = React.useState(null)
+ console.log(selectedRow);
 
   React.useEffect(() => {
     setLoading(true);
@@ -33,7 +38,6 @@ export default function ConfirmedLeads() {
   const fetchExecutives = async () => {
     const user = JSON.parse(localStorage.getItem('user'))
     const userDivisionId = user.division;
-    console.log(userDivisionId)
     try{
       const res = await getUsersByRole("executive");
       const filteredExecutives = res.data.filter(executive => executive.division === userDivisionId);
@@ -41,7 +45,6 @@ export default function ConfirmedLeads() {
     } catch (error) {
       enqueueSnackbar({message : error.response.data.message,variant : 'error'})
     }
-
   };
 
   const confirmLeadFunc = async (formData) => {
@@ -66,6 +69,41 @@ export default function ConfirmedLeads() {
       fetchConfirmedLead()
     }
   };
+
+  const handleVerify = async(params)=>{
+    setLoading(true)
+    try {
+      const res = await updatedLeadApi(params.row._id,{verified : true})
+      if(res){
+        enqueueSnackbar({message : "Verified Successfully",variant : 'success'})
+      }
+    } catch (error) {
+      enqueueSnackbar({message : error.message,variant : 'error'})
+    } finally {
+      fetchConfirmedLead()
+      setLoading(false)
+    }
+  }
+
+  const handleCanel= (params)=>{
+    setCancelDialogOpen(true)
+    setSelectedCancel(params.row)
+  }
+
+  const handleSubmitCancelReason = async(reason) => {
+    setLoading(true)
+    console.log("Cancel reason submitted: ", reason);
+    setCancelDialogOpen(false);
+    try{
+      const leadRes= await updatedLeadApi(selectedCancel._id,{ status :"cancelled", feedback:reason})
+      fetchConfirmedLead()
+    }catch(error){
+      enqueueSnackbar({message : error.message,variant : 'error'})
+    }finally{
+      setLoading(false)
+    }
+  };
+
   const columns = [
     { field: "name", headerName: "Name", columnMenu: false, flex: 1 },
     {
@@ -83,18 +121,28 @@ export default function ConfirmedLeads() {
       renderCell: (params) => {
         return (
           <Box>
-            <LoadingButton
-              loading={assignDialogOpen}
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                setAssignDialogOpen(true);
-                setSelectedRow(params.row);
-              }}
-              endIcon={<AddOutlined />}
-            >
-              Assign
-            </LoadingButton>
+            {!params.row.verified 
+            ? 
+              <IconButton onClick={()=>handleVerify(params)}>
+                <CheckCircleOutline color="success"/>
+              </IconButton> 
+            : <LoadingButton
+                loading={assignDialogOpen}
+                variant="contained"
+                color="primary"
+                onClick={() => {
+                  setAssignDialogOpen(true);
+                  setSelectedRow(params.row);
+                }}
+                endIcon={<AddOutlined />}
+              >
+                Assign
+              </LoadingButton>
+              }
+              {!params.row.verified  ? 
+              <IconButton onClick={()=> handleCanel(params)}> 
+                <CancelIcon color="error"/>
+              </IconButton> : ""}
           </Box>
         );
       },
@@ -120,13 +168,13 @@ export default function ConfirmedLeads() {
           Confirmed Leads
         </Typography>
       </Box>
-      <Box sx={{minHeight : '5vh',height:'5vh'}}>
+      <Box sx={{minHeight : '5vh',height:'5vh',mt:1}}>
         <DataGrid
           rows={rows}
           autoHeight
           columns={columns}
           getRowId={(row) => row._id}
-          sx={{ boxShadow: 4,
+          sx={{ boxShadow: 2,
         fontFamily: "Poppins, sans-serif",
       }}
           disableRowSelectionOnClick
@@ -134,6 +182,7 @@ export default function ConfirmedLeads() {
       </Box>
       <Loader loading={loading} />
       <AssignLeadDialog confirmLeadFunc={confirmLeadFunc} assignConfirm={assignConfirm} setAssignConfirm={setAssignConfirm} executives={executives} assignDialogOpen={assignDialogOpen} setAssignDialogOpen={setAssignDialogOpen} />
+      <CancelLeadDialog  cancelDialogOpen={cancelDialogOpen} setCancelDialogOpen={setCancelDialogOpen} onSubmit={handleSubmitCancelReason}/>
     </Box>
     </SnackbarProvider>
   );

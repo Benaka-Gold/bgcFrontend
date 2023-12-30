@@ -92,19 +92,27 @@ function BranchDialog({ open,handleClose, branchData, saveBranch }) {
 
   const onDrop = useCallback(
     async (acceptedFiles) => {
+
       const existingImageId = getValues("branchImage");
       if (existingImageId) {
-        await deleteFile(existingImageId);
+        try{
+          await deleteFile(existingImageId);
+
+        } catch (error){
+          enqueueSnackbar({message : error.response.data.message,variant : 'error'})
+        }
       }
 
       const file = acceptedFiles[0];
-      const response = await uploadfiles(file);
-
-      if (response.data._id) {
-        setValue("branchImage", response.data._id);
-        setImagePreview(URL.createObjectURL(file));
+      try{
+        const response = await uploadfiles(file,"branch",getValues('branchName'));
+        if (response.data._id) {
+          setValue("branchImage", response.data._id);
+          setImagePreview(URL.createObjectURL(file));
+        }
+      } catch (error) {
+        enqueueSnackbar({message : error.response.data.message,variant : 'error'})
       }
-      // Handle errors here if upload failed
     },
     [getValues, setValue]
   );
@@ -278,6 +286,21 @@ function BranchDialog({ open,handleClose, branchData, saveBranch }) {
               )}
             />
           </FormControl>
+
+          <Controller
+            name="gst"
+            control={control}
+            defaultValue={0}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="GST"
+                type="text"
+                fullWidth
+                margin="dense"
+              />
+            )}
+          />
          
 
           <Box

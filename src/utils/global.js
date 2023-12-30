@@ -101,3 +101,31 @@ export default {
       'Alipurduar|Bankura|Bardhaman|Birbhum|Cooch Behar|Dakshin Dinajpur|Darjeeling|Hooghly|Howrah|Jalpaiguri|Kolkata|Maldah|Murshidabad|Nadia|North 24 Parganas|Paschim Medinipur|Purba Medinipur|Purulia|South 24 Parganas|Uttar Dinajpur',
   },
 };
+
+
+export function Status (status){
+  switch (status) {
+    case 'started':
+      return "Business Started"
+    case 'comp_approval' :
+      return "Waiting For Audit Approval"
+    case 'comp_approved' :
+      return 'Audit Approved'
+    case 'op_approval' :
+        return 'Waiting for Operations Approval'
+    case 'op_approved' :
+        return 'Operations Approved'
+    case 'payment_succesfull':
+        return 'Purchase Approved'
+    case 'purchase_started' :
+        return 'Purchase Started'
+    case 'purchase_op_approval' :
+        return ' '
+    case 'purchase_accounts_approval':
+        return 'Waiting for Purchase Approval'
+    case 'purchase_payment_done' :
+      return 'Business Completed'
+    default:
+      return status
+  }
+}

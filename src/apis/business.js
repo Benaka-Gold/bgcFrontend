@@ -31,6 +31,15 @@ const getBusinessByPeriod = async(from = Date(),to = Date()) => {
     }
 }
 
+const getBusinesses = async() => {
+    try {
+        const res= apiClient().get('/business')
+        return res;
+    } catch (error) {
+        throw error;
+    }
+}
+
 const generateBill = async (id) => {
     try {
         const res = await apiClient().get(`/business/bill/${id}`);
@@ -38,4 +47,4 @@ const generateBill = async (id) => {
     } catch (error) { throw error;}
 }
 
-export {createBusiness,updateBusiness, getBussiness,getBusinessByPeriod,generateBill}
+export {createBusiness,updateBusiness, getBussiness,getBusinessByPeriod,generateBill,getBusinesses}

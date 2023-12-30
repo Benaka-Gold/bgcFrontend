@@ -5,8 +5,9 @@ import { PersonalDetails } from './elements/PersonalDetails';
 import { AddressDetails } from './elements/AddressDetails';
 import { DocumentationDetails } from './elements/DocumentationDetails';
 import { CompanyDetails } from './elements/CompanyDetails';
+import { enqueueSnackbar } from 'notistack';
 
-const EmployeeForm = ({ open, onClose, employeeData, onSave }) => {
+const EmployeeForm = ({ open, onClose, employeeData = {}, onSave }) => {
 
   const initialValue = {
     empCode: '',
@@ -31,8 +32,10 @@ const EmployeeForm = ({ open, onClose, employeeData, onSave }) => {
     photo: null,
   }
   const methods = useForm({
-    defaultValues: employeeData || initialValue
+    defaultValues: employeeData
   });
+  
+
 
   const steps = [
     'Personal Details',
@@ -50,7 +53,7 @@ const EmployeeForm = ({ open, onClose, employeeData, onSave }) => {
   const [activeStep, setActiveStep] = React.useState(0)
 
   // Destructure the needed methods from useForm
-  const { handleSubmit, reset, trigger } = methods;
+  const { handleSubmit, reset, trigger,getValues } = methods;
 
   const handleNext = async () => {
     // Trigger validation for current step fields
@@ -76,21 +79,17 @@ const EmployeeForm = ({ open, onClose, employeeData, onSave }) => {
   const submitForm = async (data) => {
     try {
       if (employeeData) {
-        // Existing employee update logic
         console.log('Updating employee...', data);
       } else {
-        // New employee creation logic
         console.log('Creating new employee...', data);
       }
       onSave(data); // This should be the logic to save the data to your backend or state management
       setActiveStep(0)
-      onClose(); // Close the dialog upon successful save
     } catch (error) {
-      console.error('Error submitting form:', error);
+      enqueueSnackbar({message : error.response.data.message,variant : 'error'})
     }
   };
 
-  // Reset form with initial data when the employeeData prop changes
   useEffect(() => {
     reset(employeeData);
   }, [employeeData, reset]);
@@ -126,9 +125,12 @@ const EmployeeForm = ({ open, onClose, employeeData, onSave }) => {
               Next
             </Button>
           ) : (
-            <Button type="submit" form="employee-form">
-              Save
-            </Button>
+            // <Button type="submit" form="employee-form">
+            //   Save
+            // </Button>
+            <Button onClick={()=>submitForm(getValues())}>
+            Save
+          </Button>
           )}
           <Button onClick={onClose}>Cancel</Button>
         </DialogActions>

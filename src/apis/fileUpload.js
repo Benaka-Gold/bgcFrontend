@@ -15,6 +15,7 @@ async function uploadfiles(file,entityType,entityName){
 }
 
 async function deleteFile (id) {
+    console.log(id);
     try {
         return await apiClient().delete(`/file/${id}`)
     }

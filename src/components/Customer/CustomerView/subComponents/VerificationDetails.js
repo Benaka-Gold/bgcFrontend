@@ -6,19 +6,19 @@ import { Player } from 'video-react';
 import "/node_modules/video-react/dist/video-react.css";
 import { enqueueSnackbar } from 'notistack';
 
-export default function Verification({ customer }) {
+export default function Verification({ customer,business }) {
     const [houseVerificationUrl, setHouseVerificationUrl] = useState(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchHouseVerification();
-    }, [customer.houseVerification]);
+    }, [business.houseVerification]);
 
     const fetchHouseVerification = async () => {
-        if (customer.houseVerification) {
+        if (business.houseVerification) {
             setLoading(true);
             try {
-                const res = await getFile(customer.houseVerification);
+                const res = await getFile(business.houseVerification);
                 setHouseVerificationUrl(res.data.data);
             } catch (error) {
                 enqueueSnackbar({message : error.response.data.error,variant : 'error'})
@@ -45,8 +45,8 @@ export default function Verification({ customer }) {
             {loading && <Loader />}
             <Grid container spacing={2}>
                 <Grid item xs={12}>
-                    <InfoRow title="Verification Feedback:" value={customer.verificationFeedback ? 'Verified' : 'Not Verified'} />
-                    <InfoRow title="Types of Verification:" value={customer.typesOfVerification.join(', ') || 'N/A'} />
+                    {/* <InfoRow title="Verification Feedback:" value={business.verificationFeedback ? 'Verified' : 'Not Verified'} /> */}
+                    <InfoRow title="Types of Verification:" value={business?.typesOfVerification.join(', ') || 'N/A'} />
                     {/* Display house verification video if available */}
                     {houseVerificationUrl && (
                         <InfoRow title={"House Verification Video"} value={

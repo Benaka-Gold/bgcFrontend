@@ -9,7 +9,10 @@ import { getCustomerById } from "../../../apis/customer";
 import CustomerView from "../../../components/Customer/CustomerView/CustomerView";
 import { getOrnamentsList } from "../../../apis/ornaments";
 import Loader from "../../../components/Loader";
-import { getBussiness, updateBusiness } from "../../../apis/business";
+import {  updateBusiness } from "../../../apis/business";
+// import CancelLeadDialog from "../../../components/Operations/CancelLeadDialog";
+import { CancelOutlined } from "@mui/icons-material";
+import { updatedLeadApi } from "../../../apis/leadsApi";
 
 export default function Approval() {
   const [rows, setRows] = React.useState([]);
@@ -18,23 +21,43 @@ export default function Approval() {
   const [customerDialog,setCustomerDialog] = React.useState(false)
   const [ornaments,setOrnaments] = React.useState()
   const [businessDetails,setBusinessDetails] = React.useState({})
-
+  // const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false)
+  // const [selectedCancel, setSelectedCancel] = React.useState(null)
 
   const handleApprove = async (data) => {
     setLoading(true);
     try {
       switch(data.status) {
         case 'op_approval' : 
-          const res = await updateTask(data._id,{...data,status : 'op_approved'});
-          const res2 = await updateBusiness(data.businessId._id,{status : 'op_approved'});
+          const res = await updateTask(data._id,{status : 'accounts_approval'});
+          const res2 = await updateBusiness(data.businessId._id,{status : 'accounts_approval'});
           enqueueSnackbar({message : "Approval successful!", variant: "success" });
           break;
         case 'cancel_approval' : {
-          const res = await updateTask(data._id,{...data,status : 'cancel_approved'});
+          const res = await updateTask(data._id,{status : 'cancel_approved'});
           const res2 = await updateBusiness(data.businessId._id,{status : 'cancelled'});
           enqueueSnackbar({message : "Cancel successful!", variant: "success" });
           break;
         }
+        case 'comp_approved' : {
+          const res = await updateTask(data._id,{status : 'op_approved'});
+          const res2 = await updateBusiness(data.businessId._id,{status : 'op_approved'});
+          enqueueSnackbar({message : "Approval successful!", variant: "success" });
+          break;
+        }
+        case "release_op_approval" :{
+          const res = await updateTask(data._id,{status : 'purchase_acc_approval'});
+          const res2 = await updateBusiness(data.businessId._id,{status : 'purchase_acc_approval'});
+          enqueueSnackbar({message : "Approval successful!", variant: "success" });
+          break;
+        }
+        case "purchase_op_aapproval" :{
+          const res = await updateTask(data._id,{status : "purchase_op_aapproved"});
+          const res2 = await updateBusiness(data.businessId._id,{status : "purchase_op_aapproved"});
+          enqueueSnackbar({message : "Approval successful!", variant: "success" });
+          break;
+        }
+        default : break;
       }
       await fetchData();
     } catch (error) {
@@ -45,6 +68,9 @@ export default function Approval() {
   };
 
   const handleRowSelection = async (params) => {
+    if (["release_approval", "comp_approval"].includes(params.row.status)) {
+      return; 
+    }
     setLoading(true)
     try{
         const res = await getCustomerById(params.row.customerId._id)
@@ -65,23 +91,84 @@ export default function Approval() {
   const columns = [
     { field: "assignedTo", headerName: "Executive", flex: 1,renderCell: (params) => params.row.assignedTo.name, },
     { field: "customerId", headerName: "Customer", flex: 1, renderCell: (params) => params.row.customerId.name,},
-    { field: "weight", headerName: "Weight", flex: 1, renderCell: (params) => params.row.weight, },
-    { field: "purity", headerName: "Purity", flex: 1, renderCell: (params) => params.row.purity?.purityName, },
+    { field: "description", headerName: "Description", flex: 1, renderCell: (params) => params.row.purity?.purityName, },
     { field: "status", headerName: "Status", flex: 1 , renderCell : (params) => {
       switch(params.row.status){
-        case 'op_approval' : return "Approval Required"
-        case 'cancel_approval' : return "Approval to cancel business"
+        case 'op_approval' : return "Release Approval Required"
+        case "release_op_approval" : return "Release Approval Required"
+        case 'cancel_approval' : return " Cancel business"
+        case 'purchase_op_aapproval' : return "Payment Approval"
+        case "release_approval" : return "Wait for Comp Appoval"
+        case  "comp_approval" : return "Wait for Comp Appoval"
         default : break;
       }
     }},
     { field: "actions", headerName: "Actions", flex: 1, renderCell: (params) => {
+       if(params.row.status === 'comp_approval') {
+        return null;
+       } else if(params.row.status === 'comp_approved'){
         return (
-            <Box>
-              <IconButton onClick={() => handleApprove(params.row)}>
-                <CheckOutlined color="primary" />
-              </IconButton>
-            </Box>
-        );
+          <Box>
+          <IconButton onClick={() => handleApprove(params.row)}>
+            <CheckOutlined color="primary" />
+          </IconButton>
+
+          {/* <IconButton onClick={()=> handleCanel(params.row)}> 
+                <CancelOutlined color="error"/>
+              </IconButton>  */}
+        </Box>
+        )
+       } else if(params.row.status === 'op_approval'){
+        return (
+          <Box>
+            <IconButton onClick={() => handleApprove(params.row)}>
+              <CheckOutlined color="primary" />
+            </IconButton>
+
+            {/* <IconButton onClick={()=> handleCanel(params.row)}> 
+                <CancelOutlined color="error"/>
+              </IconButton>  */}
+          </Box>
+        )
+       }else if(params.row.status === "release_op_approval"){
+        return (
+          <Box>
+            <IconButton onClick={() => handleApprove(params.row)}>
+              <CheckOutlined color="primary" />
+            </IconButton>
+
+            {/* <IconButton onClick={()=> handleCanel(params.row)}> 
+                <CancelOutlined color="error"/>
+              </IconButton>  */}
+          </Box>
+        )
+       }else if(params.row.status === "purchase_op_aapproval"){
+        return (
+          <Box>
+            <IconButton onClick={() => handleApprove(params.row)}>
+              <CheckOutlined color="primary" />
+            </IconButton>
+
+            {/* <IconButton onClick={()=> handleCanel(params.row)}> 
+                <CancelOutlined color="error"/>
+              </IconButton>  */}
+          </Box>
+        )
+       }else if(params.row.status === "cancel_approval"){
+        return (
+          <Box>
+            <IconButton onClick={() => handleApprove(params.row)}>
+              <CheckOutlined color="primary" />
+            </IconButton>
+            {/* <IconButton onClick={()=> handleCanel(params.row)}> 
+                <CancelOutlined color="error"/>
+              </IconButton>  */}
+          </Box>
+        )
+       }
+       else {
+        return null;
+       }
       },
     },
   ];
@@ -91,15 +178,34 @@ export default function Approval() {
     fetchData();
     setTimeout(() => setLoading(false), 250);
   }, []);
-
   const fetchData = async () => {
-    let res = await getTasksByStatus({status : "op_approval"});
-    let arr = res.data  
-    res = await getTasksByStatus({status : 'cancel_approval'})
-    arr = [...arr,...res.data]
-    setRows(arr)
-  };
-
+    const statuses = ["op_approval", "release_op_approval", "purchase_op_approval", "cancel_approval", "comp_approval","purchase_op_aapproval","release_approval"];
+    let allResults = [];
+    for (const status of statuses) {
+        const res = await getTasksByStatus({ status });
+        allResults = [...allResults, ...res.data]; 
+    }
+    setRows(allResults);
+    console.log(allResults);
+};
+  
+// const handleCanel = (params) => {
+//   setCancelDialogOpen(true)
+//   setSelectedCancel(params)
+//   console.log(params);
+// }
+//   const handleCancel = async (reason) => {
+//     try{
+//       const businessResponse = await updateBusiness(selectedCancel.businessId._id, {status: "op_disapproved", feedback :reason })
+//       const taskResponse = await updateTask(selectedCancel._id, {status: "op_disapproved", feedback :reason })
+//       const leadResponse = await updatedLeadApi(selectedCancel.leadId ,{status: "op_disapproved", feedback :reason } )
+//       fetchData()
+//     }catch(error){
+//       enqueueSnackbar({message : error.response.data.message,variant: "error" });
+//     }
+//     setCancelDialogOpen(false);
+//     console.log(reason);
+//   };
   return (
     <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
       <Box
@@ -150,6 +256,7 @@ export default function Approval() {
           />
         </Box>
       </Box>
+      {/* <CancelLeadDialog  cancelDialogOpen={cancelDialogOpen} setCancelDialogOpen={setCancelDialogOpen} onSubmit={handleCancel}/> */}
       <CustomerView open={customerDialog} setOpen={setCustomerDialog} business={businessDetails} customer={customerData} ornaments={ornaments} />
       <Loader loading={loading}/>
     </SnackbarProvider>

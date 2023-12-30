@@ -4,8 +4,8 @@ import { getFile } from "../../../../apis/fileUpload";
 import ModalImage from "react-modal-image";
 import { enqueueSnackbar } from "notistack";
 
-export default function Documents({ customer }) {
-
+export default function Documents({ customer , business}) {
+console.log(business);
     const [pan, setPan] = useState('');
     const [idProof, setIdProof] = useState('');
     const [addressProof, setAddressProof] = useState('');
@@ -15,7 +15,6 @@ export default function Documents({ customer }) {
     const [authorization, setAuthorization] = useState('');
 
     useEffect(() => {
-        console.log(customer);
         if (customer) {
             fetchImages();
         }
@@ -33,21 +32,28 @@ export default function Documents({ customer }) {
             } else if (customer[field]) {
                 fileId = customer[field];
             }
+            if(business){
+                if (business[field] && typeof business[field] === 'object' && business[field].file) {
+                    fileId = business[field].file;
+                } else if (business[field]) {
+                    fileId = business[field];
+                }
+            }
     
             if (fileId) {
                 try {
                     const res = await getFile(fileId);
                     if (res && res.data) {
-                        const url = res.data; // Assuming response contains the URL directly in 'data'
+                        const url = res.data; 
                         updateState(field, url.data);
                     }
                 } catch(error) {
                     enqueueSnackbar({message : error.response.data.error,variant : 'error'})
                 }
-                
             }
         }
     };
+
 
     const updateState = (fieldName, url) => {
         switch (fieldName) {

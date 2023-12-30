@@ -38,7 +38,7 @@ function CustomeFilter({ customeRow, setDisplay,setLoading }) {
   }, [customeRow]);
 
   useEffect(() => {
-    const filteredLeads = filterByDate(copyLeads, activeFilter); // Filter by date first
+    const filteredLeads = filterByDate(copyLeads, activeFilter);
     const finalLeads = selectedStatus
       ? filteredLeads.filter((lead) => lead.status === selectedStatus)
       : filteredLeads;
@@ -53,9 +53,17 @@ function CustomeFilter({ customeRow, setDisplay,setLoading }) {
   const columns = [
     { field: "name", headerName: "Name", flex: 1 },
     { field: "phoneNumber", headerName: "Phone Number", flex: 1 },
-    { field: "status", headerName: "Status", flex: 1 },
+    { field: "status", headerName: "Status", flex: 1, renderCell : (params) => {
+        switch(params.row.status){
+          case 'comp_approval' : return "Waiting for Complains Approval"
+          case "cancelled" : return "Business Cancelled"
+          case "started" : return "Business Started"
+          default : break;
+        }
+      }},
     { field: "source", headerName: "Source", flex: 1 },
-    { field: "weight", headerName: "Weight", flex: 1 },
+    { field: "grossWeight", headerName: "Weight", flex: 1 },
+    {field :"feedback", headerName:"Feedback", flex:1},
   ];
 
   function filterByDate(records, period) {
@@ -63,9 +71,7 @@ function CustomeFilter({ customeRow, setDisplay,setLoading }) {
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
     now.setDate(now.getDate() + now.getDay());
-
     return records.filter((record) => {
       const updatedAt = new Date(record.updatedAt);
 

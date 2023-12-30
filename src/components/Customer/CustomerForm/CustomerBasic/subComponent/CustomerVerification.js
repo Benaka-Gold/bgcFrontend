@@ -90,26 +90,26 @@ const VerificationButton = styled(Button)(({ theme }) => ({
 
   export const VerificationOptions = ({ customerId, display,disabled }) => (
     <Box sx={{ width: '100%', mt: 2, display: 'flex', flexDirection: 'column', mb: 2 , cursor:"pointer"}}>
-      <VerificationOptionButton label="Basic Details" path={`/executive/customerform?filter=${customerId}`} isCompleted={display?.isBasicDetails} disabled={disabled}  />
-      <VerificationOptionButton label="Ornaments Details" path={`/executive/ornamentlist?filter=${customerId}`} isCompleted={display?.isOrnamentDetails} disabled={disabled} />
-      <VerificationOptionButton label="Verification Details" path={`/executive/houseverification?filter=${customerId}`} isCompleted={display?.isVerification} disabled={disabled} />
-      <VerificationOptionButton label="Bank Details" path={`/executive/bankdetails?filter=${customerId}`} isCompleted={display?.isBankDetails} disabled={disabled} />
-      <VerificationOptionButton label="Upload Documents" path={`/executive/uploaddocuments?filter=${customerId}`} isCompleted={display?.isDocumentsUpload}  disabled={disabled} />
+      <VerificationOptionButton label="KYC" path={`/executive/customerform?filter=${customerId}`} isCompleted={display?.isBasicDetails} disabled={disabled}  />
+      <VerificationOptionButton label="Billing" path={`/executive/ornamentlist?filter=${customerId}`} isCompleted={display?.isOrnamentDetails} disabled={disabled} />
+      <VerificationOptionButton label="Verification" path={`/executive/houseverification?filter=${customerId}`} isCompleted={display?.isVerification} disabled={disabled} />
+      <VerificationOptionButton label="Transfer Type" path={`/executive/bankdetails?filter=${customerId}`} isCompleted={display?.isBankDetails} disabled={disabled} />
+      <VerificationOptionButton label="Documents" path={`/executive/uploaddocuments?filter=${customerId}`} isCompleted={display?.isDocumentsUpload}  disabled={disabled} />
     </Box>
   );
   export const PledgedVerification = ({ customerId, display,disabled }) => (
     <Box sx={{ width: '100%', mt: 2, display: 'flex', flexDirection: 'column', mb: 2 , cursor:"pointer"}}>
-      <VerificationOptionButton label="Pledged Details" path={`/executive/pledeged?filter=${customerId}`} isCompleted={display?.isPledgedDoc} disabled={disabled}  />
-      <VerificationOptionButton label="Basic Details" path={`/executive/customerform?filter=${customerId}`} isCompleted={display?.isBasicDetails} disabled={disabled}  />
-      <VerificationOptionButton label="Verification Details" path={`/executive/houseverification?filter=${customerId}`} isCompleted={display?.isVerification}  disabled={disabled} />
-      <VerificationOptionButton label="Upload Documents" path={`/executive/uploaddocuments?filter=${customerId}`} isCompleted={display?.isDocumentsUpload}disabled={disabled}  />
-      <VerificationOptionButton label="Bank Details" path={`/executive/bankdetails?filter=${customerId}`} isCompleted={display?.isBankDetails}disabled={disabled}   />
+      <VerificationOptionButton label="KYC" path={`/executive/customerform?filter=${customerId}`} isCompleted={display?.isBasicDetails} disabled={disabled}  />
+      <VerificationOptionButton label="Pledge" path={`/executive/pledeged?filter=${customerId}`} isCompleted={display?.isPledgedDoc} disabled={disabled}  />
+      <VerificationOptionButton label="Verification" path={`/executive/houseverification?filter=${customerId}`} isCompleted={display?.isVerification}  disabled={disabled} />
+      <VerificationOptionButton label="Documents" path={`/executive/uploaddocuments?filter=${customerId}`} isCompleted={display?.isDocumentsUpload}disabled={disabled}  />
+      {/* <VerificationOptionButton label="Transfer Type" path={`/executive/bankdetails?filter=${customerId}`} isCompleted={display?.isBankDetails}disabled={disabled}   /> */}
     </Box>
   );
   export const StartedPurchase = ({ customerId, display,disabled }) => (
     <Box sx={{ width: '100%', mt: 2, display: 'flex', flexDirection: 'column', mb: 2 , cursor:"pointer"}}>
-      <VerificationOptionButton label="Ornaments Details" path={`/executive/ornamentlist?filter=${customerId}`} isCompleted={display?.isOrnamentDetails}  disabled={disabled} />
-      <VerificationOptionButton label="Bank Details" path={`/executive/bankdetails?filter=${customerId}`} isCompleted={display?.isBankDetails}disabled={disabled}   />
+      <VerificationOptionButton label="Billing" path={`/executive/ornamentlist?filter=${customerId}`} isCompleted={display?.isOrnamentDetails}  disabled={disabled} />
+      <VerificationOptionButton label="Transfer Type" path={`/executive/bankdetails?filter=${customerId}`} isCompleted={display?.isBankDetails}disabled={disabled}   />
     </Box>
   );
 

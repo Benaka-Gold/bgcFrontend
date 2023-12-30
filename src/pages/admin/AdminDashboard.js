@@ -3,7 +3,7 @@ import React from 'react';
 import Navbar from '../../components/navBar/Navbar';
 import { Route, Routes } from 'react-router-dom';
 import Dashboard from './dashboard';
-import { ApprovalOutlined, Man2Outlined, AssignmentOutlined, BuildOutlined, CurrencyRupeeOutlined, DashboardOutlined, DocumentScannerOutlined, GroupOutlined, List, ListOutlined, MoveDownOutlined, PriceChangeOutlined, UploadFileOutlined, VerifiedUserOutlined, TaskAltOutlined } from '@mui/icons-material';
+import { ApprovalOutlined, Man2Outlined, AssignmentOutlined, BuildOutlined, CurrencyRupeeOutlined, DashboardOutlined, DocumentScannerOutlined, GroupOutlined, List, ListOutlined, MoveDownOutlined, PriceChangeOutlined, UploadFileOutlined, VerifiedUserOutlined, TaskAltOutlined, MoneyOutlined } from '@mui/icons-material';
 import LeadsDashboard from './Leads/LeadsDashboard';
 import CreateLeads from './Leads/CreateLead';
 import MoveLeads from './Leads/MoveLeads';
@@ -17,6 +17,7 @@ import Bill from '../../components/Customer/Bill/Bill';
 import GoldRate from '../../components/GoldRate/GoldRate';
 import Customers from './Customer/Customers'
 import TaskList from '../operations/Task/TaskList';
+import BusinessList from '../../components/Business/BusinessList';
 
 const AdminDashboard = () => {
   
@@ -36,6 +37,7 @@ const AdminDashboard = () => {
     {name : "Gold Rate",icon : <PriceChangeOutlined />,link : 'gold-rate'},
     {name : 'Customers',link : 'customers',icon : <Man2Outlined/>,element : <Customers/>},
     {name : "Tasks",link : 'tasks',icon : <TaskAltOutlined/>,element : <TaskList/>},
+    {name : "Business",link : 'business',icon : <MoneyOutlined/>,element : <BusinessList/>}
   ]
 
   return (
@@ -55,6 +57,8 @@ const AdminDashboard = () => {
         <Route path='gold-rate' element={<GoldRate/>}/>
         <Route path='customers' element={<Customers />}/>
         <Route path='tasks' element={<TaskList/>}/>
+        <Route path='business' element={<BusinessList/>}/>
+
       </Routes> {/* This line allows nested routes to render */}
     </>
   );

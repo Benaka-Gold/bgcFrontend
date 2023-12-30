@@ -59,7 +59,7 @@ export default function BasicDetails({ customer }) {
                     <InfoRow title="Gender:" value={customer.gender} />
                     <InfoRow title="Date of Birth:" value={formatDate(customer.dateOfBirth)} />
                     <InfoRow title="Employment Status:" value={customer.employmentStatus} />
-                    <InfoRow title="Organization Status:" value={customer.organizationStatus} />
+                    {/* <InfoRow title="Organization Status:" value={customer.organizationStatus} /> */}
                     <InfoRow title="Annual Income:" value={customer.annualIncome} />
                     <InfoRow title="Marital Status:" value={customer.maritalStatus} />
                 </Grid>
@@ -68,11 +68,11 @@ export default function BasicDetails({ customer }) {
                 <Grid item xs={6}>
                     <InfoRow title= "Customer Photo"  value={customerImage} isImage={true}/>
                     <InfoRow title="Current Residential Address:" value={customer.currentAddress} isAddress />
-                    <InfoRow title="Office/Business Address:" value={customer.officeBusinessAddress} isAddress />
-                    <InfoRow title="Residential Status:" value={customer.residentialStatus} />
-                    <InfoRow title="Source of Ornament:" value={customer.sourceOfOrnaments} />
-                    <InfoRow title="Jewellery Bought From:" value={customer.jewelleryDetails} />
-                    <InfoRow title="Date of Purchase / Pledged:" value={formatDate(customer.dateOfPurchaseOrPledge)} />
+                    {/* <InfoRow title="Office/Business Address:" value={customer.officeBusinessAddress} isAddress /> */}
+                    {/* <InfoRow title="Residential Status:" value={customer.residentialStatus} /> */}
+                    {/* <InfoRow title="Source of Ornament:" value={customer.sourceOfOrnaments} /> */}
+                    {/* <InfoRow title="Jewellery Bought From:" value={customer.jewelleryDetails} /> */}
+                    {/* <InfoRow title="Date of Purchase / Pledged:" value={formatDate(customer.dateOfPurchaseOrPledge)} /> */}
                 </Grid>
             </Grid>
         </Box>

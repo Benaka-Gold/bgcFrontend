@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Box, IconButton, Typography, Button } from '@mui/material';
-import { createEmployee, deleteEmployee, getEmployeeById, getEmployees } from '../../../apis/employee';
+import { createEmployee, deleteEmployee, getEmployeeById, getEmployees, updateEmployee } from '../../../apis/employee';
 import { AddOutlined, DeleteOutlineOutlined, EditOutlined, VisibilityOutlined } from '@mui/icons-material';
 import EmployeeForm from '../../../components/Employee/EmployeeForm';
 import { grey } from '@mui/material/colors';
@@ -36,13 +36,13 @@ const EmployeesList = () => {
             const response = await getEmployees(); // Adjust the endpoint as needed
             setRows(response.data);
         } catch (error) {
+            enqueueSnackbar({message : error.response.message.data,variant : 'error'})
             console.error('Error fetching employees:', error);
         }
     };
 
     const handleDelete = async (id) => {
         setLoading(true)
-        console.log(id);
         try{
             const response = await deleteEmployee(id);
             if(response.status === 200){
@@ -60,17 +60,33 @@ const EmployeesList = () => {
     const handleSubmit = async (data) => {
         setLoading(true)
         try{
-            const response = await createEmployee(data)
+            let response;
+            if(data._id){
+                response = await updateEmployee(data)
+            }
+            else {
+                response = await createEmployee(data)
+            }
+            // const response = await createEmployee(data)
             if(response.status===200){
-                enqueueSnackbar("Employee Created Successfully","success")
+                enqueueSnackbar({message : (data._id ? "Employee Updated Successfully" :"Employee Created Successfully"),variant : "success"})
+                setOpen(false)
             }
         } catch (error) {
-            enqueueSnackbar(error,{variant : 'error'})
+            console.log(error)
+            enqueueSnackbar({message : error.response.data.message,variant : 'error'})
         }
         finally {
-        await fetchEmployees();
-        setTimeout(()=>{setLoading(false)},250)
+            await fetchEmployees();
+            setTimeout(()=>{setLoading(false)},250)
         }
+    }
+
+    const handleEmployeeEdit = async(params) => {
+        console.log(params.row)
+        const res = await getEmployeeById(params.row._id)
+        setEmployeeData(res.data)
+        setOpen(true)
     }
 
     const columns = [
@@ -85,10 +101,7 @@ const EmployeesList = () => {
                         setOpenEmployee(true)
                         getEmpById(params.row._id)
                     }}><VisibilityOutlined/></IconButton>
-                    <IconButton color='black' onClick={() => {
-                        setOpen(true)
-                        setEmployeeData(params.row)
-                    }}><EditOutlined /></IconButton>
+                    <IconButton color='black' onClick={()=>{handleEmployeeEdit(params)}}><EditOutlined /></IconButton>
                     <IconButton sx={{ color: 'red' }} onClick={() => handleDelete(params.row._id)}><DeleteOutlineOutlined /></IconButton>
                 </Box>
             }
@@ -114,8 +127,7 @@ const EmployeesList = () => {
                     e.preventDefault();
                     setOpen(!open)
                     setEmployeeData(null)
-                }}>
-                    <AddOutlined />
+                }} startIcon={<AddOutlined />}>
                     Add
                 </Button>
             </Box>
@@ -127,17 +139,18 @@ const EmployeesList = () => {
                     initialState={{
                         pagination: {
                           paginationModel: {
-                            pageSize: 5,
+                            pageSize: 10,
                           },
                         },
                       }}
-                    rowsPerPageOptions={[5]}
+                    rowsPerPageOptions={[10]}
                     getRowId={row => row._id}
                     onRowDoubleClick={(params)=>{
                             setOpenEmployee(true)
                             getEmpById(params.row._id)
                     }}
                     disableRowSelectionOnClick
+                    pageSizeOptions={[5, 10, 15]}
                     sx={{ boxShadow: 4, backgroundColor: grey[50], fontFamily: 'Poppins, sans-serif', borderRadius: 2,minHeight : '3vh' }}
                 />
             </Box>

@@ -47,6 +47,7 @@ function VerificationDocuments() {
   }, [])
 
   const fetchBusiness = async () => {
+    setLoading(true)
     if(businessId){
     try {
       let res = await getBussiness(businessId);
@@ -94,8 +95,11 @@ function VerificationDocuments() {
         });
       }
     } catch (error) {
-      console.error('Failed to fetch customer data:', error);
+       enqueueSnackbar({message:error.message, variant:'error'})
     } finally {
+      setTimeout(()=>{
+        setLoading(false)
+      }, 250)
     }
   }
   };
@@ -112,7 +116,9 @@ function VerificationDocuments() {
     if (file) {
       try {
         const res = await uploadfiles(compressedImage, "customer", name && name);
+        console.log(res);
         if (res.success) {
+          
           setLoading(true)
           setTimeout(()=>{
             setValue(fieldName, res.data._id, { shouldValidate: true });
@@ -121,11 +127,10 @@ function VerificationDocuments() {
             setLoading(false)
             return res.data._id;
           }, 250)
-        } else {
-          throw new Error(res.error || 'File upload failed');
         }
       } catch (error) {
         enqueueSnackbar({message : error.message ,variant : 'error'})
+        console.log(error);
       }
     }
   };
@@ -166,8 +171,15 @@ function VerificationDocuments() {
     const fileId = getValues(fieldName);
     if (fileId) {
       const isSuccess = await deleteFile(fileId);
+      console.log(isSuccess);
       const taskResponse = await updateTask(updatedTask._id, updatedTask)
       if (isSuccess && taskResponse.status === 200) {
+        let updated = { ...getValues(), [name]: null };
+        console.log(updated);
+      let response = await updateBusiness(businessId, updated);
+      if (response.status === 200) {
+        enqueueSnackbar(`${name} Deleted Succesfully`, { variant: "success" });
+      }
         setLoading(true)
         setTimeout(()=>{
           setImagePreviews(prev => {
@@ -179,13 +191,9 @@ function VerificationDocuments() {
         },250)
       }
     }
-      let updated = { ...getValues(), [name]: null };
-      let response = await updateBusiness(businessId, updated);
-      if (response.status === 200) {
-        enqueueSnackbar(`${name} Deleted Succesfully`, { variant: "success" });
-      }
   }catch(error){
     enqueueSnackbar( error.message, { variant: "error" });
+    console.log(error);
   }finally{
     setLoading(false)
   }
@@ -219,8 +227,10 @@ function VerificationDocuments() {
     const fileUploaded = imagePreviews[field.name];
 
     return (
+      <fieldset style={{border:'1px solid #c4c4c4', borderRadius:'5px', width:'100%'}}>
+        <legend>{label}</legend>
       <Box sx={{ mb: 2, textAlign: 'center' }}>
-        <Box component="label" htmlFor={field.name} display={'flex'} justifyContent={'flex-start'} padding={'10px'} fontWeight={'bolder'} >{label}</Box>
+        {/* <Box component="label" htmlFor={field.name} display={'flex'} justifyContent={'flex-start'} padding={'10px'} fontWeight={'bolder'} >{label}</Box> */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
           {fileUploaded ? (
             <>
@@ -247,6 +257,7 @@ function VerificationDocuments() {
         </Box>
         {error && <Box color="error.main" sx={{ mt: 1 }}>{error.message}</Box>}
       </Box>
+      </fieldset>
     );
   };
 
@@ -261,6 +272,7 @@ function VerificationDocuments() {
         <Box sx={{ height: "auto", display: "flex", alignContent: "center", justifyContent: "center", }}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Box sx={{ margin: 2 }}>
+
               <Controller name="agreementOfPurchase" control={control} rules={{ required: "Agreement of purchase file is required" }}
                 render={({ field, fieldState: { error } }) =>
                   renderFileInput(field, error, 'Agreement of Purchase')} />

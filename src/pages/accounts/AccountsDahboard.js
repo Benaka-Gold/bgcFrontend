@@ -10,7 +10,7 @@ import Customers from "./Customer/Customers";
 function AccountsDahboard() {
     const accountsRoute = [
         {name: "Dashboard", link: "/",icon: <DashboardOutlined />,element: <Dashboard />},
-        {name : "Release Approvals",link : "release-approval",icon : <ApprovalOutlined/>,element : <ReleaseApproval/>},
+        {name : "Approvals",link : "approvals",icon : <ApprovalOutlined/>,element : <ReleaseApproval/>},
         // {name : "Purchase Approvals",link : "purchase-approval",icon : <ApprovalOutlined/>,element : <PurchaseApproval/>},
         {name : 'Customers',link : 'customers',icon : <ManOutlined/>,element : <Customers/>},
       ];

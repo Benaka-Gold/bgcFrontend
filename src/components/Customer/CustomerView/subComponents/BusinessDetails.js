@@ -6,6 +6,7 @@ import ModalImage from 'react-modal-image';
 import { getBranchById } from '../../../../apis/branch';
 
 function BusinessDetails({ business }) {
+    console.log(business);
     const [releaseCopy, setReleaseCopy] = useState('')
     const [pledgeCopy, setPledgeCopy] = useState('')
     const [branch, setBranch] = useState('')
@@ -16,10 +17,19 @@ function BusinessDetails({ business }) {
     }, [business.releaseCopy, business.pledgeCopy]);
     const fetchImageData = async () => {
         try {
-            const releaseResponse = await getFile(business.releaseCopy);
-            const pledgeResponse = await getFile(business.pledgeCopy);
-            setReleaseCopy(releaseResponse.data.data);
-            setPledgeCopy(pledgeResponse.data.data);
+            if(business.releaseCopy){
+                const releaseResponse = await getFile(business.releaseCopy);
+                setReleaseCopy(releaseResponse.data.data);
+            }
+            if(business.pledgeCopy){
+                const pledgeResponse = await getFile(business.pledgeCopy);
+                setPledgeCopy(pledgeResponse.data.data);
+            }
+            // if(business.n){
+            //     const pledgeResponse = await getFile(business.pledgeCopy);
+            //     setPledgeCopy(pledgeResponse.data.data);
+            // }
+          
         } catch (error) {
             enqueueSnackbar({ message: error.response.data.error, variant: 'error' });
         }
@@ -27,8 +37,7 @@ function BusinessDetails({ business }) {
 
     const getBranchByID = async () => {
         try {
-            const response = await getBranchById(business.branchId)
-            setBranch(response.branchName)
+            setBranch(business.branchId.branchName)
         } catch (error) {
             enqueueSnackbar({ message: error.message, variant: 'error' });
         }
@@ -47,11 +56,15 @@ function BusinessDetails({ business }) {
                         </TableRow>
 
                         <TableRow>
+                        {business && business.releasingAmount ?
+                        <>
                             <TableCell>Releasing Amount</TableCell>
                             <TableCell>{business.releasingAmount}</TableCell>
+                        </> :""}
                             <TableCell>Branch</TableCell>
                             <TableCell>{branch}</TableCell>
                         </TableRow>
+                        {business && business.pledgeCopy ? 
                         <TableRow>
                             <TableCell>Pledge Copy</TableCell>
                             <TableCell>
@@ -65,7 +78,7 @@ function BusinessDetails({ business }) {
                                     <ModalImage small={releaseCopy} large={releaseCopy} />
                                 </div>
                             </TableCell>
-                        </TableRow>
+                        </TableRow> :""}
                     </TableBody>
                 </Table>
             </Box>

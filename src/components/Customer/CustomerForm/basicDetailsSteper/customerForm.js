@@ -56,6 +56,7 @@ export default function BasicDetailStepper() {
   const getAssignedLeads = async () => {
     try {
       let res = await getCustomerById(customerId)
+      console.log(res.data);
       setLoading(true)
       if (res.data) {
         res.data.dateOfPurchaseOrPledge = res.data.dateOfPurchaseOrPledge ? dayjs(res.data.dateOfPurchaseOrPledge) : null;
@@ -124,7 +125,6 @@ export default function BasicDetailStepper() {
     try {
       let res = await updateCustomer(customerId, data);
       const taskResponse = await updateTask(updatedTask._id, updatedTask)
-      console.log(res);
       if (res.status === 200 && taskResponse.status === 200) {
         enqueueSnackbar("Form Submitted", { variant: "success" });
       } 

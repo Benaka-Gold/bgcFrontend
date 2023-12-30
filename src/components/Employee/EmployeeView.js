@@ -73,7 +73,6 @@ const ViewEmployeeDialog = ({ open, onClose, employeeData }) => {
             <Typography variant="subtitle1">Date Hired:</Typography>
             <Typography variant="body2">{employeeData?.dateHired}</Typography>
           </Grid>
-          {/* Add more specific fields if necessary */}
         </Grid>
       </DialogContent>
       <DialogActions>

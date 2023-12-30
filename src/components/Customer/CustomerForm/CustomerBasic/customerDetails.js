@@ -17,6 +17,7 @@ import { enqueueSnackbar, SnackbarProvider } from "notistack";
 import { generateBill } from '../../../../apis/business';
 import Bill from '../../Bill/Bill';
 import PrintIcon from '@mui/icons-material/Print';
+import { updatedLeadApi } from '../../../../apis/leadsApi';
 
 const CustomerDetails = () => {
   const [assignedTask, setAssignedTask] = useState([])
@@ -72,6 +73,8 @@ const CustomerDetails = () => {
         setLoading(false)
         try{
         let response = await updateTask(updatedTask._id, updatedTask);
+        let upatedLead ={status : "started"}
+      const leadResponse = await updatedLeadApi (Task.leadId, upatedLead)
         if (response.status === 200) {
           fetchAssignedTask()
         }
@@ -81,7 +84,6 @@ const CustomerDetails = () => {
       }, 250)
     } 
   };
-console.log(assignedTask);
   const handlePurchase = () => {
     if (Task) {
       const updatedTask = { ...Task, status: 'purchase_started' };
@@ -90,6 +92,8 @@ console.log(assignedTask);
         setLoading(false)
         try{
         let response = await updateTask(updatedTask._id, updatedTask);
+        let upatedLead ={status : 'purchase_started'}
+      const leadResponse = await updatedLeadApi (Task.leadId, upatedLead)
         if (response.status === 200) {
           fetchAssignedTask()
         }
@@ -99,16 +103,13 @@ console.log(assignedTask);
       })
     } 
   }
-
   const handleFileChange = async(event) => {
     const name = assignedTask.length > 0 ? assignedTask[0].customerId.name : null;
     if (!name) {
-      console.error('Customer name not found');
       return;
     }
     const file = event.target.files[0];
     if (!file) {
-      console.error('No file selected');
       return;
     }
     setImagePreview(URL.createObjectURL(file));
@@ -116,11 +117,9 @@ console.log(assignedTask);
         const res = await uploadfiles(file, "customer", `${name}/releaseCopy`);
         if (res.success) {
             setSelectedFile(res.data._id)
-        } else {
-            throw new Error(res.error || 'File upload failed');
         }
     } catch (error) {
-        console.error(error);
+        enqueueSnackbar({message: error.message, variant :'error'})
     }
 };
 
@@ -156,10 +155,10 @@ console.log(assignedTask);
         keysToCheck = ["isBasicDetails","isOrnamentDetails", "isVerification", "isBankDetails", "isDocumentsUpload"  ] 
         break;
       case 'setB':
-        keysToCheck = ["isBasicDetails", "isVerification", "isPledgedDoc" ]
+        keysToCheck = ["isBasicDetails", "isVerification", "isPledgedDoc","isDocumentsUpload" ]
         break;
         case 'setC':
-        keysToCheck = ["isOrnamentDetails", "isBankDetails", "isDocumentsUpload" ]
+        keysToCheck = ["isOrnamentDetails", "isBankDetails"]
         break;
       default:
         console.error("Invalid key set specified");
@@ -167,19 +166,22 @@ console.log(assignedTask);
     }
     return keysToCheck.every(key => display[key] === true);
 };
-
+const task = assignedTask.find(lead => lead.customerId._id === customerId);
   const updateApproval = async (status) => {
-    const task = assignedTask.find(lead => lead.customerId._id === customerId);
+    console.log(status);
     if (!task) {
-      console.error('Lead not found');
       return;
     }
     let updatedTask = { ...task, status };
-    let updatedBusiness = { ...businessData, status };
+    let updatedBusiness = { ...businessData, status, feedback:null };
+    
     try {
       setLoading(true);
       const response = await updateTask(updatedTask._id, updatedTask);
       const businessResponse = await updateBusiness(businessId, updatedBusiness);
+      console.log(businessResponse);
+      let upatedLead ={status : status}
+      const leadResponse = await updatedLeadApi (task.leadId, upatedLead)
       if (response.data && businessResponse.data) {
         enqueueSnackbar({message : 'Approval Sent' ,variant : 'success'})
         fetchAssignedTask();
@@ -198,14 +200,27 @@ console.log(assignedTask);
   const checkDescription = (dataArray) => {
     return dataArray.some(item => item.description === "Releasing Pledged Gold");
   };
-
-  const handleApproval = () => {
-    const status = isPledged ? 'release_approval' : 'op_approval';
-    updateApproval(status);
+  const accountsDisapproved = () => {
+    return assignedTask.every(lead => lead.status ==="purchase_acc_disapproved");
   };
- 
-  const purchaseApproval = () => {
-    updateApproval('op_approval');
+
+  const opDisapproved = () => {
+    return assignedTask.every(lead => lead.status === "op_disapproved");
+  };
+  console.log(accountsDisapproved());
+  const handleApproval = () => {
+    const status = isPledged ? (accountsDisapproved()  ? "purchase_acc_approval" :'release_approval' ):  (accountsDisapproved()  ? "purchase_acc_approval" : 'comp_approval')
+    updateApproval(status);
+  };   
+  const paymentApproval = () => {
+    updateApproval('payment_op_approval');
+  };
+  const purchaseDisapproved = () => {
+    return assignedTask.every(lead => lead.status === "payment_acc_disapproved");
+  };
+  const purchase = () => {
+
+    updateApproval( purchaseDisapproved() ?"purchase_op_aapproved" :'purchase_op_aapproval');
   };
 
   const checkStatus = (status) => {
@@ -217,16 +232,33 @@ console.log(assignedTask);
   };
 
   const getCurrentState = () => {
-    if (checkStatus("release_approved")) return "accountsApproved";
+    if(checkStatus('accounts_approval'))  return "approvalSent"
     if (checkStatus("purchase_started")) return "purchaseStarted";
-    if (assignedTask.some(lead => lead.status === 'op_approval' || lead.status === 'release_approval')) return "approvalSent";
+    if (assignedTask.some(lead => lead.status === 'comp_approval' ||  lead.status === 'release_approval')) return "approvalSent";
     if (checkStatus("pending")) return "notStarted";
     if (checkStatus("started")) return "Started";
-    if (checkStatus("op_approved")) return "operationsApproved";
+    if (checkStatus("purchase_approved")) return "operationsApproved";
     if(checkStatus("cancel_approved") )return "cancelApproved"
+    if(checkStatus('comp_approval')) return "approvalSent"
+    if(checkStatus('op_approval')) return "approvalSent"
+    if(checkStatus("release_op_approval")) return "approvalSent"
+    if(checkStatus('comp_approved')) return "approvalSent"
+    if(checkStatus("release_approved")) return "accountsApproved"
+    if(checkStatus("purchase_acc_approval")) return "approvalSent"
+    if(checkStatus("purchase_acc_disapproved")) return "Started"
+    if(checkStatus("purchase_acc_approved")) return "operationsApproved"
+    if(checkStatus("purchase_aacc_approved")) return "operationsApproved"
+    if(checkStatus("purchase_payment_done")) return "operationsApproved"
+    if(checkStatus("release_approval")) return "approvalSent"
+    if(checkStatus("purchase_op_aapproval")) return "approvalSent"
+    if(checkStatus("release_acc_approved")) return "accountsApproved"
+    if(checkStatus("purchase_op_aapproved")) return "approvalSent"
+    if(checkStatus("comp_disapproved")) return "Started"
+    if(checkStatus("op_disapproved")) return "Started"
+    if(checkStatus("payment_acc_disapproved")) return "purchaseStarted"
+    if(checkStatus("accounts_disapproved")) return accountsDisapproved() ? "Started" : ""
     return "notStarted";
   };
-
 
   const handleUpdateBranch =()=>{
     setLoading(true)
@@ -260,11 +292,9 @@ console.log(assignedTask);
       setLoading(false); 
     }
   }
-  
   useEffect(() => {
     fetchData(); 
   }, [businessId]);
-  
   const renderCancelButton = () => {
     return  (
       <Box sx={{mt:2}}>
@@ -281,6 +311,7 @@ console.log(assignedTask);
     ) 
   };
   const currentState = getCurrentState();
+  console.log(currentState);
   const renderContent = () => {
     if (loading) {
       return setLoading(false)
@@ -302,9 +333,11 @@ console.log(assignedTask);
       case "Started":
         return (
           <Box>
-            {isPledged ? <PledgedVerification customerId={customerId} display={display}  /> : <VerificationOptions customerId={customerId} display={display} />}
-            {(isPledged ? canSendApproval('setB') : canSendApproval('setA') )?
-              <RenderButton onClick={handleApproval} disabled={checkStatus('op_approval')} buttonText={checkStatus('op_approval') ? "Waiting for Approval" : "Send Approval"} endIcon={<SendIcon />} />
+            {businessData && businessData.feedback ? 
+            <Typography variant='h6' sx={{color:'red'}}>{businessData.feedback}</Typography> : ""}
+            {isPledged   ? <PledgedVerification customerId={customerId} display={display}  /> : <VerificationOptions customerId={customerId} display={display} />}
+            {(isPledged ? canSendApproval('setB') : canSendApproval('setA'))?
+              <RenderButton onClick={handleApproval} disabled={checkStatus('comp_approval')} buttonText={checkStatus('comp_approval') ? "Waiting for Approval" : "Send Approval"} endIcon={<SendIcon />} />
               : ""} 
           {renderCancelButton()}
           </Box>
@@ -316,31 +349,35 @@ console.log(assignedTask);
             {isPledged ?
               <>
                 <PledgedVerification customerId={customerId} display={display} />
-                {checkStatus('op_approval')  ? <StartedPurchase customerId={customerId} display={display} /> : ""}
-                {checkStatus('op_approval') ? <RenderButton onClick={handleApproval} disabled={checkStatus('op_approval')} buttonText="Waiting for Approval" endIcon={<SendIcon />} />:
-                <RenderButton onClick={handleApproval} disabled={checkStatus('release_approval')} buttonText="Waiting for Approval" endIcon={<SendIcon />} />  }
+                {checkStatus('comp_approval') ||checkStatus('op_approval') || checkStatus("purchase_op_aapproval") ||(checkStatus("purchase_op_aapproved"))? <StartedPurchase customerId={customerId} display={display} /> : ""}
+                {checkStatus('comp_approval') ? <RenderButton onClick={handleApproval} disabled={checkStatus('comp_approval') ||checkStatus('comp_approved') || checkStatus("purchase_acc_approval") 
+                ||checkStatus("release_approval")||checkStatus("accounts_approval") || checkStatus("purchase_acc_approval")|| checkStatus("purchase_acc_approval")} buttonText="Waiting for Approval" endIcon={<SendIcon />} />:
+                <RenderButton onClick={handleApproval} disabled={checkStatus('comp_approval') ||checkStatus('comp_approved') ||checkStatus('op_approval')
+                 ||checkStatus("release_op_approval") ||checkStatus("purchase_op_aapproved") ||checkStatus("release_op_approved") ||checkStatus("release_approval") || checkStatus("purchase_op_aapproval")|| checkStatus("accounts_approval")|| checkStatus("purchase_acc_approval") } buttonText="Waiting for Approval" endIcon={<SendIcon />} />  }
                  {renderCancelButton()}
               </>
               :
               <>
                 <VerificationOptions customerId={customerId} display={display} />
-                <RenderButton onClick={handleApproval} disabled={checkStatus('op_approval')} buttonText="Waiting for Approval" endIcon={<SendIcon />} />
+                <RenderButton onClick={handleApproval} disabled={  checkStatus("purchase_acc_approval") ||checkStatus('comp_approval') ||checkStatus('comp_approved') 
+                || checkStatus('op_approval') ||(checkStatus('accounts_approval')) } buttonText="Waiting for Approval" endIcon={<SendIcon />} />
                 {renderCancelButton()}
               </>
             }
           </Box>
         );
-
+        
       case "accountsApproved":
         return (
           <Box>
             <PledgedVerification customerId={customerId} display={display} />
-            {checkStatus("release_approved") ?
+            {checkStatus( "purchase_acc_approved")  ?
               <>
                <RenderButton onClick={handleUpdateReleaseCopy} buttonText="Start Purchase" endIcon={<SendIcon />} /> 
               </>
               :
-              <RenderButton onClick={handleApproval} disabled={checkStatus("release_approved")} buttonText={checkStatus("release_approved") ? "Waiting for Approval" : "Send Approval"} endIcon={<SendIcon />} />
+              <RenderButton onClick={paymentApproval} disabled={checkStatus("release_approved")} buttonText={checkStatus("release_approved") 
+              ? "Waiting for Approval" : "Send Approval"} endIcon={<SendIcon />} />
             }
             {renderCancelButton()}
           </Box>
@@ -349,12 +386,15 @@ console.log(assignedTask);
       case "purchaseStarted":
         return (
           <Box>
+             {businessData && businessData.feedback ? 
+            <Typography variant='h6' sx={{color:'red'}}>{businessData.feedback}</Typography> : ""}
             <PledgedVerification customerId={customerId} display={display} />
-            {checkStatus("purchase_started") ?
+            {checkStatus("purchase_started") ||(checkStatus("payment_acc_disapproved"))?
               <>
                 <StartedPurchase customerId={customerId} display={display} />
                 {canSendApproval('setC') ?
-                  <RenderButton onClick={purchaseApproval} disabled={checkStatus('op_approval')} buttonText={checkStatus('op_approval') ? "Waiting for Approval" : "Send Approval"} endIcon={<SendIcon />} />
+                  <RenderButton onClick={purchase} disabled={checkStatus('op_approval')} buttonText={checkStatus('op_approval') 
+                  ? "Waiting for Approval" : "Send Approval"} endIcon={<SendIcon />} />
                   : ""}
               </> :
               <RenderButton onClick={handlePurchase} buttonText="Start Purchase" endIcon={<SendIcon />} />
@@ -379,10 +419,11 @@ console.log(assignedTask);
               }
             </Box>
           )
-      default:
-        return <Typography variant="h6">Cancelled </Typography>;
+      // default:
+      //   return <Typography variant="h6">Cancelled </Typography>;
     }
   };
+  console.log(assignedTask);
   return (
     <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
     <Box

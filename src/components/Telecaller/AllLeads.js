@@ -10,7 +10,7 @@ import { freshLeads, getLeadsByTeam } from "../../apis/leadsApi";
 import { getTeamsById } from "../../apis/team";
 import Typography from "@mui/material/Typography";
 import Loader from "../Loader";
-import CustomeFilter from "./elements/customeFilter";
+import CustomeFilter from "./elements/customFilter";
 import { Fade } from "@mui/material";
 import { enqueueSnackbar, SnackbarProvider } from "notistack";
 
@@ -20,6 +20,7 @@ const columns = [
   { field: "email", headerName: "Email", flex: 1 },
   { field: "phoneNumber", headerName: "Number", flex: 1 },
   { field: "status", headerName: "Status", flex: 1 },
+  {field :"feedback", headerName:"Feedback", flex:1},
 ];
 
 const summaryColumns = [
@@ -27,7 +28,6 @@ const summaryColumns = [
   { field: "new", headerName: "New", flex: 1 },
   { field: "followup", headerName: "Follow Ups", flex: 1 },
   { field: "confirmedlead", headerName: "Confirmed", flex: 1 },
-  { field: "invalid", headerName: "Invalid", flex: 1 },
   { field: "total", headerName: "Total", flex: 1 },
 ];
 
@@ -48,12 +48,10 @@ export default function LeadTable() {
     try {
       let newVar = await getLeadsByTeam(items.teamId);
       setTeamLeadsData(newVar.data);
-      // teamMembersLeads()
     } catch (error) {
       console.error("Error fetching data: ", error);
     }
   };
-
   const fetchTeamById = async () => {
     try {
       let newVar = await getTeamsById(items.teamId);
@@ -71,6 +69,7 @@ export default function LeadTable() {
   const newLeads = async () => {
     try{
     const res = await freshLeads(items.teamId);
+    console.log(res.data);
     if (res.success) {
       setLeadsdata(res.data);
     }}catch(error){
@@ -146,27 +145,28 @@ export default function LeadTable() {
       name: item.name,
       followup: item.leadsStatus["followup"] || 0,
       confirmedlead: item.leadsStatus["confirmed"] || 0,
-      invalid: item.leadsStatus["invalid"] || 0,
       new: item.leadsStatus["new"] || 0,
+      assigned :item.leadsStatus['cancelled'] || 0,
+
       total:
         (item.leadsStatus["followup"] || 0) +
         (item.leadsStatus["confirmed"] || 0) +
-        (item.leadsStatus["invalid"] || 0) +
-        (item.leadsStatus["new"] || 0) || 0,
+        (item.leadsStatus["new"] || 0) 
     }));
     setSummary(transformedResult);
   }, [teamLeadsData]);
-  
   return (
     <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
     <Box
       sx={{ml: { md: "240px", sm: "240px", xs: "0px", lg: "240px" },p: 3,fontFamily: "Poppins, sans-serif",
         backgroundColor: "#f7f7f8", height: "93vh",}}>
-      <Typography variant="h6" sx={{ display: "flex", flexDirection: "row", pl: 5, fontSize: "25px" }}>
+     
+      <Box sx={{ display: "flex", justifyContent: "space-between", p: 1 }} gap={2}>
+      <Typography variant="h6" sx={{ fontFamily : 'Poppins,sans-serif', fontSize: "25px" }}>
         All Leads
       </Typography>
 
-      <Box sx={{ display: "flex", justifyContent: "flex-end", p: 1 }} gap={2}>
+        <Box display={'flex'} justifyContent={'flex-end'} gap={2}>
         <FormControl sx={{ width: "100px" }} disabled={selectedRows.length <= 0 ? true : false}>
           <InputLabel  id="demo-simple-select-label" sx={{ fontFamily: "Poppins, sans-serif", backgroundColor: "white" }}>
             Team
@@ -180,6 +180,8 @@ export default function LeadTable() {
         </FormControl>
         <ConfirmationModel selectedRows={selectedRows} userId={userId} leadsData={leadsData}
           setLeadsdata={setLeadsdata} fetchTeamById={fetchTeamById}  newLeads={newLeads} fetchData={fetchData} />
+        </Box>
+     
       </Box>
 
       <DataGrid
@@ -196,7 +198,7 @@ export default function LeadTable() {
         onRowSelectionModelChange={handleSelectedRows}
         sx={{
           fontFamily: "Poppins, sans-serif",
-          boxShadow: "2px 2px 2px 2px rgb(222,226,230)",
+          boxShadow: 2,
           backgroundColor: "white",
         }}
       />
@@ -204,7 +206,7 @@ export default function LeadTable() {
 
       <Typography
         variant="h6"
-        sx={{display: "flex", flexDirection: "row", pl: 5,fontSize: "25px", p: 3, }}>
+        sx={{display: "flex",fontFamily : 'Poppins,sans-serif', flexDirection: "row",fontSize: "25px", mt : 2  }}>
         Leads Distribution
       </Typography>
 
@@ -218,7 +220,7 @@ export default function LeadTable() {
           checkboxSelection
           sx={{
             fontFamily: "Poppins, sans-serif",
-            boxShadow: "2px 2px 2px 2px rgb(222,226,230)",
+            boxShadow: 2,
             backgroundColor: "white",
           }}
           onRowSelectionModelChange={handleSelected}

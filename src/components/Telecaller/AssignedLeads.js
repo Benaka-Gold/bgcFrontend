@@ -14,8 +14,6 @@ import LeadForm from "../Leads/LeadForm";
 import MoveLeads from "./elements/moveLeads";
 import { createLead } from "../../apis/leadsApi";
 import { enqueueSnackbar, SnackbarProvider } from "notistack";
-import { getGoldRate } from "../../apis/goldRate";
-import { getAllDivision } from "../../apis/divisions";
 
 
 export default function Assignedleads() {
@@ -34,8 +32,7 @@ export default function Assignedleads() {
   const myObjectSerializedRetrieved = localStorage.getItem("user");
   const userData = JSON.parse(myObjectSerializedRetrieved);
 
-
-  // Fetch Leads Based on TeleCaller ID 
+console.log(assignedLead);
   async function leadsById() {
     let payload = {
       userId: userData._id,
@@ -73,7 +70,6 @@ export default function Assignedleads() {
     }
   }, [selectedId]);
 
-
   const checkFilter = (data) => {
     const query = new URLSearchParams(location.search)
     let nf = query.get('filter')
@@ -90,35 +86,27 @@ export default function Assignedleads() {
   }
 
   
-  // UpdateLeads by TeleCallers 
   const updateFunc = async (data) => {
-    let updated = {
-      purity: data.purity,
-      status: data.status,
-      weight: Number(data.weight),
-      source:data.source,
-    };
-    try{
-    let res = await updatedLeadApi(selectedId, updated);
     setLoading(true);
-    setTimeout(() => {
-      if (res.success) {
+    try{ 
+      let res = await updatedLeadApi(selectedId, data);
+      enqueueSnackbar({message : "Lead Updated Successfully",variant : 'success'})
+    } catch (error) {
+      enqueueSnackbar({message :error.message,variant : 'error'})
+    } finally {
+      setTimeout(() => {
         setDrawer(false);
         leadsById();
-      } 
-      setLoading(false);
-    }, 250)
-  }catch(error){
-    enqueueSnackbar({message :error.message,variant : 'error'})
-  }
+        setLoading(false);
+      }, 500)
+    }
   };
+
   const handleClose = () => setMoveLeadModel(false);
   const handleDrawer = () => {
     setDrawer((prevDrawer) => !prevDrawer);
   };
 
-  
-  // Fetching All teams 
   const fetchTeams = async () => {
    try{
      const res = await getTeamByType("Telecaller")
@@ -159,15 +147,18 @@ export default function Assignedleads() {
   }
 
   const handleFormSubmit = async (formData) => {
+
   const updatedFormData = {
     ...formData,
     assignedTeam:userData.teamId,
     assignedTo:userData._id,
-    weight: Number(formData.weight)
+
   };
+
   setIsModalOpen(false)
   setLoading(true)
   try{
+
   const response = await createLead(updatedFormData);
    if (response.status) {
     setTimeout(()=>{
@@ -195,11 +186,8 @@ export default function Assignedleads() {
     { field: "name", headerName: "Name", flex: 1 },
     { field: "phoneNumber", headerName: "Phone Number", flex: 1 },
     { field: "status", headerName: "Status", flex: 1 },
-    {
-      field: "action",
-      headerName: "Actions",
-      flex: 1,
-      renderCell: (params) => {
+    {field :"feedback", headerName:"Feedback", flex:1},
+    { field: "action", headerName: "Actions", flex: 1, renderCell: (params) => {
         return (
           <Box sx={{ display: "flex" }} gap={2}>
             <Button variant="contained" onClick={() => {

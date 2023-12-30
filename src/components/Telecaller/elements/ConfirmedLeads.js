@@ -20,6 +20,7 @@ function ConfirmedLeads() {
     };
     try{
     let response = await getLeadByUser(payload);
+    console.log(response);
     if(response.success){
       let filtered = response.data.filter((item) => {
         return item.status === "Confirmed" || item.status === "Assigned" || item.status === "pending" || item.status === "started";
@@ -37,7 +38,6 @@ function ConfirmedLeads() {
       if (!filteredLeads) {
         return;
       }
-  
       const tasksToFetch = filteredLeads.filter((lead) => lead.taskId !== null);
       if (tasksToFetch.length === 0) {
         return;
@@ -48,7 +48,6 @@ function ConfirmedLeads() {
       const taskData = taskResponses
         .map((response) => (response && response.data ? response.data.data : null))
         .filter((item) => item !== null);
-  
       setLoading(true);
       setTimeout(() => {
         setCustomerData(taskData);

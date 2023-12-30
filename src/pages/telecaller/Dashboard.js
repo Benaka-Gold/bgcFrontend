@@ -53,7 +53,6 @@ export default function Dashboard() {
   let navigate = useNavigate();
   const isTeamLeader = JSON.parse(localStorage.getItem("isteamLead"));
   const token = localStorage.getItem("auth")
-  
 
 
   useEffect(() => {
@@ -97,7 +96,7 @@ export default function Dashboard() {
         height: { md: "92vh", xs: "auto", sm: "240px", lg: "92vh" }, }}>
       < LeadsDivision handleCardClick={handleCardClick} leadCounts ={leadCounts} />
 
-      {isTeamLeader[0].isTL ? (
+      {isTeamLeader && isTeamLeader[0]?.isTL ? (
         <Box sx={{mt:5}}>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>

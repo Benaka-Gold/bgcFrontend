@@ -28,7 +28,8 @@ function App() {
             <Route path="accounts/*" element={<AccountsDahboard />} />
             <Route path="hr/*" element={<Hr />} />
             <Route path='compliance/*' element={<ComplianceDashboard/>}/>
-            <Route path="*" element={<Navigate to="/" replace />} />
+            {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
+
           </Route>
         </Routes>
       </Router>

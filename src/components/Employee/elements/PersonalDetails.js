@@ -3,10 +3,12 @@ import { useFormContext, Controller } from 'react-hook-form';
 import { TextField, Box } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs'; // ensure dayjs is imported
 
 export function PersonalDetails() {
-  const { register, control, formState: { errors } } = useFormContext();
+  const { register, control, formState: { errors },getValues } = useFormContext();
+  let dayjsDate = dayjs(getValues('dateOfBirth')); // converting to dayjs object
 
   return (
     <Box sx={{ padding: '16px', margin: '16px' }}>
@@ -68,7 +70,7 @@ export function PersonalDetails() {
               error={!!errors.phoneNumber}
               helperText={errors.phoneNumber?.message}
             />
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
+            {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Controller
                 name="dateOfBirth"
                 control={control}
@@ -91,7 +93,21 @@ export function PersonalDetails() {
                   />
                 )}
               />
-            </LocalizationProvider>
+            </LocalizationProvider> */}
+
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Controller  name="dateOfBirth" control={control} rules={{ required: 'Date of birth is required' }}
+                  render={({ field }) => (
+                    <DatePicker
+                      label="Date of Birth"
+                      {...field}
+                      value={dayjsDate} // ensure this is a dayjs object
+                      renderInput={(params) => (
+                        <TextField {...params} fullWidth error={!!errors.dateOfBirth} helperText={errors.dateOfBirth?.message} />
+                      )}
+                    />
+                  )}/>
+              </LocalizationProvider>
           </Box>
         </Box>
       </fieldset>
